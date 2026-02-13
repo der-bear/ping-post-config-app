@@ -46,8 +46,8 @@ export function NavGroup({ label, expanded, onToggle, children, active = false }
         className={cn(
           'w-full flex items-center justify-between pl-4 pr-3 py-3 h-auto text-sm leading-5 border-t border-border transition-colors duration-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
           active
-            ? 'text-primary'
-            : 'text-muted-foreground hover:bg-sidebar-hover ',
+            ? 'text-primary hover:bg-sidebar-hover'
+            : 'text-muted-foreground hover:bg-sidebar-hover',
         )}
       >
         <span>{label}</span>
