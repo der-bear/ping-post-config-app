@@ -15,9 +15,27 @@ npx playwright test --grep "test name"      # Run tests matching a pattern
 
 Dev server runs on port 5174 during manual development; Playwright auto-starts its own on port 5173.
 
-## Architecture
+## Project Purpose
 
-This is a **Ping-Post delivery method configuration UI** — a flyout panel editor for configuring webhook-based lead delivery with separate PING and POST phases. Built with React 19, TypeScript, Vite 7, Tailwind CSS v4, and Zustand v5.
+This is a **prototype** for configuring ping-post lead delivery methods. The core problem it solves: different lead buyers have different field naming conventions and data requirements. This tool configures how to **map system lead fields to buyer-specific delivery field names** and handle the two-phase ping-post delivery flow.
+
+**Real-world example:**
+```
+Your System          →  Buyer "Acme Corp" expects
+─────────────────────────────────────────────────────
+postal_code         →  zip
+ip_address          →  ip
+first_name          →  f_name
+email_address       →  email
+state_code          →  state
+ping_request_id     →  ping_id  (system field)
+```
+
+**Ping-Post Flow:**
+1. **PING** (lightweight check): Send partial lead data → Buyer responds "Yes, $X" or "No"
+2. **POST** (full delivery): If accepted, send complete lead data with `ping_request_id` for correlation
+
+Built with React 19, TypeScript, Vite 7, Tailwind CSS v4, and Zustand v5.
 
 ### State Management
 
@@ -75,10 +93,39 @@ Prefer Chrome extension over Playwright for prototype previewing. Use Playwright
 
 Use the **Figma MCP plugin** (`mcp__plugin_figma_figma-desktop__get_design_context`, `get_screenshot`, `get_variable_defs`) to pull exact design specs from Figma. Do not open Figma in the browser.
 
-### Data
+### Data & Field Mapping System
 
-- `src/data/lead-fields.ts` — canonical lead field definitions (IDs, labels, types, enum values) used by autocomplete and add-mapping flyout.
-- `src/features/delivery-method/data/system-lead-fields.ts` — subset of fields available in the bulk-add dialog. Field `name` values here should match `lead-fields.ts` names.
+**Lead Fields** (`src/data/lead-fields.ts`):
+- 96 canonical lead field definitions — **your platform's standard field names**
+- Categories: Contact Information, Loan Details, Property, Credit & Financial, etc.
+- These are the source fields (e.g., `postal_code`, `ip_address`, `first_name`)
+- Used by autocomplete in the "Maps To" field when creating mappings
+
+**System Lead Fields** (`src/features/delivery-method/data/system-lead-fields.ts`):
+- Subset of fields available in the bulk-add dialog
+- **Note**: Field `name` values here represent **mock buyer field names** (e.g., `zip`, `ip`) and intentionally differ from canonical names in `lead-fields.ts`
+- This demonstrates the core mapping functionality — bridging the gap between your field names and buyer-expected names
+
+**Field Mapping Model**:
+```typescript
+interface FieldMapping {
+  id: string
+  type: MappingType        // 'Lead Field', 'System Field', 'Static Value', etc.
+  name: string             // Buyer's expected field name (e.g., "zip")
+  mappedTo: string         // Your system's canonical name (e.g., "postal_code")
+  defaultValue: string     // Fallback if field is empty
+  testValue: string        // Value for testing endpoint
+  useInPost: boolean       // Include in POST phase (if PING mapping)
+  hasValueMappings: boolean
+  valueMappings: ValueMapping[]  // Transform values (e.g., "CA" → "California")
+}
+```
+
+**Request Body Templates** (CodeMirror editor):
+- JSON templates with `[field_tag]` placeholders
+- Tags are replaced at runtime with actual lead data
+- Example: `{"zip": "[postal_code]", "ip": "[ip_address]"}`
+- Autocomplete suggests available mapped fields
 
 ### Validation
 
@@ -109,12 +156,44 @@ const [errors, setErrors] = useState<Record<string, string>>({})
 
 **What to validate**: URL format, email format, regex pattern validity. **What NOT to validate**: required fields, completeness (auth can be incomplete, mappings can be empty, etc.).
 
+### Implementation Status
+
+**Prototype Stage** — Core UI and workflows complete, backend integration pending.
+
+**Fully Implemented** ✅:
+- Complete UI with 48+ components (shadcn/ui + custom)
+- Single Zustand store with all CRUD operations
+- Navigation system (sidebar, collapsible sections, 13 panels)
+- Field mapping UI (add, edit, delete, bulk add)
+- CodeMirror editor with field tag autocomplete
+- "Same as PING" inheritance pattern
+- Dark mode toggle
+- 67 Playwright e2e tests
+- Progressive configuration model (save incomplete configs)
+
+**Defined but Not Implemented** 🔄:
+- Format validation (URL, email, regex) — documented in VALIDATION_STRATEGY.md
+- Backend API integration (save/load configs)
+- Actual ping/post request generation
+- Response parsing test tool
+- Value mappings (transform enum values like "CA" → "California")
+- 8 of 9 mapping types (only "Lead Field" enabled)
+- Custom authentication type
+- Generate Request / Export buttons
+- Dirty state tracking
+- Toast notifications
+
+**Intentionally Disabled for Prototype**:
+- Custom authentication (UI present, disabled)
+- Static Value, System Field, Calculated Expression, etc. mapping types
+- Lead Type selection (fixed to "Mortgage")
+
 ### Key Conventions
 
 - **Authentication types**: No Authentication, Basic, Digest, OAuth 2.0, Bearer Token, Custom (disabled). Auth settings include an "Authentication Request Format" field (Form Encoded / JSON).
-- **Mapping types**: 9 types defined (Static Value, Lead Field, System Field, Calculated Expression, Split Text, Text Concatenation, Client Field, Lead Source Field, Function). Only Lead Field is currently enabled.
+- **Mapping types**: 9 types defined (Static Value, Lead Field, System Field, Calculated Expression, Split Text, Text Concatenation, Client Field, Lead Source Field, Function). **Only "Lead Field" is currently enabled** for prototype focus.
 - **Content types**: Use full MIME type strings (`application/json`, `application/x-www-form-urlencoded`, etc.).
-- **Lead Type**: Fixed to "Mortgage", disabled (not user-editable).
+- **Lead Type**: Fixed to "Mortgage", disabled (not user-editable in prototype).
 - **Process for Phone Calls**: Options are `default`, `do-not-send`, `send`.
 
 ### Tests

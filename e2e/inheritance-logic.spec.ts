@@ -1,15 +1,10 @@
 import { test, expect } from '@playwright/test'
+import { bypassCreationModal } from './helpers/bypass-creation-modal'
 
 test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173')
-
-    // Create new ping/post delivery method
-    await page.getByRole('button', { name: 'Continue' }).click()
-    await page.getByRole('button', { name: 'Create' }).click()
-
-    // Wait for editor to load
-    await expect(page.getByText('Ping/Post Configuration')).toBeVisible()
+    // Use helper to properly create delivery method with lead type selection
+    await bypassCreationModal(page)
   })
 
   test.describe('Authentication Inheritance', () => {
