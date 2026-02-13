@@ -47,6 +47,19 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
 
   const sameAsPingMeta = 'Same as PING'
 
+  // Break inheritance when user tries to edit a field
+  const handleBreakInheritance = () => {
+    if (isSameAsPing) {
+      // Copy PING's entire retry config to POST when breaking inheritance
+      updatePostRetrySettings({
+        sameAsPing: false,
+        retryAfterFailure: pingRetry.retryAfterFailure,
+        maxRetryCount: pingRetry.maxRetryCount,
+        timeBetweenRetries: pingRetry.timeBetweenRetries,
+      })
+    }
+  }
+
   const handleRetryChange = (value: string) => {
     if (!isPing && value === 'same-as-ping') {
       updatePostRetrySettings({ sameAsPing: true })
@@ -58,9 +71,7 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
   }
 
   const handleCountChange = (value: string) => {
-    if (!isPing && value === 'same-as-ping') {
-      updatePostRetrySettings({ sameAsPing: true })
-    } else if (!isPing) {
+    if (!isPing) {
       updatePostRetrySettings({ sameAsPing: false, maxRetryCount: Number(value) })
     } else {
       updatePingRetrySettings({ maxRetryCount: Number(value) })
@@ -68,9 +79,7 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
   }
 
   const handleTimeChange = (value: string) => {
-    if (!isPing && value === 'same-as-ping') {
-      updatePostRetrySettings({ sameAsPing: true })
-    } else if (!isPing) {
+    if (!isPing) {
       updatePostRetrySettings({ sameAsPing: false, timeBetweenRetries: Number(value) })
     } else {
       updatePingRetrySettings({ timeBetweenRetries: Number(value) })
@@ -85,14 +94,13 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {(!isPing && pingRetry.retryAfterFailure)
-              ? <SelectItem value="same-as-ping" meta={sameAsPingMeta}>{pingRetry.retryAfterFailure ? 'Yes' : 'No'}</SelectItem>
-              : <SelectItem value="yes">Yes</SelectItem>
-            }
-            {(!isPing && !pingRetry.retryAfterFailure)
-              ? <SelectItem value="same-as-ping" meta={sameAsPingMeta}>{pingRetry.retryAfterFailure ? 'Yes' : 'No'}</SelectItem>
-              : <SelectItem value="no">No</SelectItem>
-            }
+            {!isPing && (
+              <SelectItem value="same-as-ping" meta={sameAsPingMeta}>
+                {pingRetry.retryAfterFailure ? 'Yes' : 'No'}
+              </SelectItem>
+            )}
+            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">No</SelectItem>
           </SelectContent>
         </Select>
       </FieldGroup>
@@ -103,25 +111,18 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
             <Select
               value={countValue}
               onValueChange={handleCountChange}
+              onOpenChange={(open) => open && handleBreakInheritance()}
+              disabled={isSameAsPing}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {RETRY_COUNTS.map((opt) => {
-                  if (!isPing && isSameAsPing && opt.value === String(pingRetry.maxRetryCount)) {
-                    return (
-                      <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
-                        {opt.label}
-                      </SelectItem>
-                    )
-                  }
-                  return (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  )
-                })}
+                {RETRY_COUNTS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </FieldGroup>
@@ -130,25 +131,18 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
             <Select
               value={timeValue}
               onValueChange={handleTimeChange}
+              onOpenChange={(open) => open && handleBreakInheritance()}
+              disabled={isSameAsPing}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {TIME_BETWEEN_RETRIES.map((opt) => {
-                  if (!isPing && isSameAsPing && opt.value === String(pingRetry.timeBetweenRetries)) {
-                    return (
-                      <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
-                        {opt.label}
-                      </SelectItem>
-                    )
-                  }
-                  return (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  )
-                })}
+                {TIME_BETWEEN_RETRIES.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </FieldGroup>
