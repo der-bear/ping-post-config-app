@@ -24,7 +24,7 @@ export function FieldGroup({
       {label && (
         <Label className={cn('block font-normal', horizontal && 'min-w-[140px] mb-0')}>
           {label}
-          {required && <span className="text-destructive ml-0.5">*</span>}
+          {required && <span className="text-muted-foreground ml-1 italic">(required)</span>}
         </Label>
       )}
       <div className={cn(horizontal && 'flex-1')}>

@@ -89,7 +89,7 @@ export function AddNotificationDialog({ open, onClose, onSave }: AddNotification
           Add a new notification recipient
         </DialogDescription>
 
-        <div className="px-4 py-4 space-y-4">
+        <div className="p-5 space-y-5">
           <FieldGroup label="User" required>
             <Select
               value={user}
@@ -121,7 +121,7 @@ export function AddNotificationDialog({ open, onClose, onSave }: AddNotification
                 onValueChange={setEmailEnabled}
               />
             </FieldGroup>
-            <FieldGroup label="SMS Text *">
+            <FieldGroup label="SMS Text¹">
               <YesNoSelect
                 value={smsEnabled}
                 onValueChange={setSmsEnabled}
@@ -131,12 +131,12 @@ export function AddNotificationDialog({ open, onClose, onSave }: AddNotification
         </div>
 
         {errors.channel && (
-          <p className="text-xs text-destructive px-4 pb-2">{errors.channel}</p>
+          <p className="text-xs text-destructive px-5 pb-2">{errors.channel}</p>
         )}
 
-        <DialogFooter className="px-4 py-3 border-t border-border">
+        <DialogFooter className="px-5 py-4 border-t border-border">
           <p className="text-xs text-muted-foreground italic mr-auto">
-            * SMS text fees may apply
+            ¹ SMS text fees may apply
           </p>
           <Button variant="secondary" onClick={onClose}>
             Cancel

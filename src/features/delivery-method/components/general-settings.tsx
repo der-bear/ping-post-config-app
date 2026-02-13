@@ -41,7 +41,7 @@ export function GeneralSettings() {
   const updateGeneral = useDeliveryMethodStore((s) => s.updateGeneral)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <FieldGroup label="Description">
         <DebouncedInput
           value={general.description}

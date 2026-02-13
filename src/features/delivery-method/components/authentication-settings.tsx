@@ -99,7 +99,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
   const showOAuth2Fields = activeAuthType === 'oauth2'
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <FieldGroup label="Authentication Type">
         <Select value={selectValue} onValueChange={handleAuthTypeChange}>
           <SelectTrigger>
@@ -326,7 +326,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
         </>
       )}
 
-      <Button className="w-full" disabled={isSameAsPing || auth.type === 'none'}>
+      <Button className="w-full" disabled={activeAuthType === 'none'}>
         Test Authentication
       </Button>
     </div>

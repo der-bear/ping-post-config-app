@@ -107,8 +107,8 @@ export function BulkAddDialog({
       .map((r) => ({
         id: `bulk-${phase}-${r.name}-${Date.now()}`,
         type: 'Lead Field' as const,
-        name: r.name,
-        mappedTo: r.deliveryName.trim(),
+        name: r.deliveryName.trim(),
+        mappedTo: r.name,
         defaultValue: '',
         testValue: '',
         useInPost: phase === 'ping',
@@ -138,7 +138,7 @@ export function BulkAddDialog({
         </DialogDescription>
 
         {/* Table */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-5">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-border">
@@ -157,10 +157,12 @@ export function BulkAddDialog({
               {rows.map((row, index) => (
                 <tr key={row.name} className="border-b border-border h-12">
                   <td className="p-2">
-                    <Switch
-                      checked={row.included}
-                      onCheckedChange={() => toggleInclude(index)}
-                    />
+                    <label className="cursor-pointer inline-block">
+                      <Switch
+                        checked={row.included}
+                        onCheckedChange={() => toggleInclude(index)}
+                      />
+                    </label>
                   </td>
                   <td className={`p-2 text-sm ${row.included ? 'text-foreground' : 'text-muted-foreground'}`}>
                     {row.name}
@@ -200,7 +202,7 @@ export function BulkAddDialog({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-border shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-t border-border shrink-0">
           <Select value={mode} onValueChange={(v) => setMode(v as 'replace' | 'append')}>
             <SelectTrigger className="h-8 w-auto">
               <SelectValue />

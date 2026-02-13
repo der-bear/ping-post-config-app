@@ -9,7 +9,7 @@ interface PanelFooterProps {
 
 export function PanelFooter({ leftActions, rightActions, className }: PanelFooterProps) {
   return (
-    <div className={cn('flex items-center justify-between px-4 py-3 border-t border-border bg-card', className)}>
+    <div className={cn('flex items-center justify-between px-4 py-3 border-t border-border bg-sidebar-bg', className)}>
       <div className="flex items-center gap-2">
         {leftActions}
       </div>

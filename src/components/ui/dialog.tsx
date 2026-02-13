@@ -20,7 +20,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      'fixed inset-0 z-50 bg-black/80',
+      'fixed inset-0 z-50 bg-black/60',
       className
     )}
     {...props}
@@ -126,11 +126,11 @@ function DialogPanelHeader({
     <div
       data-slot="panel-header"
       className={cn(
-        'flex items-center justify-between px-4 py-3 bg-panel-header',
+        'flex items-center justify-between px-5 py-3 bg-panel-header',
         className,
       )}
     >
-      <DialogPrimitive.Title className="text-[20px] leading-[28px] font-semibold text-primary-foreground">
+      <DialogPrimitive.Title className="text-lg leading-6 font-semibold text-primary-foreground">
         {title}
       </DialogPrimitive.Title>
       {showClose && (

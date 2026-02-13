@@ -15,12 +15,16 @@ export function NavItem({ label, active = false, onClick, indented = false }: Na
       onClick={onClick}
       className={cn(
         'w-full text-left pr-3 h-auto text-sm leading-5 transition-colors duration-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
-        indented
-          ? 'pl-12 py-2'
-          : 'pl-4 py-3 border-t border-border',
+        indented ? 'py-2' : 'py-3 border-t border-border',
         active
-          ? 'bg-sidebar-active text-sidebar-active-text border-l-[3px] border-l-sidebar-active'
-          : 'text-muted-foreground hover:bg-sidebar-hover ',
+          ? cn(
+              'bg-sidebar-active text-sidebar-active-text border-l-[3px] border-l-sidebar-active',
+              indented ? 'pl-[45px]' : 'pl-[13px]'
+            )
+          : cn(
+              'text-muted-foreground hover:bg-sidebar-hover',
+              indented ? 'pl-12' : 'pl-4'
+            ),
       )}
     >
       {label}
@@ -57,7 +61,7 @@ export function NavGroup({ label, expanded, onToggle, children, active = false }
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         )}
       </button>
-      {expanded && <div>{children}</div>}
+      {expanded && <div className="pb-2">{children}</div>}
     </div>
   )
 }

@@ -33,7 +33,24 @@ function TimeField({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const openPicker = useCallback(() => {
-    inputRef.current?.showPicker()
+    if (!inputRef.current) return
+
+    // For Safari: ensure input is focused first to work around Safari 16 bugs
+    inputRef.current.focus()
+
+    // Small delay helps Safari register the focus before showPicker
+    setTimeout(() => {
+      if (!inputRef.current) return
+
+      if (typeof inputRef.current.showPicker === 'function') {
+        try {
+          inputRef.current.showPicker()
+        } catch (e) {
+          // showPicker failed, but input is already focused which may open picker in Safari
+          console.warn('showPicker failed:', e)
+        }
+      }
+    }, 10)
   }, [])
 
   return (
@@ -68,7 +85,7 @@ export function DeliverySchedule() {
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {DAYS.map((day) => {
         const daySchedule = schedule[day.key]
         return (

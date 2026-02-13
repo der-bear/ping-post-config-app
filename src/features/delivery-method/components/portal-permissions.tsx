@@ -9,7 +9,7 @@ export function PortalPermissions() {
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <FieldGroup label="Show IVR Call Information">
         <YesNoSelect
           value={permissions.showIvrCallInformation}

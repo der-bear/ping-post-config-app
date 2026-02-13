@@ -11,7 +11,7 @@ interface PanelLayoutProps {
 
 export function PanelLayout({ sidebar, header, children, footer, className }: PanelLayoutProps) {
   return (
-    <div className={cn('flex h-full bg-card shadow-[0px_16px_32px_0px_rgba(0,0,0,0.1)] rounded-[4px] overflow-hidden', className)}>
+    <div className={cn('flex h-full shadow-[0px_16px_32px_0px_rgba(0,0,0,0.1)] rounded-[4px] overflow-hidden', className)}>
       {/* Sidebar — no independent scroll; page scrolls if sidebar overflows */}
       <div className="w-[216px] min-w-[216px] shrink-0 border-r border-border bg-sidebar-bg">
         {sidebar}

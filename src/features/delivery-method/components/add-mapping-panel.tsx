@@ -11,7 +11,6 @@ import { FieldGroup, SectionHeading } from '@/components/field-group'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import {
   Select,
@@ -50,7 +49,7 @@ export function AddMappingPanel() {
 
   // Only interactive controls need state (Select, Switch, dynamic list)
   const [leadField, setLeadField] = useState('')
-  const [useInPost, setUseInPost] = useState(true)
+  const [useInPost, setUseInPost] = useState(false)
   const [hasValueMappings, setHasValueMappings] = useState(false)
   const [valueMappings, setValueMappings] = useState<ValueMapping[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -72,7 +71,7 @@ export function AddMappingPanel() {
         setValueMappings(flyoutData.valueMappings)
       } else {
         setLeadField('')
-        setUseInPost(true)
+        setUseInPost(false)
         setHasValueMappings(false)
         setValueMappings([])
       }
@@ -190,10 +189,10 @@ export function AddMappingPanel() {
         <form
           ref={formRef}
           key={formKey}
-          className="px-4 py-4 max-h-[70vh] overflow-y-auto"
+          className="p-5 max-h-[70vh] overflow-y-auto"
           onSubmit={(e) => e.preventDefault()}
         >
-          <div className="space-y-4">
+          <div className="space-y-5">
             <FieldGroup label="Delivery Field Name" required>
               <Input
                 name="name"
@@ -256,15 +255,15 @@ export function AddMappingPanel() {
             {phase === 'ping' && (
               <>
                 <Separator />
-                <div className="flex gap-4 items-start">
-                  <Switch id="use-in-post" checked={useInPost} onCheckedChange={setUseInPost} />
+                <label className="flex gap-4 items-start cursor-pointer">
+                  <Switch checked={useInPost} onCheckedChange={setUseInPost} />
                   <div className="space-y-0.5">
-                    <Label htmlFor="use-in-post" className="text-sm font-normal cursor-pointer">Use also in POST</Label>
+                    <span className="text-sm font-normal">Use also in POST</span>
                     <p className="text-xs text-muted-foreground">
                       Automatically add the field mapping into the POST configuration.
                     </p>
                   </div>
-                </div>
+                </label>
               </>
             )}
 
@@ -272,19 +271,18 @@ export function AddMappingPanel() {
 
             <SectionHeading title="Value Mapping" />
 
-            <div className="flex gap-4 items-start">
+            <label className="flex gap-4 items-start cursor-pointer">
               <Switch
-                id="has-value-mappings"
                 checked={hasValueMappings}
                 onCheckedChange={setHasValueMappings}
               />
               <div className="space-y-0.5">
-                <Label htmlFor="has-value-mappings" className="text-sm font-normal cursor-pointer">Has Value Mappings</Label>
+                <span className="text-sm font-normal">Has Value Mappings</span>
                 <p className="text-xs text-muted-foreground">
                   Value maps allow you to change the outgoing value.
                 </p>
               </div>
-            </div>
+            </label>
 
             {hasValueMappings && (
               <>
@@ -408,7 +406,7 @@ export function AddMappingPanel() {
         </form>
 
         {/* Footer */}
-        <DialogFooter className="px-4 py-3 border-t border-border">
+        <DialogFooter className="px-5 py-4 border-t border-border">
           <Button variant="secondary" onClick={closeFlyout}>
             Cancel
           </Button>

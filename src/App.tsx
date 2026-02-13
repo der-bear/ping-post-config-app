@@ -9,8 +9,8 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Theme toggle */}
-      <div className="fixed top-4 right-4 z-50 shrink-0">
+      {/* Theme toggle - hidden for now */}
+      {/* <div className="fixed top-4 right-4 z-50 shrink-0">
         <Button
           variant="outline"
           size="sm"
@@ -20,7 +20,7 @@ function App() {
           {resolvedTheme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           {resolvedTheme === 'dark' ? 'Light' : 'Dark'} Mode
         </Button>
-      </div>
+      </div> */}
 
       {/* Main content */}
       <DeliveryMethodEntry />

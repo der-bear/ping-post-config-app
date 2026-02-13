@@ -171,7 +171,11 @@ export function MappingsSettings({ phase }: MappingsSettingsProps) {
         selectedIds={selectedIds}
         onSelectionChange={setSelectedIds}
         onRowDoubleClick={handleRowDoubleClick}
-        footer="Note: Mapping changes save automatically"
+        footer={
+          <p className="text-xs text-muted-foreground">
+            Note: Mapping changes save automatically.
+          </p>
+        }
         toolbar={
           <DataGridToolbar>
             <DropdownMenu>

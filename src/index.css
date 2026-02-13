@@ -60,46 +60,51 @@
 
 }
 
-/* Dark theme overrides */
+/* Dark theme overrides - matching Figma design */
 .dark {
-  --color-primary: #6B9AFF;
-  --color-primary-hover: #5A86E6;
-  --color-primary-light: #1E2A4A;
+  /* Primary blue accent - same as light mode for consistency */
+  --color-primary: #2e6fd9;
+  --color-primary-hover: #2562c4;
+  --color-primary-light: #1e2a47;
   --color-primary-foreground: #FFFFFF;
 
-  --color-border: #2d3748;
-  --color-border-strong: #4a5568;
-  --color-border-hover: #718096;
-  --color-input: #2d3748;
-  --color-ring: #6B9AFF;
+  /* Borders - subtle gray tones from Figma */
+  --color-border: #353640;
+  --color-border-strong: #42434d;
+  --color-border-hover: #5a5b66;
+  --color-input: #17171f;
+  --color-ring: #498bff;
 
-  --color-background: #1a202c;
-  --color-foreground: #e2e8f0;
-  --color-muted: #2d3748;
-  --color-muted-foreground: #a0aec0;
-  --color-subtle: #4a5568;
-  --color-accent: #2d3748;
-  --color-accent-foreground: #e2e8f0;
-  --color-card: #2d3748;
-  --color-card-foreground: #e2e8f0;
-  --color-popover: #2d3748;
-  --color-popover-foreground: #e2e8f0;
-  --color-secondary: #2d3748;
-  --color-secondary-foreground: #e2e8f0;
-  --color-destructive: #fc8181;
+  /* Backgrounds - dark blue-gray from Figma */
+  --color-background: #0e0e15;
+  --color-foreground: #ffffff;
+  --color-muted: #17171f;
+  --color-muted-foreground: #9ea7b2;
+  --color-subtle: #636f83;
+  --color-accent: #17171f;
+  --color-accent-foreground: #ebedef;
+  --color-card: #0e0e15;
+  --color-card-foreground: #ebedef;
+  --color-popover: #0e0e15;
+  --color-popover-foreground: #ebedef;
+  --color-secondary: #17171f;
+  --color-secondary-foreground: #ebedef;
+  --color-destructive: #e55353;
   --color-destructive-foreground: #FFFFFF;
 
-  --color-panel-header: #2D5ABF;
-  --color-sidebar-bg: #2d3748;
-  --color-sidebar-active: #4a7dff;
+  /* Panel specific - using Figma design tokens */
+  --color-panel-header: #498bff;
+  --color-sidebar-bg: #0e0e15;
+  --color-sidebar-active: #498bff;
   --color-sidebar-active-text: #FFFFFF;
-  --color-sidebar-hover: #4a5568;
-  --color-content-bg: #1a202c;
+  --color-sidebar-hover: #17171f;
+  --color-content-bg: #0e0e15;
 
+  /* Shadows - darker for dark mode */
   --shadow-sm: 0 2px 6px -3px rgba(0, 0, 0, 0.8);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
-  --shadow-panel: 0 16px 32px -8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  --shadow-panel: 0 16px 32px -8px rgba(0, 0, 0, 0.5);
 }
 
 @layer base {
@@ -115,6 +120,17 @@
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Placeholder color - less muted than default */
+  ::placeholder {
+    color: #525d72;
+    opacity: 1;
+  }
+
+  .dark ::placeholder {
+    color: #b5bfce;
+    opacity: 1;
   }
 }
 

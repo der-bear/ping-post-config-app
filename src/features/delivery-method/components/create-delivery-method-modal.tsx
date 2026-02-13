@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Search } from 'lucide-react'
-import { Dialog, DialogContent, DialogPanelHeader } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogPanelHeader } from '@/components/ui/dialog'
 import { MethodSelectorCard } from '@/components/ui/method-selector-card'
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import { Input } from '@/components/ui/input'
@@ -205,18 +205,21 @@ export function CreateDeliveryMethodModal({
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogPanelHeader
-          title={step === 'select' ? 'Create Delivery Method' : `Create ${selectedMethodData?.title} Delivery Method`}
+          title={step === 'select' ? 'Create Delivery Method' : 'Create Delivery Method - Ping/Post'}
           showClose={true}
           onClose={step === 'configure' ? handleBack : () => {}}
         />
+        <DialogDescription className="sr-only">
+          {step === 'select' ? 'Select a delivery method type to create' : 'Configure your delivery method settings'}
+        </DialogDescription>
 
         {/* Content - Step 1: Select Method */}
         {step === 'select' && (
           <>
-            <div className="p-4 sm:p-10 space-y-6 max-h-[70vh] overflow-y-auto">
+            <div className="p-5 space-y-5 max-h-[70vh] overflow-y-auto">
               {/* Title and Search */}
               <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 sm:gap-2.5 items-start sm:items-center">
-                <h3 className="text-xl sm:text-2xl font-semibold text-foreground">
+                <h3 className="text-lg sm:text-xl font-semibold text-foreground">
                   How should leads be delivered?
                 </h3>
                 <div className="relative w-full sm:w-[255px]">
@@ -302,7 +305,7 @@ export function CreateDeliveryMethodModal({
             <div className="border-t border-border" />
 
             {/* Footer */}
-            <div className="px-4 py-3 flex items-center justify-end gap-2">
+            <div className="px-5 py-4 flex items-center justify-end gap-2">
               <Button variant="secondary" onClick={handleClose}>
                 Cancel
               </Button>
@@ -316,7 +319,7 @@ export function CreateDeliveryMethodModal({
         {/* Content - Step 2: Configure Ping/Post */}
         {step === 'configure' && (
           <>
-            <div className="px-4 py-6 space-y-6">
+            <div className="p-5 space-y-5">
               <FieldGroup label="Description">
                 <DebouncedInput
                   value={description}
@@ -366,7 +369,7 @@ export function CreateDeliveryMethodModal({
             <div className="border-t border-border" />
 
             {/* Footer */}
-            <div className="px-4 py-3 flex items-center justify-between gap-2">
+            <div className="px-5 py-4 flex items-center justify-between gap-2">
               <Button variant="secondary" onClick={handleBack}>
                 Back
               </Button>

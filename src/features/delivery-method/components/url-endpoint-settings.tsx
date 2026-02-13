@@ -175,7 +175,7 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
     : String(endpoint.timeout)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <FieldGroup label="Production URL">
         <DebouncedInput
           value={endpoint.productionUrl}

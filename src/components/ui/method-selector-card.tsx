@@ -29,7 +29,7 @@ export function MethodSelectorCard({
         'flex gap-3 items-start p-4 rounded border transition-all text-left',
         'lg:flex-col lg:gap-4 lg:h-[160px]',
         selected && !disabled
-          ? 'border-[rgba(73,139,255,0.2)] bg-gradient-to-r from-[#f9fbff] to-[#f9fbff]'
+          ? 'border-primary/50 bg-primary-light'
           : disabled
             ? 'border-border bg-muted/30 cursor-not-allowed'
             : 'border-border bg-background cursor-pointer hover:border-primary/20 hover:bg-accent/5',

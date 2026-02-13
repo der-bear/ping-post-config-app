@@ -3,7 +3,6 @@ import { useDeliveryMethodStore } from '@/features/delivery-method/store'
 import { FieldGroup, SectionHeading } from '@/components/field-group'
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -32,7 +31,7 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <SectionHeading
         title="Response Format"
         description={`Select the format returned by the ${isPing ? 'ping' : 'post'} endpoint. This determines how the response is parsed.`}
@@ -385,21 +384,20 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
 
       {/* PING only: Enable Ping during Sort */}
       {isPing && (
-        <div className="flex gap-4 items-start">
+        <label className="flex gap-4 items-start cursor-pointer">
           <Switch
-            id="enable-ping-sort"
             checked={response.enablePingDuringSort}
             onCheckedChange={(checked) =>
               updateResponse({ enablePingDuringSort: checked })
             }
           />
           <div className="space-y-0.5">
-            <Label htmlFor="enable-ping-sort" className="text-sm font-normal cursor-pointer">Enable Ping during Sort</Label>
+            <span className="text-sm font-normal">Enable Ping during Sort</span>
             <p className="text-xs text-muted-foreground">
               Execute a ping during sorting to retrieve a real-time bid price. Successful pings update the account price used for ranking; failed pings exclude the account from selection.
             </p>
           </div>
-        </div>
+        </label>
       )}
     </div>
   )

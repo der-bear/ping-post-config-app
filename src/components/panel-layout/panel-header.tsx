@@ -14,8 +14,8 @@ export function PanelHeader({ title, isExpanded, onMaximize, onClose, className 
   const ExpandIcon = isExpanded ? Minimize2 : Maximize2
 
   return (
-    <div data-slot="panel-header" className={cn('flex items-center justify-between px-4 py-3 bg-panel-header', className)}>
-      <h1 className="text-[20px] leading-[28px] font-semibold text-primary-foreground">{title}</h1>
+    <div data-slot="panel-header" className={cn('flex items-center justify-between px-5 py-3 bg-panel-header', className)}>
+      <h1 className="text-lg leading-6 font-semibold text-primary-foreground">{title}</h1>
       <div className="flex items-center gap-1.5">
         {onMaximize && (
           <Button

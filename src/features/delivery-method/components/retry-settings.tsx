@@ -88,7 +88,7 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <FieldGroup label="Retry After Failure">
         <Select value={retryValue} onValueChange={handleRetryChange}>
           <SelectTrigger>

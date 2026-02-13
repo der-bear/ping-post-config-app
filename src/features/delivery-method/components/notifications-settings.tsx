@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo } from 'react'
 import { useDeliveryMethodStore } from '@/features/delivery-method/store'
 import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import {
   DataGrid,
@@ -67,47 +66,54 @@ export function NotificationsSettings() {
   }, [selectedIds, removeNotificationRecipient])
 
   return (
-    <div className="space-y-6">
-      <div className="flex gap-4 items-start">
-        <Switch
-          id="send-notification"
-          checked={notifications.sendNotification}
-          onCheckedChange={(checked) =>
-            updateNotifications({ sendNotification: checked })
-          }
-        />
-        <div className="space-y-0.5">
-          <Label htmlFor="send-notification" className="text-sm font-normal cursor-pointer">Send Notification</Label>
-          <p className="text-xs text-muted-foreground">
-            Send a notification when delivery fails.
-          </p>
-        </div>
+    <div className="absolute inset-0 flex flex-col">
+      <div className="px-4 pt-4 pb-3">
+        <label className="flex gap-4 items-start cursor-pointer">
+          <Switch
+            checked={notifications.sendNotification}
+            onCheckedChange={(checked) =>
+              updateNotifications({ sendNotification: checked })
+            }
+          />
+          <div className="space-y-0.5">
+            <span className="text-sm font-normal">Send Notification</span>
+            <p className="text-xs text-muted-foreground">
+              Send a notification when delivery fails.
+            </p>
+          </div>
+        </label>
       </div>
 
-      <Separator />
-
-      <DataGrid
-        columns={columns}
-        data={notifications.recipients}
-        selectedIds={selectedIds}
-        onSelectionChange={setSelectedIds}
-        emptyMessage="No notification recipients"
-        toolbar={
-          <DataGridToolbar>
-            <ToolbarAction
-              icon={Plus}
-              label="Add Recipient"
-              onClick={handleAddRecipient}
-            />
-            <ToolbarAction
-              icon={X}
-              label="Remove"
-              onClick={handleRemoveRecipients}
-              disabled={selectedIds.size === 0}
-            />
-          </DataGridToolbar>
-        }
-      />
+      <div className="flex-1 min-h-0">
+        <DataGrid
+          columns={columns}
+          data={notifications.recipients}
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
+          emptyMessage="No notification recipients"
+          className="border-t border-border border-x-0 border-b-0"
+          toolbar={
+            <DataGridToolbar>
+              <ToolbarAction
+                icon={Plus}
+                label="Add Recipient"
+                onClick={handleAddRecipient}
+              />
+              <ToolbarAction
+                icon={X}
+                label="Remove"
+                onClick={handleRemoveRecipients}
+                disabled={selectedIds.size === 0}
+              />
+            </DataGridToolbar>
+          }
+          footer={
+            <p className="text-xs text-muted-foreground">
+              Note: Notification recipient changes save automatically. SMS charges may apply.
+            </p>
+          }
+        />
+      </div>
 
       <AddNotificationDialog
         open={dialogOpen}

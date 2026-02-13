@@ -93,7 +93,6 @@ export interface PostAuthenticationConfig extends AuthenticationConfig {
 
 export interface SystemLeadField {
   name: string;
-  suggestedDeliveryName: string;
   enumCount?: number;
 }
 

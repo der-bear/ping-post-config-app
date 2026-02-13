@@ -1,22 +1,34 @@
 import type { SystemLeadField } from '@/features/delivery-method/types'
 
 export const SYSTEM_LEAD_FIELDS: SystemLeadField[] = [
-  { name: 'tcpa_consent', suggestedDeliveryName: 'consent_flag', enumCount: 3 },
-  { name: 'category', suggestedDeliveryName: 'category' },
-  { name: 'zip', suggestedDeliveryName: 'postal_code' },
-  { name: 'ip', suggestedDeliveryName: 'ip_address' },
-  { name: 'consent_ts', suggestedDeliveryName: 'consent_timestamp' },
-  { name: 'first_name', suggestedDeliveryName: 'f_name' },
-  { name: 'last_name', suggestedDeliveryName: 'l_name' },
-  { name: 'email', suggestedDeliveryName: 'email' },
-  { name: 'phone', suggestedDeliveryName: 'phone_number' },
-  { name: 'street_address', suggestedDeliveryName: 'address' },
-  { name: 'city', suggestedDeliveryName: 'city' },
-  { name: 'state_code', suggestedDeliveryName: 'state' },
-  { name: 'date_of_birth', suggestedDeliveryName: 'dob' },
-  { name: 'annual_income', suggestedDeliveryName: 'income' },
-  { name: 'credit_score', suggestedDeliveryName: 'credit_score', enumCount: 5 },
-  { name: 'property_type', suggestedDeliveryName: 'property_type', enumCount: 4 },
-  { name: 'loan_amount', suggestedDeliveryName: 'loan_amount' },
-  { name: 'down_payment', suggestedDeliveryName: 'down_payment' },
+  // Consent & Tracking
+  { name: 'tcpa_consent' },
+  { name: 'consent_flag' },
+  { name: 'consent_timestamp' },
+  { name: 'ip_address' },
+
+  // System Fields
+  { name: 'product_category' },
+
+  // Contact Information
+  { name: 'first_name' },
+  { name: 'last_name' },
+  { name: 'email_address' },
+  { name: 'phone_number' },
+  { name: 'street_address' },
+  { name: 'city' },
+  { name: 'state_code' },
+  { name: 'postal_code' },
+
+  // Demographics
+  { name: 'date_of_birth' },
+
+  // Financial
+  { name: 'annual_income' },
+  { name: 'credit_score_range', enumCount: 5 },
+
+  // Property/Loan
+  { name: 'property_type', enumCount: 6 },
+  { name: 'loan_amount' },
+  { name: 'down_payment' },
 ]
