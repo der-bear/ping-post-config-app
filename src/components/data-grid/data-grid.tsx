@@ -13,6 +13,7 @@ interface DataGridProps<T extends { id: string }> {
   footer?: ReactNode
   emptyMessage?: string
   className?: string
+  getRowClassName?: (row: T) => string
 }
 
 export function DataGrid<T extends { id: string }>({
@@ -25,6 +26,7 @@ export function DataGrid<T extends { id: string }>({
   footer,
   emptyMessage = 'No data',
   className,
+  getRowClassName,
 }: DataGridProps<T>) {
   const [sort, setSort] = useState<SortState>({ column: null, direction: null })
   const lastClickedIndex = useRef<number>(-1)
@@ -120,6 +122,7 @@ export function DataGrid<T extends { id: string }>({
                   className={cn(
                     'cursor-pointer',
                     selectedIds.has(row.id) ? 'bg-primary-light' : 'hover:bg-accent',
+                    getRowClassName?.(row),
                   )}
                   onClick={(e) => handleRowClick(index, row.id, e)}
                   onDoubleClick={() => onRowDoubleClick?.(row)}

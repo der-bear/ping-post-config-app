@@ -20,9 +20,15 @@ import type { DataGridColumn } from '@/components/data-grid'
 import { Plus, X } from 'lucide-react'
 import type { ContentType, CustomHeader, HttpMethod } from '@/features/delivery-method/types'
 import { AddHeaderDialog } from './add-header-dialog'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface UrlEndpointSettingsProps {
   phase: 'ping' | 'post'
+}
+
+interface HeaderDisplay extends CustomHeader {
+  inherited?: boolean
+  source?: 'ping' | 'post'
 }
 
 const CONTENT_TYPES_PING = [
@@ -56,9 +62,28 @@ const HTTP_METHODS: { value: HttpMethod; label: string }[] = [
   { value: 'DELETE', label: 'DELETE' },
 ]
 
-const HEADER_COLUMNS: DataGridColumn<CustomHeader>[] = [
-  { key: 'name', header: 'Name', sortable: true },
-  { key: 'value', header: 'Value', sortable: true },
+const HEADER_COLUMNS: DataGridColumn<HeaderDisplay>[] = [
+  {
+    key: 'name',
+    header: 'Name',
+    sortable: true,
+    render: (value, row) => (
+      <span className={row.inherited ? 'text-muted-foreground' : ''}>
+        {String(value)}
+        {row.inherited && <span className="ml-2 text-xs">(from PING)</span>}
+      </span>
+    ),
+  },
+  {
+    key: 'value',
+    header: 'Value',
+    sortable: true,
+    render: (value, row) => (
+      <span className={row.inherited ? 'text-muted-foreground' : ''}>
+        {String(value)}
+      </span>
+    ),
+  },
 ]
 
 export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
@@ -84,13 +109,36 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
   const [selectedHeaderIds, setSelectedHeaderIds] = useState<Set<string>>(new Set())
   const [headerDialogOpen, setHeaderDialogOpen] = useState(false)
   const [editingHeader, setEditingHeader] = useState<CustomHeader | null>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+
+  const headerData = useMemo<HeaderDisplay[]>(() => {
+    if (isPing) {
+      return endpoint.customHeaders.map((h) => ({ ...h, inherited: false, source: 'ping' as const }))
+    }
+    if (postEndpoint.includeHeadersFromPing) {
+      const inherited = pingEndpoint.customHeaders.map((h) => ({ ...h, inherited: true, source: 'ping' as const }))
+      const postOnly = postEndpoint.customHeaders.map((h) => ({ ...h, inherited: false, source: 'post' as const }))
+      return [...inherited, ...postOnly]
+    }
+    return postEndpoint.customHeaders.map((h) => ({ ...h, inherited: false, source: 'post' as const }))
+  }, [isPing, endpoint.customHeaders, postEndpoint.includeHeadersFromPing, postEndpoint.customHeaders, pingEndpoint.customHeaders])
+
+  const handleSelectionChange = useCallback((ids: Set<string>) => {
+    // Filter out inherited headers - they can't be selected in POST
+    const selectableIds = Array.from(ids).filter((id) => {
+      const header = headerData.find((h) => h.id === id)
+      return header && !header.inherited
+    })
+    setSelectedHeaderIds(new Set(selectableIds))
+  }, [headerData])
 
   const handleAddHeader = useCallback(() => {
     setEditingHeader(null)
     setHeaderDialogOpen(true)
   }, [])
 
-  const handleRowDoubleClick = useCallback((row: CustomHeader) => {
+  const handleRowDoubleClick = useCallback((row: HeaderDisplay) => {
+    if (row.inherited) return // Prevent editing inherited headers
     setEditingHeader(row)
     setHeaderDialogOpen(true)
   }, [])
@@ -104,25 +152,24 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
   }, [editingHeader, updateHeader, addHeader])
 
   const handleRemoveHeaders = useCallback(() => {
-    selectedHeaderIds.forEach((id) => removeHeader(id))
+    setDeleteConfirmOpen(true)
+  }, [])
+
+  const handleConfirmDelete = useCallback(() => {
+    // Filter out inherited headers - they can't be deleted from POST
+    const deletableIds = Array.from(selectedHeaderIds).filter((id) => {
+      const header = headerData.find((h) => h.id === id)
+      return header && !header.inherited
+    })
+    deletableIds.forEach((id) => removeHeader(id))
     setSelectedHeaderIds(new Set())
-  }, [selectedHeaderIds, removeHeader])
+  }, [selectedHeaderIds, removeHeader, headerData])
 
   const sameAsPingMeta = 'Same as PING'
 
   const timeoutValue = !isPing && postEndpoint.timeoutSameAsPing
     ? 'same-as-ping'
     : String(endpoint.timeout)
-
-  const headerData = useMemo(() => {
-    if (isPing) {
-      return endpoint.customHeaders
-    }
-    if (postEndpoint.includeHeadersFromPing) {
-      return [...pingEndpoint.customHeaders, ...postEndpoint.customHeaders]
-    }
-    return endpoint.customHeaders
-  }, [isPing, endpoint.customHeaders, postEndpoint.includeHeadersFromPing, postEndpoint.customHeaders, pingEndpoint.customHeaders])
 
   return (
     <div className="space-y-4">
@@ -268,8 +315,9 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
         columns={HEADER_COLUMNS}
         data={headerData}
         selectedIds={selectedHeaderIds}
-        onSelectionChange={setSelectedHeaderIds}
+        onSelectionChange={handleSelectionChange}
         onRowDoubleClick={handleRowDoubleClick}
+        getRowClassName={(row) => row.inherited ? 'bg-muted/30 hover:bg-muted/40' : ''}
         emptyMessage="No custom headers"
         toolbar={
           <DataGridToolbar>
@@ -293,6 +341,15 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
         onClose={() => setHeaderDialogOpen(false)}
         onSave={handleSaveHeader}
         editData={editingHeader}
+      />
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Custom Header"
+        description={`Are you sure you want to delete the selected custom header${selectedHeaderIds.size > 1 ? 's' : ''}?`}
+        confirmLabel="Delete"
+        variant="destructive"
       />
     </div>
   )

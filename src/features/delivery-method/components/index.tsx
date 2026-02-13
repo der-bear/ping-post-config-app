@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useDeliveryMethodStore } from '@/features/delivery-method/store'
 import {
   PanelLayout,
@@ -9,6 +9,7 @@ import {
   NavGroup,
 } from '@/components/panel-layout'
 import { Button } from '@/components/ui/button'
+import { UnsavedChangesDialog } from '@/components/ui/unsaved-changes-dialog'
 import { GeneralSettings } from './general-settings'
 import { UrlEndpointSettings } from './url-endpoint-settings'
 import { AuthenticationSettings } from './authentication-settings'
@@ -76,6 +77,9 @@ export function DeliveryMethodEditor() {
   const togglePostExpanded = useDeliveryMethodStore((s) => s.togglePostExpanded)
   const togglePanelExpanded = useDeliveryMethodStore((s) => s.togglePanelExpanded)
 
+  const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
+  const [hasUnsavedChanges] = useState(true) // TODO: Implement proper dirty tracking
+
   const title = getPanelTitle(activePanel)
 
   const handleNavClick = useCallback(
@@ -84,6 +88,29 @@ export function DeliveryMethodEditor() {
     },
     [setActivePanel],
   )
+
+  const handleClose = useCallback(() => {
+    if (hasUnsavedChanges) {
+      setUnsavedDialogOpen(true)
+    } else {
+      // Actually close the panel
+      console.log('Close panel')
+    }
+  }, [hasUnsavedChanges])
+
+  const handleSave = useCallback(() => {
+    // TODO: Implement save logic
+    console.log('Save changes')
+    setUnsavedDialogOpen(false)
+    // Actually close the panel
+  }, [])
+
+  const handleDiscard = useCallback(() => {
+    // TODO: Implement discard logic
+    console.log('Discard changes')
+    setUnsavedDialogOpen(false)
+    // Actually close the panel
+  }, [])
 
   const isPingGroupActive = activePanel.section === 'ping'
   const isPostGroupActive = activePanel.section === 'post'
@@ -203,7 +230,7 @@ export function DeliveryMethodEditor() {
             title={title}
             isExpanded={isPanelExpanded}
             onMaximize={togglePanelExpanded}
-            onClose={() => {}}
+            onClose={handleClose}
           />
         }
         footer={
@@ -220,10 +247,10 @@ export function DeliveryMethodEditor() {
             }
             rightActions={
               <>
-                <Button variant="secondary" size="sm">
+                <Button variant="secondary" size="sm" onClick={handleClose}>
                   Close
                 </Button>
-                <Button size="sm">Save</Button>
+                <Button size="sm" onClick={handleSave}>Save</Button>
               </>
             }
           />
@@ -233,6 +260,13 @@ export function DeliveryMethodEditor() {
       </PanelLayout>
 
       <AddMappingPanel />
+
+      <UnsavedChangesDialog
+        open={unsavedDialogOpen}
+        onCancel={() => setUnsavedDialogOpen(false)}
+        onDiscard={handleDiscard}
+        onSave={handleSave}
+      />
     </div>
   )
 }

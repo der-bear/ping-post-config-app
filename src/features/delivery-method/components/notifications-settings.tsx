@@ -12,6 +12,7 @@ import type { DataGridColumn } from '@/components/data-grid'
 import { Plus, X } from 'lucide-react'
 import type { NotificationRecipient } from '@/features/delivery-method/types'
 import { AddNotificationDialog } from './add-notification-dialog'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 export function NotificationsSettings() {
   const notifications = useDeliveryMethodStore((s) => s.config.notifications)
@@ -25,6 +26,7 @@ export function NotificationsSettings() {
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 
   const columns: DataGridColumn<NotificationRecipient>[] = useMemo(
     () => [
@@ -56,6 +58,10 @@ export function NotificationsSettings() {
   }, [addNotificationRecipient])
 
   const handleRemoveRecipients = useCallback(() => {
+    setDeleteConfirmOpen(true)
+  }, [])
+
+  const handleConfirmDelete = useCallback(() => {
     selectedIds.forEach((id) => removeNotificationRecipient(id))
     setSelectedIds(new Set())
   }, [selectedIds, removeNotificationRecipient])
@@ -107,6 +113,15 @@ export function NotificationsSettings() {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSave={handleSaveRecipients}
+      />
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Notification"
+        description={`Are you sure you want to delete the selected notification recipient${selectedIds.size > 1 ? 's' : ''}?`}
+        confirmLabel="Delete"
+        variant="destructive"
       />
     </div>
   )

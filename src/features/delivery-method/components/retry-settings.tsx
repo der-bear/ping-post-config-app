@@ -97,61 +97,63 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
         </Select>
       </FieldGroup>
 
-      <FieldGroup label="Max Retry Count">
-        <Select
-          value={countValue}
-          onValueChange={handleCountChange}
-          disabled={!isSameAsPing && !retry.retryAfterFailure}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {RETRY_COUNTS.map((opt) => {
-              if (!isPing && opt.value === String(pingRetry.maxRetryCount)) {
-                return (
-                  <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
-                    {opt.label}
-                  </SelectItem>
-                )
-              }
-              return (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              )
-            })}
-          </SelectContent>
-        </Select>
-      </FieldGroup>
+      {(isSameAsPing || retry.retryAfterFailure) && (
+        <>
+          <FieldGroup label="Max Retry Count">
+            <Select
+              value={countValue}
+              onValueChange={handleCountChange}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {RETRY_COUNTS.map((opt) => {
+                  if (!isPing && opt.value === String(pingRetry.maxRetryCount)) {
+                    return (
+                      <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
+                        {opt.label}
+                      </SelectItem>
+                    )
+                  }
+                  return (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  )
+                })}
+              </SelectContent>
+            </Select>
+          </FieldGroup>
 
-      <FieldGroup label="Time Between Retries">
-        <Select
-          value={timeValue}
-          onValueChange={handleTimeChange}
-          disabled={!isSameAsPing && !retry.retryAfterFailure}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {TIME_BETWEEN_RETRIES.map((opt) => {
-              if (!isPing && opt.value === String(pingRetry.timeBetweenRetries)) {
-                return (
-                  <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
-                    {opt.label}
-                  </SelectItem>
-                )
-              }
-              return (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              )
-            })}
-          </SelectContent>
-        </Select>
-      </FieldGroup>
+          <FieldGroup label="Time Between Retries">
+            <Select
+              value={timeValue}
+              onValueChange={handleTimeChange}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {TIME_BETWEEN_RETRIES.map((opt) => {
+                  if (!isPing && opt.value === String(pingRetry.timeBetweenRetries)) {
+                    return (
+                      <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
+                        {opt.label}
+                      </SelectItem>
+                    )
+                  }
+                  return (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  )
+                })}
+              </SelectContent>
+            </Select>
+          </FieldGroup>
+        </>
+      )}
     </div>
   )
 }

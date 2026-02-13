@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import type { FieldMapping, MappingType } from '@/features/delivery-method/types'
 import { BulkAddDialog } from './bulk-add-dialog'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 const MAPPING_TYPE_OPTIONS: { type: MappingType; icon: typeof Type; disabled: boolean }[] = [
   { type: 'Static Value', icon: Type, disabled: true },
@@ -63,6 +64,7 @@ export function MappingsSettings({ phase }: MappingsSettingsProps) {
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [bulkAddOpen, setBulkAddOpen] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 
   // For POST phase, always show combined PING (useInPost) + POST mappings
   const displayMappings = useMemo(() => {
@@ -118,6 +120,10 @@ export function MappingsSettings({ phase }: MappingsSettingsProps) {
   }, [selectedIds, displayMappings, isPing, pingMappingIds, openFlyout, phase])
 
   const handleRemove = useCallback(() => {
+    setDeleteConfirmOpen(true)
+  }, [])
+
+  const handleConfirmDelete = useCallback(() => {
     selectedIds.forEach((id) => {
       if (isPing) {
         removePingMapping(id)
@@ -213,6 +219,15 @@ export function MappingsSettings({ phase }: MappingsSettingsProps) {
         onAdd={handleBulkAdd}
         onReplace={handleBulkReplace}
         phase={phase}
+      />
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Mapping"
+        description={`Are you sure you want to delete the selected mapping${selectedIds.size > 1 ? 's' : ''}?`}
+        confirmLabel="Delete"
+        variant="destructive"
       />
     </div>
   )

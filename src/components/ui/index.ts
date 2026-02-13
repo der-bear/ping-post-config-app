@@ -39,6 +39,10 @@ export {
   DialogDescription,
 } from './dialog'
 
+export { ConfirmDialog } from './confirm-dialog'
+
+export { UnsavedChangesDialog } from './unsaved-changes-dialog'
+
 export { ScrollArea, ScrollBar } from './scroll-area'
 
 export {
