@@ -67,7 +67,7 @@ export function NotificationsSettings() {
   }, [selectedIds, removeNotificationRecipient])
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex gap-4 items-start">
         <Switch
           id="send-notification"

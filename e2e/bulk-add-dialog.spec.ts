@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { bypassCreationModal } from './helpers/bypass-creation-modal'
 
 test.describe('Bulk Add Dialog', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
+    await bypassCreationModal(page)
     // Navigate to PING Mappings
     await page.getByRole('button', { name: 'Mappings' }).first().click()
     // Open Bulk Add dialog

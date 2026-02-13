@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { bypassCreationModal } from './helpers/bypass-creation-modal'
 
 test.describe('Shared Settings', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
+    await bypassCreationModal(page)
   })
 
   test.describe('Portal Permissions', () => {

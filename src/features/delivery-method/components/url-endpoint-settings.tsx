@@ -21,6 +21,8 @@ import { Plus, X } from 'lucide-react'
 import type { ContentType, CustomHeader, HttpMethod } from '@/features/delivery-method/types'
 import { AddHeaderDialog } from './add-header-dialog'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { validateUrl } from '@/lib/validation'
+import { cn } from '@/lib/utils'
 
 interface UrlEndpointSettingsProps {
   phase: 'ping' | 'post'
@@ -110,6 +112,7 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
   const [headerDialogOpen, setHeaderDialogOpen] = useState(false)
   const [editingHeader, setEditingHeader] = useState<CustomHeader | null>(null)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const headerData = useMemo<HeaderDisplay[]>(() => {
     if (isPing) {
@@ -172,21 +175,47 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
     : String(endpoint.timeout)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <FieldGroup label="Production URL">
         <DebouncedInput
           value={endpoint.productionUrl}
           onValueCommit={(v: string) => updateEndpoint({ productionUrl: v })}
+          onBlur={(e) => {
+            const error = validateUrl(e.target.value)
+            setErrors(prev => ({ ...prev, productionUrl: error }))
+          }}
+          onChange={() => {
+            if (errors.productionUrl) {
+              setErrors(prev => ({ ...prev, productionUrl: '' }))
+            }
+          }}
           placeholder="https://api.example.com/leads"
+          className={cn(errors.productionUrl && 'border-destructive')}
         />
+        {errors.productionUrl && (
+          <p className="text-xs text-destructive mt-1">{errors.productionUrl}</p>
+        )}
       </FieldGroup>
 
       <FieldGroup label="Testing / Sandbox URL">
         <DebouncedInput
           value={endpoint.testingUrl}
           onValueCommit={(v: string) => updateEndpoint({ testingUrl: v })}
+          onBlur={(e) => {
+            const error = validateUrl(e.target.value)
+            setErrors(prev => ({ ...prev, testingUrl: error }))
+          }}
+          onChange={() => {
+            if (errors.testingUrl) {
+              setErrors(prev => ({ ...prev, testingUrl: '' }))
+            }
+          }}
           placeholder="https://sandbox.example.com/leads"
+          className={cn(errors.testingUrl && 'border-destructive')}
         />
+        {errors.testingUrl && (
+          <p className="text-xs text-destructive mt-1">{errors.testingUrl}</p>
+        )}
       </FieldGroup>
 
       {!isPing && (

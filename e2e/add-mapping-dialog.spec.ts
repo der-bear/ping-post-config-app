@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { bypassCreationModal } from './helpers/bypass-creation-modal'
 
 async function openAddLeadFieldDialog(page: import('@playwright/test').Page) {
   await page.getByRole('button', { name: 'New' }).click()
@@ -7,7 +8,7 @@ async function openAddLeadFieldDialog(page: import('@playwright/test').Page) {
 
 test.describe('Add Mapping Dialog', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
+    await bypassCreationModal(page)
     // Navigate to PING Mappings
     await page.getByRole('button', { name: 'Mappings' }).first().click()
   })
@@ -66,8 +67,8 @@ test.describe('Add Mapping Dialog', () => {
     await page.getByRole('dialog').getByRole('button', { name: 'Save' }).click()
 
     // Validation errors should appear
-    await expect(page.getByText('Delivery field name is required')).toBeVisible()
-    await expect(page.getByText('Lead field is required')).toBeVisible()
+    await expect(page.getByText('Enter field name')).toBeVisible()
+    await expect(page.getByText('Select lead field')).toBeVisible()
 
     // Dialog should remain open
     await expect(page.getByRole('dialog')).toBeVisible()

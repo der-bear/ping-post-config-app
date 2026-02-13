@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { SYSTEM_LEAD_FIELDS } from '@/features/delivery-method/data/system-lead-fields'
 import type { FieldMapping } from '@/features/delivery-method/types'
+import { cn } from '@/lib/utils'
 
 interface BulkAddDialogProps {
   open: boolean
@@ -41,6 +42,7 @@ export function BulkAddDialog({
   phase,
 }: BulkAddDialogProps) {
   const [mode, setMode] = useState<'replace' | 'append'>('replace')
+  const [errors, setErrors] = useState<Record<number, boolean>>({})
 
   const initialRows = useMemo(
     () =>
@@ -61,6 +63,7 @@ export function BulkAddDialog({
       if (isOpen) {
         setRows(initialRows)
         setMode('replace')
+        setErrors({})
       } else {
         onClose()
       }
@@ -86,6 +89,19 @@ export function BulkAddDialog({
   )
 
   const handleSubmit = useCallback(() => {
+    // Validate: check for included rows with empty delivery names
+    const newErrors: Record<number, boolean> = {}
+    rows.forEach((r, index) => {
+      if (r.included && !r.deliveryName.trim()) {
+        newErrors[index] = true
+      }
+    })
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      return
+    }
+
     const mappings: FieldMapping[] = rows
       .filter((r) => r.included && r.deliveryName.trim())
       .map((r) => ({
@@ -158,11 +174,24 @@ export function BulkAddDialog({
                   <td className="p-2">
                     <Input
                       value={row.deliveryName}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         updateDeliveryName(index, e.target.value)
-                      }
+                        if (errors[index]) {
+                          setErrors((prev) => {
+                            const next = { ...prev }
+                            delete next[index]
+                            return next
+                          })
+                        }
+                      }}
                       disabled={!row.included}
+                      className={cn(errors[index] && 'border-destructive')}
                     />
+                    {errors[index] && (
+                      <p className="text-xs text-destructive mt-1">
+                        Enter field name
+                      </p>
+                    )}
                   </td>
                 </tr>
               ))}

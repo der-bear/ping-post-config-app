@@ -2,7 +2,7 @@ import { forwardRef, useState, useEffect } from 'react'
 import type { InputHTMLAttributes } from 'react'
 import { Input } from './input'
 
-interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
+interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value'> {
   value: string
   onValueCommit: (value: string) => void
 }
@@ -12,7 +12,7 @@ interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>
  * Eliminates per-keystroke Zustand writes for snappy typing in autosave panels.
  */
 const DebouncedInput = forwardRef<HTMLInputElement, DebouncedInputProps>(
-  ({ value, onValueCommit, ...props }, ref) => {
+  ({ value, onValueCommit, onChange, onBlur, ...props }, ref) => {
     const [local, setLocal] = useState(value)
 
     // Sync when external value changes (e.g. PING→POST sync)
@@ -23,9 +23,13 @@ const DebouncedInput = forwardRef<HTMLInputElement, DebouncedInputProps>(
         ref={ref}
         {...props}
         value={local}
-        onChange={(e) => setLocal(e.target.value)}
-        onBlur={() => {
+        onChange={(e) => {
+          setLocal(e.target.value)
+          onChange?.(e)
+        }}
+        onBlur={(e) => {
           if (local !== value) onValueCommit(local)
+          onBlur?.(e)
         }}
       />
     )

@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { bypassCreationModal } from './helpers/bypass-creation-modal'
 
 test.describe('POST Configuration', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
+    await bypassCreationModal(page)
   })
 
   test.describe('URL Endpoint', () => {

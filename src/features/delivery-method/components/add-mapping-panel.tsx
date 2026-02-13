@@ -54,6 +54,7 @@ export function AddMappingPanel() {
   const [hasValueMappings, setHasValueMappings] = useState(false)
   const [valueMappings, setValueMappings] = useState<ValueMapping[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [vmErrors, setVmErrors] = useState<Record<string, { source?: boolean; target?: boolean }>>({})
 
   // Increment to force form remount (resets uncontrolled inputs)
   const [formKey, setFormKey] = useState(0)
@@ -63,6 +64,7 @@ export function AddMappingPanel() {
     if (flyoutOpen) {
       setFormKey((k) => k + 1) // eslint-disable-line react-hooks/set-state-in-effect
       setErrors({})
+      setVmErrors({})
       if (flyoutData) {
         setLeadField(flyoutData.mappedTo)
         setUseInPost(flyoutData.useInPost)
@@ -99,19 +101,37 @@ export function AddMappingPanel() {
 
     // Validate
     const newErrors: Record<string, string> = {}
-    if (!name) newErrors.name = 'Delivery field name is required'
-    if (!leadField) newErrors.leadField = 'Lead field is required'
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return
-    }
+    if (!name) newErrors.name = 'Enter field name'
+    if (!leadField) newErrors.leadField = 'Select lead field'
 
     // Read value mapping values from form
     const vmData: ValueMapping[] = valueMappings.map((vm) => ({
       id: vm.id,
-      sourceValue: (fd.get(`vm-source-${vm.id}`) as string) ?? '',
-      targetValue: (fd.get(`vm-target-${vm.id}`) as string) ?? '',
+      sourceValue: ((fd.get(`vm-source-${vm.id}`) as string) ?? '').trim(),
+      targetValue: ((fd.get(`vm-target-${vm.id}`) as string) ?? '').trim(),
     }))
+
+    // Validate value mappings if enabled
+    const newVmErrors: Record<string, { source?: boolean; target?: boolean }> = {}
+    if (hasValueMappings && valueMappings.length > 0) {
+      vmData.forEach((vm) => {
+        const vmError: { source?: boolean; target?: boolean } = {}
+        if (!vm.sourceValue) vmError.source = true
+        if (!vm.targetValue) vmError.target = true
+        if (vmError.source || vmError.target) {
+          newVmErrors[vm.id] = vmError
+        }
+      })
+      if (Object.keys(newVmErrors).length > 0) {
+        newErrors.valueMappings = 'All value mappings must have both source and target values'
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      setVmErrors(newVmErrors)
+      return
+    }
 
     const mapping: FieldMapping = {
       id: isEditing && flyoutData ? flyoutData.id : `mapping-${Date.now()}`,
@@ -270,18 +290,23 @@ export function AddMappingPanel() {
               <>
                 <Separator />
 
-                <div className="flex items-center justify-between">
-                  <SectionHeading title="Value Mappings" />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="gap-1.5 text-muted-foreground"
-                    onClick={handleAddValueMapping}
-                  >
-                    <Plus className="h-4 w-4" />
-                    Add
-                  </Button>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <SectionHeading title="Value Mappings" />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1.5 text-muted-foreground"
+                      onClick={handleAddValueMapping}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add
+                    </Button>
+                  </div>
+                  {errors.valueMappings && (
+                    <p className="text-xs text-destructive mt-2">{errors.valueMappings}</p>
+                  )}
                 </div>
 
                 <table className="w-full border-collapse">
@@ -304,7 +329,29 @@ export function AddMappingPanel() {
                             name={`vm-source-${vm.id}`}
                             defaultValue={vm.sourceValue}
                             placeholder="Enter value"
-                            className="w-full h-8 px-2 text-xs text-foreground bg-transparent rounded-[4px] border border-transparent focus:border-primary focus:outline-none placeholder:text-muted-foreground"
+                            className={cn(
+                              "w-full h-8 px-2 text-xs text-foreground bg-transparent rounded-[4px] border focus:outline-none placeholder:text-muted-foreground",
+                              vmErrors[vm.id]?.source
+                                ? "border-destructive focus:border-destructive"
+                                : "border-transparent focus:border-primary"
+                            )}
+                            onChange={() => {
+                              if (vmErrors[vm.id]?.source) {
+                                setVmErrors((prev) => {
+                                  const next = { ...prev }
+                                  if (next[vm.id]) {
+                                    const { source, ...rest } = next[vm.id]
+                                    if (Object.keys(rest).length === 0) {
+                                      delete next[vm.id]
+                                    } else {
+                                      next[vm.id] = rest
+                                    }
+                                  }
+                                  return next
+                                })
+                                setErrors((prev) => ({ ...prev, valueMappings: '' }))
+                              }
+                            }}
                           />
                         </td>
                         <td className="px-1 py-1">
@@ -312,7 +359,29 @@ export function AddMappingPanel() {
                             name={`vm-target-${vm.id}`}
                             defaultValue={vm.targetValue}
                             placeholder="Enter value"
-                            className="w-full h-8 px-2 text-xs text-foreground bg-transparent rounded-[4px] border border-transparent focus:border-primary focus:outline-none placeholder:text-muted-foreground"
+                            className={cn(
+                              "w-full h-8 px-2 text-xs text-foreground bg-transparent rounded-[4px] border focus:outline-none placeholder:text-muted-foreground",
+                              vmErrors[vm.id]?.target
+                                ? "border-destructive focus:border-destructive"
+                                : "border-transparent focus:border-primary"
+                            )}
+                            onChange={() => {
+                              if (vmErrors[vm.id]?.target) {
+                                setVmErrors((prev) => {
+                                  const next = { ...prev }
+                                  if (next[vm.id]) {
+                                    const { target, ...rest } = next[vm.id]
+                                    if (Object.keys(rest).length === 0) {
+                                      delete next[vm.id]
+                                    } else {
+                                      next[vm.id] = rest
+                                    }
+                                  }
+                                  return next
+                                })
+                                setErrors((prev) => ({ ...prev, valueMappings: '' }))
+                              }
+                            }}
                           />
                         </td>
                         <td className="px-1 py-1">

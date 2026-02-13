@@ -80,6 +80,35 @@ Use the **Figma MCP plugin** (`mcp__plugin_figma_figma-desktop__get_design_conte
 - `src/data/lead-fields.ts` — canonical lead field definitions (IDs, labels, types, enum values) used by autocomplete and add-mapping flyout.
 - `src/features/delivery-method/data/system-lead-fields.ts` — subset of fields available in the bulk-add dialog. Field `name` values here should match `lead-fields.ts` names.
 
+### Validation
+
+The application uses a **progressive configuration** model where users can save incomplete configurations. See [docs/VALIDATION_STRATEGY.md](./docs/VALIDATION_STRATEGY.md) for the complete validation strategy.
+
+**Key principles:**
+- ✅ Validate **format** (URLs, regex patterns), not **completeness**
+- ✅ Validate **on blur**, clear errors **on change**
+- ✅ Allow **partial/incomplete** configurations to be saved
+- ✅ Use **informative, scannable** error messages with examples
+
+**Error message format**: `"Enter valid URL (e.g., https://api.example.com)"` - specific, actionable, with example.
+
+**Implementation pattern**:
+```tsx
+const [errors, setErrors] = useState<Record<string, string>>({})
+
+<DebouncedInput
+  onBlur={(e) => {
+    const error = validateUrl(e.target.value) // Returns '' or error message
+    setErrors(prev => ({ ...prev, field: error }))
+  }}
+  onChange={() => errors.field && setErrors(prev => ({ ...prev, field: '' }))}
+  className={cn(errors.field && 'border-destructive')}
+/>
+{errors.field && <p className="text-xs text-destructive mt-1">{errors.field}</p>}
+```
+
+**What to validate**: URL format, email format, regex pattern validity. **What NOT to validate**: required fields, completeness (auth can be incomplete, mappings can be empty, etc.).
+
 ### Key Conventions
 
 - **Authentication types**: No Authentication, Basic, Digest, OAuth 2.0, Bearer Token, Custom (disabled). Auth settings include an "Authentication Request Format" field (Form Encoded / JSON).

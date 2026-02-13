@@ -49,8 +49,8 @@ export function AddNotificationDialog({ open, onClose, onSave }: AddNotification
 
   const handleSave = useCallback(() => {
     const newErrors: Record<string, string> = {}
-    if (!user) newErrors.user = 'User is required'
-    if (!emailEnabled && !smsEnabled) newErrors.channel = 'At least one notification channel is required'
+    if (!user) newErrors.user = 'Select user'
+    if (!emailEnabled && !smsEnabled) newErrors.channel = 'Select at least one notification channel'
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return

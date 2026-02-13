@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect, useRef } from 'react'
 import { useDeliveryMethodStore } from '@/features/delivery-method/store'
 import {
   PanelLayout,
@@ -10,6 +10,8 @@ import {
 } from '@/components/panel-layout'
 import { Button } from '@/components/ui/button'
 import { UnsavedChangesDialog } from '@/components/ui/unsaved-changes-dialog'
+import { SavingOverlay } from '@/components/ui/saving-overlay'
+import { toast } from '@/components/ui/use-toast'
 import { GeneralSettings } from './general-settings'
 import { UrlEndpointSettings } from './url-endpoint-settings'
 import { AuthenticationSettings } from './authentication-settings'
@@ -67,7 +69,11 @@ function isSectionActive(
   return activePanel.section === section
 }
 
-export function DeliveryMethodEditor() {
+interface DeliveryMethodEditorProps {
+  onClose?: () => void
+}
+
+export function DeliveryMethodEditor({ onClose }: DeliveryMethodEditorProps = {}) {
   const activePanel = useDeliveryMethodStore((s) => s.activePanel)
   const setActivePanel = useDeliveryMethodStore((s) => s.setActivePanel)
   const isPingExpanded = useDeliveryMethodStore((s) => s.isPingExpanded)
@@ -76,11 +82,31 @@ export function DeliveryMethodEditor() {
   const togglePingExpanded = useDeliveryMethodStore((s) => s.togglePingExpanded)
   const togglePostExpanded = useDeliveryMethodStore((s) => s.togglePostExpanded)
   const togglePanelExpanded = useDeliveryMethodStore((s) => s.togglePanelExpanded)
+  const config = useDeliveryMethodStore((s) => s.config)
 
   const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
-  const [hasUnsavedChanges] = useState(true) // TODO: Implement proper dirty tracking
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Store initial config snapshot on mount to detect changes
+  const initialConfigRef = useRef<string | null>(null)
 
   const title = getPanelTitle(activePanel)
+
+  // Track changes by comparing current config to initial snapshot
+  useEffect(() => {
+    const currentSnapshot = JSON.stringify(config)
+
+    // On first mount, store the initial config
+    if (initialConfigRef.current === null) {
+      initialConfigRef.current = currentSnapshot
+      return
+    }
+
+    // Compare current config to initial config
+    const hasChanges = currentSnapshot !== initialConfigRef.current
+    setHasUnsavedChanges(hasChanges)
+  }, [config])
 
   const handleNavClick = useCallback(
     (panel: ActivePanel) => {
@@ -93,24 +119,43 @@ export function DeliveryMethodEditor() {
     if (hasUnsavedChanges) {
       setUnsavedDialogOpen(true)
     } else {
-      // Actually close the panel
-      console.log('Close panel')
+      onClose?.()
     }
-  }, [hasUnsavedChanges])
+  }, [hasUnsavedChanges, onClose])
 
-  const handleSave = useCallback(() => {
-    // TODO: Implement save logic
-    console.log('Save changes')
+  const handleSave = useCallback(async (closeAfterSave = false) => {
+    setIsSaving(true)
+
+    // Simulate async save operation (API call)
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    // TODO: Replace with actual API call
+    console.log('Save changes', config)
+
+    // Update initial config snapshot to current state after save
+    initialConfigRef.current = JSON.stringify(config)
+    setHasUnsavedChanges(false)
     setUnsavedDialogOpen(false)
-    // Actually close the panel
-  }, [])
+    setIsSaving(false)
+
+    // Show success toast
+    toast({
+      variant: 'success',
+      title: 'Changes saved successfully',
+    })
+
+    // Close editor and return to Create Delivery Method modal only if requested
+    if (closeAfterSave) {
+      onClose?.()
+    }
+  }, [config, onClose])
 
   const handleDiscard = useCallback(() => {
     // TODO: Implement discard logic
     console.log('Discard changes')
     setUnsavedDialogOpen(false)
-    // Actually close the panel
-  }, [])
+    onClose?.()
+  }, [onClose])
 
   const isPingGroupActive = activePanel.section === 'ping'
   const isPostGroupActive = activePanel.section === 'post'
@@ -250,13 +295,14 @@ export function DeliveryMethodEditor() {
                 <Button variant="secondary" size="sm" onClick={handleClose}>
                   Close
                 </Button>
-                <Button size="sm" onClick={handleSave}>Save</Button>
+                <Button size="sm" onClick={() => handleSave(false)}>Save</Button>
               </>
             }
           />
         }
       >
         {renderContent()}
+        <SavingOverlay open={isSaving} message="Saving..." />
       </PanelLayout>
 
       <AddMappingPanel />
@@ -265,7 +311,8 @@ export function DeliveryMethodEditor() {
         open={unsavedDialogOpen}
         onCancel={() => setUnsavedDialogOpen(false)}
         onDiscard={handleDiscard}
-        onSave={handleSave}
+        onSave={() => handleSave(true)}
+        isSaving={isSaving}
       />
     </div>
   )

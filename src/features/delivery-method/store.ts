@@ -131,6 +131,9 @@ export interface DeliveryMethodStore {
   // Computed getters
   getPingMappedFields: () => MappedFieldTag[];
   getPostMappedFields: () => MappedFieldTag[];
+
+  // Reset store to default state
+  resetStore: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -874,4 +877,17 @@ export const useDeliveryMethodStore = create<DeliveryMethodStore>()((set, get) =
 
     return [...inherited, ...postOnly];
   },
+
+  // ---- Reset Store ----
+  resetStore: () =>
+    set({
+      config: defaultConfig,
+      activePanel: { section: 'general' } as ActivePanel,
+      isPingExpanded: true,
+      isPostExpanded: true,
+      isPanelExpanded: false,
+      flyoutOpen: false,
+      flyoutData: null,
+      flyoutContext: 'ping' as const,
+    }),
 }));

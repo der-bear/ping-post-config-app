@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { bypassCreationModal } from './helpers/bypass-creation-modal'
 
 test.describe('PING Configuration', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
+    await bypassCreationModal(page)
   })
 
   test.describe('URL Endpoint', () => {
@@ -136,6 +137,12 @@ test.describe('PING Configuration', () => {
 
     test('renders retry fields', async ({ page }) => {
       await expect(page.getByText('Retry After Failure')).toBeVisible()
+
+      // Enable retry to show additional fields
+      await page.locator('button[role="combobox"]').click()
+      await page.getByRole('option', { name: 'Yes' }).click()
+
+      // Now the retry count and interval fields should be visible
       await expect(page.getByText('Max Retry Count')).toBeVisible()
       await expect(page.getByText('Time Between Retries')).toBeVisible()
     })

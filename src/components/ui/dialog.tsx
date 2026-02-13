@@ -114,9 +114,13 @@ DialogDescription.displayName = DialogPrimitive.Description.displayName
 function DialogPanelHeader({
   title,
   className,
+  onClose,
+  showClose = true,
 }: {
   title: string
   className?: string
+  onClose?: () => void
+  showClose?: boolean
 }) {
   return (
     <div
@@ -129,16 +133,30 @@ function DialogPanelHeader({
       <DialogPrimitive.Title className="text-[20px] leading-[28px] font-semibold text-primary-foreground">
         {title}
       </DialogPrimitive.Title>
-      <DialogPrimitive.Close asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          aria-label="Close"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </DialogPrimitive.Close>
+      {showClose && (
+        onClose ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            aria-label="Close"
+            onClick={onClose}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        ) : (
+          <DialogPrimitive.Close asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogPrimitive.Close>
+        )
+      )}
     </div>
   )
 }

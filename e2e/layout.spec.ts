@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { bypassCreationModal } from './helpers/bypass-creation-modal'
 
 test.describe('Panel Layout', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
+    await bypassCreationModal(page)
   })
 
   test('renders the main panel with sidebar and header', async ({ page }) => {

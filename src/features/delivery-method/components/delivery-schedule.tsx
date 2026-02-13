@@ -68,7 +68,7 @@ export function DeliverySchedule() {
   )
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {DAYS.map((day) => {
         const daySchedule = schedule[day.key]
         return (

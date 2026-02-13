@@ -1,17 +1,16 @@
-import { DeliveryMethodEditor } from '@/features/delivery-method'
-import { useDeliveryMethodStore } from '@/features/delivery-method/store'
+import { DeliveryMethodEntry } from '@/features/delivery-method/components/delivery-method-entry'
 import { useThemeStore } from '@/hooks/use-theme'
 import { Button } from '@/components/ui/button'
+import { Toaster } from '@/components/ui/toaster'
 import { Moon, Sun } from 'lucide-react'
 
 function App() {
   const { resolvedTheme, setTheme } = useThemeStore()
-  const isPanelExpanded = useDeliveryMethodStore((s) => s.isPanelExpanded)
 
   return (
-    <div className="h-screen flex flex-col bg-background p-4 md:p-8">
+    <div className="h-screen flex flex-col bg-background">
       {/* Theme toggle */}
-      <div className="flex justify-end mb-4 shrink-0">
+      <div className="fixed top-4 right-4 z-50 shrink-0">
         <Button
           variant="outline"
           size="sm"
@@ -23,13 +22,11 @@ function App() {
         </Button>
       </div>
 
-      {/* Main editor */}
-      <div
-        className="mx-auto w-full flex-1 min-h-0 transition-[max-width] duration-200"
-        style={{ maxWidth: isPanelExpanded ? 800 : 600, minWidth: 400 }}
-      >
-        <DeliveryMethodEditor />
-      </div>
+      {/* Main content */}
+      <DeliveryMethodEntry />
+
+      {/* Toast notifications */}
+      <Toaster />
     </div>
   )
 }

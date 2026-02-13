@@ -43,8 +43,8 @@ export function AddHeaderDialog({ open, onClose, onSave, editData }: AddHeaderDi
     const value = (fd.get('value') as string)?.trim() ?? ''
 
     const newErrors: Record<string, string> = {}
-    if (!name) newErrors.name = 'Header name is required'
-    if (!value) newErrors.value = 'Header value is required'
+    if (!name) newErrors.name = 'Enter name'
+    if (!value) newErrors.value = 'Enter value'
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return

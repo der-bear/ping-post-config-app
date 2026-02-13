@@ -78,7 +78,7 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <FieldGroup label="Retry After Failure">
         <Select value={retryValue} onValueChange={handleRetryChange}>
           <SelectTrigger>
@@ -97,7 +97,7 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
         </Select>
       </FieldGroup>
 
-      {(isSameAsPing || retry.retryAfterFailure) && (
+      {(isSameAsPing ? pingRetry.retryAfterFailure : retry.retryAfterFailure) && (
         <>
           <FieldGroup label="Max Retry Count">
             <Select
@@ -109,7 +109,7 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
               </SelectTrigger>
               <SelectContent>
                 {RETRY_COUNTS.map((opt) => {
-                  if (!isPing && opt.value === String(pingRetry.maxRetryCount)) {
+                  if (!isPing && isSameAsPing && opt.value === String(pingRetry.maxRetryCount)) {
                     return (
                       <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
                         {opt.label}
@@ -136,7 +136,7 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
               </SelectTrigger>
               <SelectContent>
                 {TIME_BETWEEN_RETRIES.map((opt) => {
-                  if (!isPing && opt.value === String(pingRetry.timeBetweenRetries)) {
+                  if (!isPing && isSameAsPing && opt.value === String(pingRetry.timeBetweenRetries)) {
                     return (
                       <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
                         {opt.label}
