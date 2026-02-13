@@ -34,7 +34,7 @@ export function DeliveryMethodEntry() {
         <div className="h-screen flex flex-col p-4 md:p-8">
           <div
             className="mx-auto w-full flex-1 min-h-0 transition-[max-width] duration-200"
-            style={{ maxWidth: isPanelExpanded ? 800 : 600, minWidth: 480 }}
+            style={{ maxWidth: isPanelExpanded ? 860 : 600, minWidth: 480 }}
           >
             <DeliveryMethodEditor onClose={handleEditorClose} />
           </div>
