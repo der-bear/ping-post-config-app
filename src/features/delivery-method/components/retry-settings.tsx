@@ -41,10 +41,10 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
   const retry = isPing ? pingRetry : postRetry
   const isSameAsPing = !isPing && postRetry.sameAsPing
 
-  // For POST with sameAsPing, show "Same as PING" in all selects
+  // For POST with sameAsPing, show "Same as PING" in Retry After Failure, but show PING's actual values in other selects
   const retryValue = isSameAsPing ? 'same-as-ping' : (retry.retryAfterFailure ? 'yes' : 'no')
-  const countValue = isSameAsPing ? 'same-as-ping' : String(retry.maxRetryCount)
-  const timeValue = isSameAsPing ? 'same-as-ping' : String(retry.timeBetweenRetries)
+  const countValue = isSameAsPing ? String(pingRetry.maxRetryCount) : String(retry.maxRetryCount)
+  const timeValue = isSameAsPing ? String(pingRetry.timeBetweenRetries) : String(retry.timeBetweenRetries)
 
   const sameAsPingMeta = 'Same as PING'
 
