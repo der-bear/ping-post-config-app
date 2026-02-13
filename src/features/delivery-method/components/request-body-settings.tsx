@@ -52,7 +52,7 @@ export function RequestBodySettings({ phase }: RequestBodySettingsProps) {
   }, [selectedField])
 
   return (
-    <div className="absolute inset-4 flex flex-col">
+    <div className="absolute inset-0 flex flex-col">
       <div className="flex items-center pb-3">
         <div className="flex-1">
           <Select value={selectedField} onValueChange={setSelectedField}>
