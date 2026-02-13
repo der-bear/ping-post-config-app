@@ -1,33 +1,78 @@
 # Page snapshot
 
 ```yaml
-- generic:
-  - generic:
-    - generic:
-      - generic:
-        - button:
-          - img
-          - text: Dark Mode
-      - list
-  - dialog "Create Ping/Post Delivery Method" [ref=e2]:
-    - generic [ref=e3]:
-      - heading "Create Ping/Post Delivery Method" [level=2] [ref=e4]
-      - button "Close" [ref=e5]:
-        - img
-    - generic [ref=e6]:
-      - generic [ref=e7]:
-        - generic [ref=e8]: Description
-        - textbox "e.g., Acme Corp Mortgage Ping/Post" [ref=e10]
-      - generic [ref=e11]:
-        - generic [ref=e12]: Lead Type*
-        - generic [ref=e13]:
-          - combobox [ref=e14]:
-            - generic: Select lead type
-            - img [ref=e15]
-          - paragraph [ref=e17]: Select lead type
-    - generic [ref=e19]:
-      - button "Back" [ref=e20]
-      - generic [ref=e21]:
-        - button "Cancel" [ref=e22]
-        - button "Create" [active] [ref=e23]
+- generic [ref=e3]:
+  - button "Toggle theme" [ref=e5]:
+    - img
+    - text: Dark Mode
+  - generic [ref=e9]:
+    - navigation [ref=e11]:
+      - button "General" [ref=e12]
+      - generic [ref=e13]:
+        - button "PING Configuration" [ref=e14]:
+          - generic [ref=e15]: PING Configuration
+          - img [ref=e16]
+        - generic [ref=e18]:
+          - button "URL Endpoint" [ref=e19]
+          - button "Authentication" [ref=e20]
+          - button "Mappings" [ref=e21]
+          - button "Request Body" [ref=e22]
+          - button "Response Settings" [ref=e23]
+          - button "Retry Settings" [ref=e24]
+      - generic [ref=e25]:
+        - button "POST Configuration" [ref=e26]:
+          - generic [ref=e27]: POST Configuration
+          - img [ref=e28]
+        - generic [ref=e30]:
+          - button "URL Endpoint" [ref=e31]
+          - button "Authentication" [ref=e32]
+          - button "Mappings" [ref=e33]
+          - button "Request Body" [ref=e34]
+          - button "Response Settings" [ref=e35]
+          - button "Retry Settings" [ref=e36]
+      - button "Portal Permissions" [ref=e37]
+      - button "Delivery Schedule" [ref=e38]
+      - button "Notifications" [ref=e39]
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - heading "Delivery Method Detail" [level=1] [ref=e42]
+        - generic [ref=e43]:
+          - button "Expand" [ref=e44]:
+            - img
+          - button "Close" [ref=e45]:
+            - img
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e49]: Description
+          - textbox "Enter a description..." [ref=e51]
+        - generic [ref=e52]:
+          - generic [ref=e53]: Lead Type
+          - combobox [disabled] [ref=e55]:
+            - generic: Mortgage
+            - img [ref=e56]
+        - generic [ref=e58]:
+          - generic [ref=e59]: Environment
+          - combobox [ref=e61]:
+            - generic: Testing
+            - img [ref=e62]
+        - heading "Phone Call Settings" [level=3] [ref=e65]
+        - generic [ref=e66]:
+          - generic [ref=e67]: Process for Phone Calls
+          - combobox [ref=e69]:
+            - generic: Default
+            - img [ref=e70]
+        - generic [ref=e72]:
+          - generic [ref=e73]: When to Process with Phone Calls
+          - combobox [ref=e75]:
+            - generic: Start of Call
+            - img [ref=e76]
+      - generic [ref=e78]:
+        - generic [ref=e79]:
+          - button "Generate Request" [ref=e80]
+          - button "Export" [ref=e81]
+        - generic [ref=e82]:
+          - button "Close" [ref=e83]
+          - button "Save" [ref=e84]
+  - region "Notifications (F8)":
+    - list
 ```

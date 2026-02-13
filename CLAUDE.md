@@ -15,6 +15,49 @@ npx playwright test --grep "test name"      # Run tests matching a pattern
 
 Dev server runs on port 5174 during manual development; Playwright auto-starts its own on port 5173.
 
+## Quick Reference
+
+### Key Files
+- `src/App.tsx` — Root component with theme toggle
+- `src/features/delivery-method/store.ts` — Single Zustand store (900 lines)
+- `src/features/delivery-method/types.ts` — TypeScript definitions (294 lines)
+- `src/data/lead-fields.ts` — 96 canonical lead field definitions (961 lines)
+- `src/features/delivery-method/components/index.tsx` — Main editor orchestrator
+- `src/components/ui/` — 20+ shadcn/ui components (barrel exported)
+- `docs/VALIDATION_STRATEGY.md` — Complete validation documentation (447 lines)
+
+### File Organization
+```
+src/
+├── components/
+│   ├── ui/                    # shadcn/ui primitives (20+ components)
+│   ├── code-editor/           # CodeMirror integration
+│   ├── data-grid/             # Sortable table component
+│   ├── field-group.tsx        # Label + input wrapper
+│   ├── flyout-panel/          # Slide-in panel
+│   └── panel-layout/          # Sidebar + header + content + footer
+├── features/delivery-method/
+│   ├── components/            # 21 feature-specific components
+│   │   ├── index.tsx          # Main editor (DeliveryMethodEditor)
+│   │   ├── delivery-method-entry.tsx  # Entry point
+│   │   ├── *-settings.tsx     # 10 settings panels
+│   │   ├── add-mapping-panel.tsx
+│   │   └── create-*.tsx       # Creation flow modals
+│   ├── data/
+│   │   └── system-lead-fields.ts  # Mock buyer field names
+│   ├── types.ts               # All TypeScript interfaces
+│   └── store.ts               # Zustand store with 40+ actions
+├── data/
+│   └── lead-fields.ts         # Canonical lead field definitions
+├── hooks/
+│   └── use-theme.ts           # Dark mode toggle
+├── lib/
+│   └── utils.ts               # cn() Tailwind utility
+└── index.css                  # Tailwind v4 + design tokens
+```
+
+---
+
 ## Project Purpose
 
 This is a **prototype** for configuring ping-post lead delivery methods. The core problem it solves: different lead buyers have different field naming conventions and data requirements. This tool configures how to **map system lead fields to buyer-specific delivery field names** and handle the two-phase ping-post delivery flow.
@@ -39,16 +82,78 @@ Built with React 19, TypeScript, Vite 7, Tailwind CSS v4, and Zustand v5.
 
 ### State Management
 
-All application state lives in a single Zustand store at `src/features/delivery-method/store.ts`. The store holds:
-- `config: DeliveryMethodConfig` — the full configuration tree (general, ping, post, permissions, schedule, notifications)
-- `activePanel: ActivePanel` — which sidebar panel is currently displayed
-- Navigation expand/collapse state and flyout (add-mapping panel) state
+All application state lives in a single Zustand store at `src/features/delivery-method/store.ts` (~900 lines).
 
-The `DeliveryMethodConfig` type (in `src/features/delivery-method/types.ts`) mirrors the PING/POST duality: POST types extend PING types with `sameAsPing` flags (e.g., `PostAuthenticationConfig extends AuthenticationConfig` adds `sameAsPing: boolean`).
+**Store Structure**:
+```typescript
+{
+  // Configuration data
+  config: {
+    general: GeneralSettings             // Description, lead type, environment
+    ping: {
+      urlEndpoint: UrlEndpointConfig     // URLs, content type, headers
+      authentication: AuthenticationConfig
+      mappings: { mappings: FieldMapping[] }
+      requestBody: { body: string }      // JSON template
+      responseSettings: ResponseSettingsConfig
+      retrySettings: RetrySettingsConfig
+    }
+    post: {
+      urlEndpoint: PostUrlEndpointConfig  // Extends PING with sameAsPing flags
+      authentication: PostAuthenticationConfig
+      mappings: PostMappingsConfig       // Includes includeMappingsFromPing
+      requestBody: { body: string }
+      responseSettings: PostResponseSettingsConfig
+      retrySettings: PostRetrySettingsConfig
+    }
+    portalPermissions: PortalPermissions
+    deliverySchedule: DeliveryScheduleConfig  // Monday-Sunday schedules
+    notifications: NotificationsConfig
+  }
+
+  // UI state
+  activePanel: ActivePanel               // Which panel is displayed
+  isPingExpanded: boolean                // PING section collapsed?
+  isPostExpanded: boolean                // POST section collapsed?
+  isPanelExpanded: boolean               // Panel width (600px vs 800px)
+  flyoutOpen: boolean                    // Add mapping panel visible?
+  flyoutData: FieldMapping | null        // Mapping being edited
+  flyoutContext: 'ping' | 'post'         // Which phase's mapping
+}
+```
+
+**Type System** (`src/features/delivery-method/types.ts`, 294 lines):
+- POST types extend PING types with `sameAsPing` flags
+- Example: `PostAuthenticationConfig extends AuthenticationConfig` adds `sameAsPing: boolean`
+- Union types for navigation: `ActivePanel = { section: 'general' } | { section: 'ping', tab: PingPostTab } | ...`
+
+**Store Actions** (40+):
+- `updateGeneral(partial)`, `updatePingUrlEndpoint(partial)`, etc.
+- `addPingMapping(mapping)`, `removePingMapping(id)`, `updatePingMapping(id, partial)`
+- `getPingMappedFields()`, `getPostMappedFields()` — computed getters
+- `resetStore()` — reset to default state
 
 ### "Same as PING" Pattern
 
-POST settings can inherit from PING. This is implemented as a **dropdown select option** (not a checkbox). When a POST select shows "Same as PING", the underlying store flag (e.g., `sameAsPing`, `contentTypeSameAsPing`, `timeoutSameAsPing`) is set to `true` and the field controls are disabled. The select value uses a sentinel like `'same-as-ping'` or `'same'` that maps to the store flag.
+**Why it exists**: Most buyers use the same authentication, content type, timeout, and headers for both PING and POST endpoints. Rather than duplicate configuration, POST can inherit from PING.
+
+**Implementation**: Implemented as a **dropdown select option** (not a checkbox). When a POST select shows "Same as PING", the underlying store flag (e.g., `sameAsPing`, `contentTypeSameAsPing`, `timeoutSameAsPing`) is set to `true` and the field controls are disabled.
+
+**Example** (POST Authentication):
+```typescript
+// If sameAsPing: true, POST uses PING's auth config
+// If sameAsPing: false, POST has its own auth config
+
+post: {
+  authentication: {
+    type: 'basic',          // Ignored if sameAsPing: true
+    sameAsPing: true,       // ← Use PING's auth
+    basicAuth: { ... }      // Ignored if sameAsPing: true
+  }
+}
+```
+
+**UI Behavior**: Select dropdown shows "Same as PING" as first option. When selected, all auth fields become disabled. User must select different auth type to configure POST-specific auth.
 
 ### Layout System
 
@@ -127,11 +232,13 @@ interface FieldMapping {
 - Example: `{"zip": "[postal_code]", "ip": "[ip_address]"}`
 - Autocomplete suggests available mapped fields
 
-### Validation
+### Validation (Not Yet Implemented)
 
-The application uses a **progressive configuration** model where users can save incomplete configurations. See [docs/VALIDATION_STRATEGY.md](./docs/VALIDATION_STRATEGY.md) for the complete validation strategy.
+The application is designed for a **progressive configuration** model where users can save incomplete configurations. See [docs/VALIDATION_STRATEGY.md](./docs/VALIDATION_STRATEGY.md) for the complete validation strategy.
 
-**Key principles:**
+**Status**: Validation is **documented but not yet implemented**. The strategy is ready for when you add validation.
+
+**Key principles** (when implemented):
 - ✅ Validate **format** (URLs, regex patterns), not **completeness**
 - ✅ Validate **on blur**, clear errors **on change**
 - ✅ Allow **partial/incomplete** configurations to be saved
@@ -139,7 +246,7 @@ The application uses a **progressive configuration** model where users can save 
 
 **Error message format**: `"Enter valid URL (e.g., https://api.example.com)"` - specific, actionable, with example.
 
-**Implementation pattern**:
+**Planned implementation pattern**:
 ```tsx
 const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -154,7 +261,7 @@ const [errors, setErrors] = useState<Record<string, string>>({})
 {errors.field && <p className="text-xs text-destructive mt-1">{errors.field}</p>}
 ```
 
-**What to validate**: URL format, email format, regex pattern validity. **What NOT to validate**: required fields, completeness (auth can be incomplete, mappings can be empty, etc.).
+**What to validate** (when implemented): URL format, email format, regex pattern validity. **What NOT to validate**: required fields, completeness (auth can be incomplete, mappings can be empty, etc.).
 
 ### Implementation Status
 
@@ -198,7 +305,7 @@ const [errors, setErrors] = useState<Record<string, string>>({})
 
 ### Tests
 
-67 Playwright e2e tests across 8 spec files in `e2e/`. Test files:
+67 Playwright e2e tests across 8 spec files in `e2e/` (901 lines). Test files:
 - `layout.spec.ts` — panel layout, footer buttons, theme toggle
 - `navigation.spec.ts` — sidebar navigation, collapse/expand
 - `general-settings.spec.ts` — general settings fields
@@ -207,3 +314,69 @@ const [errors, setErrors] = useState<Record<string, string>>({})
 - `shared-settings.spec.ts` — portal permissions, delivery schedule, notifications
 - `add-mapping-dialog.spec.ts` — add/edit mapping dialog and New dropdown
 - `bulk-add-dialog.spec.ts` — bulk add dialog
+
+**Test Helper**: `e2e/helpers/bypass-creation-modal.ts` — bypasses the creation modal to access the editor directly for testing.
+
+**Coverage**: All major UI workflows tested, but no unit tests for validation logic or store actions (validation not yet implemented).
+
+---
+
+## Development Workflow
+
+### Adding New Features
+
+1. **Types First** — Update `src/features/delivery-method/types.ts`
+2. **Store Actions** — Add actions to `src/features/delivery-method/store.ts`
+3. **UI Component** — Create component in `src/features/delivery-method/components/`
+4. **Connect to Store** — Use Zustand hooks: `const config = useDeliveryMethodStore(s => s.config)`
+5. **Add Tests** — Create Playwright spec in `e2e/`
+6. **Update Navigation** — If new panel, update navigation config in `index.tsx`
+
+### Common Patterns
+
+**Reading from Store**:
+```typescript
+const { config, updatePingUrlEndpoint } = useDeliveryMethodStore()
+const productionUrl = config.ping.urlEndpoint.productionUrl
+```
+
+**Updating Store**:
+```typescript
+const updateEndpoint = useDeliveryMethodStore(s => s.updatePingUrlEndpoint)
+updateEndpoint({ productionUrl: 'https://api.example.com' })
+```
+
+**Adding to Arrays**:
+```typescript
+const addMapping = useDeliveryMethodStore(s => s.addPingMapping)
+addMapping({ id: nanoid(), type: 'Lead Field', name: 'zip', mappedTo: 'postal_code', ... })
+```
+
+### Next Development Steps
+
+**Phase 1: Backend Integration** (highest priority)
+- [ ] Create API client layer (`src/api/`)
+- [ ] Implement save/load configuration endpoints
+- [ ] Add loading states and error handling
+- [ ] Implement request preview (show what will be sent)
+- [ ] Build test tool (send test ping/post with sample data)
+
+**Phase 2: Validation** (see VALIDATION_STRATEGY.md)
+- [ ] Implement URL format validation
+- [ ] Add email format validation
+- [ ] Add regex pattern validation
+- [ ] Implement component-level error state
+- [ ] Add global validation on save
+
+**Phase 3: Enhanced Mapping**
+- [ ] Implement value mappings (transform enum values)
+- [ ] Enable "Static Value" mapping type
+- [ ] Enable "System Field" mapping type
+- [ ] Add calculated expressions and functions
+
+**Phase 4: Production Hardening**
+- [ ] Dirty state tracking (unsaved changes warning)
+- [ ] Error boundaries
+- [ ] Toast notifications for save success/failure
+- [ ] Accessibility improvements (ARIA labels)
+- [ ] Performance optimization (virtualize large lists)

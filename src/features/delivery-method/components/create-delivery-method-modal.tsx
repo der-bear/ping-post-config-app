@@ -140,7 +140,7 @@ export function CreateDeliveryMethodModal({
 
   const handleContinue = () => {
     if (!selectedMethod) {
-      setErrors({ method: 'Select delivery method' })
+      setErrors({ method: 'Select delivery method to continue' })
       return
     }
     if (selectedMethod === 'ping-post') {
@@ -160,7 +160,7 @@ export function CreateDeliveryMethodModal({
     const newErrors: Record<string, string> = {}
 
     if (!leadType) {
-      newErrors.leadType = 'Select lead type'
+      newErrors.leadType = 'Select lead type for field mappings'
     }
 
     if (Object.keys(newErrors).length > 0) {
