@@ -1,0 +1,354 @@
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useDeliveryMethodStore } from '@/features/delivery-method/store'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogPanelHeader,
+} from '@/components/ui/dialog'
+import { FieldGroup, SectionHeading } from '@/components/field-group'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+  SelectLabel,
+} from '@/components/ui/select'
+import { Plus, Trash2 } from 'lucide-react'
+import { LEAD_FIELDS, LEAD_FIELD_CATEGORIES } from '@/data/lead-fields'
+import type { FieldMapping, ValueMapping } from '@/features/delivery-method/types'
+import { cn } from '@/lib/utils'
+
+// Group lead fields by category — static data, computed once at module level
+const groupedFields = LEAD_FIELD_CATEGORIES.map((cat) => ({
+  ...cat,
+  fields: LEAD_FIELDS.filter((f) => f.category === cat.id),
+}))
+
+export function AddMappingPanel() {
+  const flyoutOpen = useDeliveryMethodStore((s) => s.flyoutOpen)
+  const flyoutData = useDeliveryMethodStore((s) => s.flyoutData)
+  const flyoutContext = useDeliveryMethodStore((s) => s.flyoutContext)
+  const closeFlyout = useDeliveryMethodStore((s) => s.closeFlyout)
+  const addPingMapping = useDeliveryMethodStore((s) => s.addPingMapping)
+  const addPostMapping = useDeliveryMethodStore((s) => s.addPostMapping)
+  const updatePingMapping = useDeliveryMethodStore((s) => s.updatePingMapping)
+  const updatePostMapping = useDeliveryMethodStore((s) => s.updatePostMapping)
+
+  const isEditing = flyoutData !== null
+  const phase = flyoutContext
+
+  const formRef = useRef<HTMLFormElement>(null)
+
+  // Only interactive controls need state (Select, Switch, dynamic list)
+  const [leadField, setLeadField] = useState('')
+  const [useInPost, setUseInPost] = useState(true)
+  const [hasValueMappings, setHasValueMappings] = useState(false)
+  const [valueMappings, setValueMappings] = useState<ValueMapping[]>([])
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Increment to force form remount (resets uncontrolled inputs)
+  const [formKey, setFormKey] = useState(0)
+
+  useEffect(() => {
+    if (flyoutOpen) {
+      setFormKey((k) => k + 1)
+      setErrors({})
+      if (flyoutData) {
+        setLeadField(flyoutData.mappedTo)
+        setUseInPost(flyoutData.useInPost)
+        setHasValueMappings(flyoutData.hasValueMappings)
+        setValueMappings(flyoutData.valueMappings)
+      } else {
+        setLeadField('')
+        setUseInPost(true)
+        setHasValueMappings(false)
+        setValueMappings([])
+      }
+    }
+  }, [flyoutOpen, flyoutData])
+
+  const handleAddValueMapping = useCallback(() => {
+    setValueMappings((prev) => [
+      ...prev,
+      { id: `vm-${Date.now()}`, sourceValue: '', targetValue: '' },
+    ])
+  }, [])
+
+  const handleRemoveValueMapping = useCallback((id: string) => {
+    setValueMappings((prev) => prev.filter((vm) => vm.id !== id))
+  }, [])
+
+  const handleSave = useCallback(() => {
+    const form = formRef.current
+    if (!form) return
+
+    const fd = new FormData(form)
+    const name = (fd.get('name') as string)?.trim() ?? ''
+    const defaultValue = (fd.get('defaultValue') as string) ?? ''
+    const testValue = (fd.get('testValue') as string) ?? ''
+
+    // Validate
+    const newErrors: Record<string, string> = {}
+    if (!name) newErrors.name = 'Delivery field name is required'
+    if (!leadField) newErrors.leadField = 'Lead field is required'
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      return
+    }
+
+    // Read value mapping values from form
+    const vmData: ValueMapping[] = valueMappings.map((vm) => ({
+      id: vm.id,
+      sourceValue: (fd.get(`vm-source-${vm.id}`) as string) ?? '',
+      targetValue: (fd.get(`vm-target-${vm.id}`) as string) ?? '',
+    }))
+
+    const mapping: FieldMapping = {
+      id: isEditing && flyoutData ? flyoutData.id : `mapping-${Date.now()}`,
+      type: 'Lead Field',
+      name,
+      mappedTo: leadField,
+      defaultValue,
+      testValue,
+      useInPost,
+      hasValueMappings,
+      valueMappings: hasValueMappings ? vmData : [],
+    }
+
+    if (isEditing) {
+      if (phase === 'ping') {
+        updatePingMapping(flyoutData.id, mapping)
+      } else {
+        updatePostMapping(flyoutData.id, mapping)
+      }
+    } else {
+      if (phase === 'ping') {
+        addPingMapping(mapping)
+      } else {
+        addPostMapping(mapping)
+      }
+    }
+
+    closeFlyout()
+  }, [
+    isEditing,
+    flyoutData,
+    leadField,
+    useInPost,
+    hasValueMappings,
+    valueMappings,
+    phase,
+    addPingMapping,
+    addPostMapping,
+    updatePingMapping,
+    updatePostMapping,
+    closeFlyout,
+  ])
+
+  return (
+    <Dialog open={flyoutOpen} onOpenChange={(open) => !open && closeFlyout()}>
+      <DialogContent
+        className="max-w-md p-0 gap-0 overflow-hidden shadow-[0px_16px_32px_-8px_rgba(0,0,0,0.1)]"
+        showClose={false}
+      >
+        <DialogPanelHeader title={isEditing ? 'Edit Field Mapping' : 'Lead Field Mapping'} />
+        <DialogDescription className="sr-only">
+          {isEditing ? 'Edit an existing field mapping' : 'Add a new field mapping'}
+        </DialogDescription>
+
+        {/* Content — form key forces remount to reset uncontrolled inputs */}
+        <form
+          ref={formRef}
+          key={formKey}
+          className="px-4 py-4 max-h-[70vh] overflow-y-auto"
+          onSubmit={(e) => e.preventDefault()}
+        >
+          <div className="space-y-4">
+            <FieldGroup label="Delivery Field Name" required>
+              <Input
+                name="name"
+                defaultValue={flyoutData?.name ?? ''}
+                placeholder="e.g. first_name"
+                className={cn(errors.name && 'border-destructive')}
+                onChange={() => errors.name && setErrors((prev) => ({ ...prev, name: '' }))}
+              />
+              {errors.name && (
+                <p className="text-xs text-destructive mt-1">{errors.name}</p>
+              )}
+            </FieldGroup>
+
+            <FieldGroup label="Lead Field" required>
+              <Select
+                value={leadField}
+                onValueChange={(v) => {
+                  setLeadField(v)
+                  if (errors.leadField) setErrors((prev) => ({ ...prev, leadField: '' }))
+                }}
+              >
+                <SelectTrigger className={cn(errors.leadField && 'border-destructive')}>
+                  <SelectValue placeholder="Select a lead field" />
+                </SelectTrigger>
+                <SelectContent>
+                  {groupedFields.map((group) => (
+                    <SelectGroup key={group.id}>
+                      <SelectLabel>{group.label}</SelectLabel>
+                      {group.fields.map((field) => (
+                        <SelectItem key={field.id} value={field.name}>
+                          {field.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.leadField && (
+                <p className="text-xs text-destructive mt-1">{errors.leadField}</p>
+              )}
+            </FieldGroup>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FieldGroup label="Default Value (If Blank)">
+                <Input
+                  name="defaultValue"
+                  defaultValue={flyoutData?.defaultValue ?? ''}
+                  placeholder="Default value"
+                />
+              </FieldGroup>
+              <FieldGroup label="Test Value">
+                <Input
+                  name="testValue"
+                  defaultValue={flyoutData?.testValue ?? ''}
+                  placeholder="Test value"
+                />
+              </FieldGroup>
+            </div>
+
+            {phase === 'ping' && (
+              <>
+                <Separator />
+                <div className="flex gap-4 items-start">
+                  <Switch id="use-in-post" checked={useInPost} onCheckedChange={setUseInPost} />
+                  <div className="space-y-0.5">
+                    <Label htmlFor="use-in-post" className="text-sm font-normal cursor-pointer">Use also in POST</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Automatically add the field mapping into the POST configuration.
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
+
+            <Separator />
+
+            <SectionHeading variant="small" title="Value Mapping" />
+
+            <div className="flex gap-4 items-start">
+              <Switch
+                id="has-value-mappings"
+                checked={hasValueMappings}
+                onCheckedChange={setHasValueMappings}
+              />
+              <div className="space-y-0.5">
+                <Label htmlFor="has-value-mappings" className="text-sm font-normal cursor-pointer">Has Value Mappings</Label>
+                <p className="text-xs text-muted-foreground">
+                  Value maps allow you to change the outgoing value.
+                </p>
+              </div>
+            </div>
+
+            {hasValueMappings && (
+              <>
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <SectionHeading variant="small" title="Value Mappings" />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1.5 text-muted-foreground"
+                    onClick={handleAddValueMapping}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add
+                  </Button>
+                </div>
+
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left px-3 py-[10px] text-xs font-semibold text-foreground">
+                        Source Value
+                      </th>
+                      <th className="text-left px-3 py-[10px] text-xs font-semibold text-foreground">
+                        Target Value
+                      </th>
+                      <th className="w-9" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {valueMappings.map((vm) => (
+                      <tr key={vm.id} className="border-b border-border group">
+                        <td className="px-1 py-1">
+                          <input
+                            name={`vm-source-${vm.id}`}
+                            defaultValue={vm.sourceValue}
+                            placeholder="Enter value"
+                            className="w-full h-8 px-2 text-xs text-foreground bg-transparent rounded-[4px] border border-transparent focus:border-primary focus:outline-none placeholder:text-muted-foreground"
+                          />
+                        </td>
+                        <td className="px-1 py-1">
+                          <input
+                            name={`vm-target-${vm.id}`}
+                            defaultValue={vm.targetValue}
+                            placeholder="Enter value"
+                            className="w-full h-8 px-2 text-xs text-foreground bg-transparent rounded-[4px] border border-transparent focus:border-primary focus:outline-none placeholder:text-muted-foreground"
+                          />
+                        </td>
+                        <td className="px-1 py-1">
+                          <button
+                            type="button"
+                            className="flex items-center justify-center h-7 w-7 rounded-[4px] text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-accent transition-opacity duration-75"
+                            onClick={() => handleRemoveValueMapping(vm.id)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {valueMappings.length === 0 && (
+                      <tr>
+                        <td colSpan={3} className="text-center py-6 text-xs text-muted-foreground">
+                          No value mappings. Click Add to create one.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </>
+            )}
+          </div>
+        </form>
+
+        {/* Footer */}
+        <DialogFooter className="px-4 py-3 border-t border-border">
+          <Button variant="secondary" onClick={closeFlyout}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave}>
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}

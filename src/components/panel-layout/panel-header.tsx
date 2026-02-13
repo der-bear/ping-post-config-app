@@ -1,0 +1,45 @@
+import { Maximize2, Minimize2, X } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+
+interface PanelHeaderProps {
+  title: string
+  isExpanded?: boolean
+  onMaximize?: () => void
+  onClose?: () => void
+  className?: string
+}
+
+export function PanelHeader({ title, isExpanded, onMaximize, onClose, className }: PanelHeaderProps) {
+  const ExpandIcon = isExpanded ? Minimize2 : Maximize2
+
+  return (
+    <div data-slot="panel-header" className={cn('flex items-center justify-between px-4 py-3 bg-panel-header', className)}>
+      <h1 className="text-[20px] leading-[28px] font-semibold text-primary-foreground">{title}</h1>
+      <div className="flex items-center gap-1.5">
+        {onMaximize && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onMaximize}
+            className="h-8 w-8"
+            aria-label={isExpanded ? 'Collapse' : 'Expand'}
+          >
+            <ExpandIcon className="h-4 w-4" />
+          </Button>
+        )}
+        {onClose && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="h-8 w-8"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    </div>
+  )
+}
