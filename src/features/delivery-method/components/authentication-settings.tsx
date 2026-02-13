@@ -126,7 +126,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
           <FieldGroup label="Username">
             <DebouncedInput
               value={auth.basicAuth?.username ?? ''}
-              onValueCommit={(v) =>
+              onValueCommit={(v: string) =>
                 updateAuth({
                   basicAuth: { username: v, password: auth.basicAuth?.password ?? '' },
                 })
@@ -137,7 +137,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
             <DebouncedInput
               type="password"
               value={auth.basicAuth?.password ?? ''}
-              onValueCommit={(v) =>
+              onValueCommit={(v: string) =>
                 updateAuth({
                   basicAuth: { username: auth.basicAuth?.username ?? '', password: v },
                 })
@@ -152,7 +152,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
           <FieldGroup label="Username">
             <DebouncedInput
               value={auth.digestAuth?.username ?? ''}
-              onValueCommit={(v) =>
+              onValueCommit={(v: string) =>
                 updateAuth({
                   digestAuth: { username: v, password: auth.digestAuth?.password ?? '' },
                 })
@@ -163,7 +163,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
             <DebouncedInput
               type="password"
               value={auth.digestAuth?.password ?? ''}
-              onValueCommit={(v) =>
+              onValueCommit={(v: string) =>
                 updateAuth({
                   digestAuth: { username: auth.digestAuth?.username ?? '', password: v },
                 })
@@ -178,7 +178,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
           <FieldGroup label="Prefix">
             <DebouncedInput
               value={auth.bearerToken?.prefix ?? ''}
-              onValueCommit={(v) =>
+              onValueCommit={(v: string) =>
                 updateAuth({
                   bearerToken: { prefix: v, token: auth.bearerToken?.token ?? '' },
                 })
@@ -188,7 +188,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
           <FieldGroup label="Token">
             <DebouncedInput
               value={auth.bearerToken?.token ?? ''}
-              onValueCommit={(v) =>
+              onValueCommit={(v: string) =>
                 updateAuth({
                   bearerToken: { prefix: auth.bearerToken?.prefix ?? '', token: v },
                 })
@@ -203,7 +203,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
           <FieldGroup label="Token URL">
             <DebouncedInput
               value={auth.oauth2?.tokenUrl ?? ''}
-              onValueCommit={(v) =>
+              onValueCommit={(v: string) =>
                 updateAuth({
                   oauth2: { ...auth.oauth2!, tokenUrl: v },
                 })
@@ -234,7 +234,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
           <FieldGroup label="Username">
             <DebouncedInput
               value={auth.oauth2?.username ?? ''}
-              onValueCommit={(v) =>
+              onValueCommit={(v: string) =>
                 updateAuth({
                   oauth2: { ...auth.oauth2!, username: v },
                 })
@@ -245,7 +245,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
             <DebouncedInput
               type="password"
               value={auth.oauth2?.password ?? ''}
-              onValueCommit={(v) =>
+              onValueCommit={(v: string) =>
                 updateAuth({
                   oauth2: { ...auth.oauth2!, password: v },
                 })
@@ -255,7 +255,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
           <FieldGroup label="Scope">
             <DebouncedInput
               value={auth.oauth2?.scope ?? ''}
-              onValueCommit={(v) =>
+              onValueCommit={(v: string) =>
                 updateAuth({
                   oauth2: { ...auth.oauth2!, scope: v },
                 })

@@ -40,7 +40,7 @@ export function AddNotificationDialog({ open, onClose, onSave }: AddNotification
 
   useEffect(() => {
     if (open) {
-      setUser('')
+      setUser('') // eslint-disable-line react-hooks/set-state-in-effect
       setEmailEnabled(true)
       setSmsEnabled(false)
       setErrors({})

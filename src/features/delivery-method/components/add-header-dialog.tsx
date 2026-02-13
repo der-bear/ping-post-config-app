@@ -27,7 +27,9 @@ export function AddHeaderDialog({ open, onClose, onSave, editData }: AddHeaderDi
 
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormKey((k) => k + 1)
+       
       setErrors({})
     }
   }, [open, editData])

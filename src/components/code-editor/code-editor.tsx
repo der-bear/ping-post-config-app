@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useMemo, useImperativeHandle, forwardRef } from 'react'
+import { useRef, useEffect, useMemo, useImperativeHandle, forwardRef } from 'react'
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
 import { json } from '@codemirror/lang-json'

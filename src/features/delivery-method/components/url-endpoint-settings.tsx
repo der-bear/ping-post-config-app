@@ -114,14 +114,22 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
     ? 'same-as-ping'
     : String(endpoint.timeout)
 
-  const headerData = useMemo(() => endpoint.customHeaders, [endpoint.customHeaders])
+  const headerData = useMemo(() => {
+    if (isPing) {
+      return endpoint.customHeaders
+    }
+    if (postEndpoint.includeHeadersFromPing) {
+      return [...pingEndpoint.customHeaders, ...postEndpoint.customHeaders]
+    }
+    return endpoint.customHeaders
+  }, [isPing, endpoint.customHeaders, postEndpoint.includeHeadersFromPing, postEndpoint.customHeaders, pingEndpoint.customHeaders])
 
   return (
     <div className="space-y-4">
       <FieldGroup label="Production URL">
         <DebouncedInput
           value={endpoint.productionUrl}
-          onValueCommit={(v) => updateEndpoint({ productionUrl: v })}
+          onValueCommit={(v: string) => updateEndpoint({ productionUrl: v })}
           placeholder="https://api.example.com/leads"
         />
       </FieldGroup>
@@ -129,7 +137,7 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
       <FieldGroup label="Testing / Sandbox URL">
         <DebouncedInput
           value={endpoint.testingUrl}
-          onValueCommit={(v) => updateEndpoint({ testingUrl: v })}
+          onValueCommit={(v: string) => updateEndpoint({ testingUrl: v })}
           placeholder="https://sandbox.example.com/leads"
         />
       </FieldGroup>

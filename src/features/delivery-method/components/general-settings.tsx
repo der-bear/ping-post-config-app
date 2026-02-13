@@ -45,7 +45,7 @@ export function GeneralSettings() {
       <FieldGroup label="Description">
         <DebouncedInput
           value={general.description}
-          onValueCommit={(v) => updateGeneral({ description: v })}
+          onValueCommit={(v: string) => updateGeneral({ description: v })}
           placeholder="Enter a description..."
         />
       </FieldGroup>

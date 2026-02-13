@@ -58,9 +58,10 @@ export function AddMappingPanel() {
   // Increment to force form remount (resets uncontrolled inputs)
   const [formKey, setFormKey] = useState(0)
 
+   
   useEffect(() => {
     if (flyoutOpen) {
-      setFormKey((k) => k + 1)
+      setFormKey((k) => k + 1) // eslint-disable-line react-hooks/set-state-in-effect
       setErrors({})
       if (flyoutData) {
         setLeadField(flyoutData.mappedTo)
@@ -249,7 +250,7 @@ export function AddMappingPanel() {
 
             <Separator />
 
-            <SectionHeading variant="small" title="Value Mapping" />
+            <SectionHeading title="Value Mapping" />
 
             <div className="flex gap-4 items-start">
               <Switch
@@ -270,7 +271,7 @@ export function AddMappingPanel() {
                 <Separator />
 
                 <div className="flex items-center justify-between">
-                  <SectionHeading variant="small" title="Value Mappings" />
+                  <SectionHeading title="Value Mappings" />
                   <Button
                     type="button"
                     variant="ghost"

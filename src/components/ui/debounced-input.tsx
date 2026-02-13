@@ -1,7 +1,8 @@
 import { forwardRef, useState, useEffect } from 'react'
-import { Input, type InputProps } from './input'
+import type { InputHTMLAttributes } from 'react'
+import { Input } from './input'
 
-interface DebouncedInputProps extends Omit<InputProps, 'value' | 'onChange'> {
+interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value: string
   onValueCommit: (value: string) => void
 }

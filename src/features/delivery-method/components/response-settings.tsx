@@ -28,7 +28,7 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
 
   return (
     <div className="space-y-4">
-      <SectionHeading variant="small"
+      <SectionHeading
         title="Response Format"
         description={`Select the format returned by the ${isPing ? 'ping' : 'post'} endpoint. This determines how the response is parsed.`}
       />
@@ -61,7 +61,7 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
       {/* ------------------------------------------------------------------ */}
       {isStructured && (
         <>
-          <SectionHeading variant="small"
+          <SectionHeading
             title="Success Response"
             description={`Defines ${isPing ? 'ping' : 'post'} success by evaluating the response field (Key).`}
           />
@@ -70,14 +70,14 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
             <FieldGroup label="Key">
               <DebouncedInput
                 value={response.successKey}
-                onValueCommit={(v) => updateResponse({ successKey: v })}
+                onValueCommit={(v: string) => updateResponse({ successKey: v })}
                 placeholder="e.g. status"
               />
             </FieldGroup>
             <FieldGroup label="Equal to the value">
               <DebouncedInput
                 value={response.successValue}
-                onValueCommit={(v) => updateResponse({ successValue: v })}
+                onValueCommit={(v: string) => updateResponse({ successValue: v })}
                 placeholder="e.g. accepted"
               />
             </FieldGroup>
@@ -88,28 +88,28 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
           {/* PING: Reference ID / POST: Price */}
           {isPing ? (
             <>
-              <SectionHeading variant="small"
+              <SectionHeading
                 title="PING Reference ID"
                 description="Response field (Key) containing the buyer's unique ping identifier."
               />
               <FieldGroup label="Key">
                 <DebouncedInput
                   value={response.referenceIdKey}
-                  onValueCommit={(v) => updateResponse({ referenceIdKey: v })}
+                  onValueCommit={(v: string) => updateResponse({ referenceIdKey: v })}
                   placeholder="e.g. ref_id"
                 />
               </FieldGroup>
             </>
           ) : (
             <>
-              <SectionHeading variant="small"
+              <SectionHeading
                 title="Price"
                 description="Response field (Key) containing the bid price."
               />
               <FieldGroup label="Key">
                 <DebouncedInput
                   value={response.priceKey}
-                  onValueCommit={(v) => updateResponse({ priceKey: v })}
+                  onValueCommit={(v: string) => updateResponse({ priceKey: v })}
                   placeholder="e.g. price"
                 />
               </FieldGroup>
@@ -121,28 +121,28 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
           {/* PING: Bid Price / POST: Redirect URL */}
           {isPing ? (
             <>
-              <SectionHeading variant="small"
+              <SectionHeading
                 title="Bid Price"
                 description="Response field (Key) containing the bid price."
               />
               <FieldGroup label="Key">
                 <DebouncedInput
                   value={response.priceKey}
-                  onValueCommit={(v) => updateResponse({ priceKey: v })}
+                  onValueCommit={(v: string) => updateResponse({ priceKey: v })}
                   placeholder="e.g. bid_price"
                 />
               </FieldGroup>
             </>
           ) : (
             <>
-              <SectionHeading variant="small"
+              <SectionHeading
                 title="Redirect URL"
                 description="Response field (Key) containing the redirect URL."
               />
               <FieldGroup label="Key">
                 <DebouncedInput
                   value={postResponse.redirectUrlKey}
-                  onValueCommit={(v) => updatePostResponseSettings({ redirectUrlKey: v })}
+                  onValueCommit={(v: string) => updatePostResponseSettings({ redirectUrlKey: v })}
                   placeholder="e.g. redirect_url"
                 />
               </FieldGroup>
@@ -156,7 +156,7 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
       {/* ------------------------------------------------------------------ */}
       {isCustom && (
         <>
-          <SectionHeading variant="small"
+          <SectionHeading
             title="Success Response"
             description="Define the search pattern that indicates a successful response."
           />
@@ -164,7 +164,7 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
           <FieldGroup label="Search Pattern">
             <DebouncedInput
               value={response.successSearchPattern}
-              onValueCommit={(v) => updateResponse({ successSearchPattern: v })}
+              onValueCommit={(v: string) => updateResponse({ successSearchPattern: v })}
               placeholder="Enter search pattern"
             />
           </FieldGroup>
@@ -183,14 +183,14 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
           {/* PING: Reference ID / POST: Price */}
           {isPing ? (
             <>
-              <SectionHeading variant="small"
+              <SectionHeading
                 title="PING Reference ID"
                 description="Define the search pattern to extract the reference ID."
               />
               <FieldGroup label="Search Pattern">
                 <DebouncedInput
                   value={response.referenceIdSearchPattern}
-                  onValueCommit={(v) => updateResponse({ referenceIdSearchPattern: v })}
+                  onValueCommit={(v: string) => updateResponse({ referenceIdSearchPattern: v })}
                   placeholder="Enter search pattern"
                 />
               </FieldGroup>
@@ -206,14 +206,14 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
             </>
           ) : (
             <>
-              <SectionHeading variant="small"
+              <SectionHeading
                 title="Price"
                 description="Define the search pattern to extract the price."
               />
               <FieldGroup label="Search Pattern">
                 <DebouncedInput
                   value={response.priceSearchPattern}
-                  onValueCommit={(v) => updateResponse({ priceSearchPattern: v })}
+                  onValueCommit={(v: string) => updateResponse({ priceSearchPattern: v })}
                   placeholder="Enter search pattern"
                 />
               </FieldGroup>
@@ -234,14 +234,14 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
           {/* PING: Bid Price / POST: Redirect URL */}
           {isPing ? (
             <>
-              <SectionHeading variant="small"
+              <SectionHeading
                 title="Bid Price"
                 description="Define the search pattern to extract the bid price."
               />
               <FieldGroup label="Search Pattern">
                 <DebouncedInput
                   value={response.priceSearchPattern}
-                  onValueCommit={(v) => updateResponse({ priceSearchPattern: v })}
+                  onValueCommit={(v: string) => updateResponse({ priceSearchPattern: v })}
                   placeholder="Enter search pattern"
                 />
               </FieldGroup>
@@ -257,14 +257,14 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
             </>
           ) : (
             <>
-              <SectionHeading variant="small"
+              <SectionHeading
                 title="Redirect URL"
                 description="Define the search pattern to extract the redirect URL."
               />
               <FieldGroup label="Search Pattern">
                 <DebouncedInput
                   value={postResponse.redirectUrlSearchPattern}
-                  onValueCommit={(v) => updatePostResponseSettings({ redirectUrlSearchPattern: v })}
+                  onValueCommit={(v: string) => updatePostResponseSettings({ redirectUrlSearchPattern: v })}
                   placeholder="Enter search pattern"
                 />
               </FieldGroup>

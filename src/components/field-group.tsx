@@ -41,10 +41,9 @@ interface SectionHeadingProps {
   title: string
   description?: string
   className?: string
-  variant?: 'default' | 'small'
 }
 
-export function SectionHeading({ title, description, className, variant = 'default' }: SectionHeadingProps) {
+export function SectionHeading({ title, description, className }: SectionHeadingProps) {
   return (
     <div className={cn('space-y-1', className)}>
       <h3 className={cn(
