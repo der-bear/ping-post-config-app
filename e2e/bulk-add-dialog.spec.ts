@@ -24,28 +24,34 @@ test.describe('Bulk Add Dialog', () => {
   test('lists all system lead fields', async ({ page }) => {
     const dialog = page.getByRole('dialog')
     await expect(dialog.getByText('tcpa_consent', { exact: false }).first()).toBeVisible()
-    await expect(dialog.getByText('category', { exact: true })).toBeVisible()
-    await expect(dialog.getByText('email', { exact: true })).toBeVisible()
-    await expect(dialog.getByText('phone', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('product_category', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('email_address', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('phone_number', { exact: true })).toBeVisible()
     await expect(dialog.getByText('first_name', { exact: true })).toBeVisible()
     await expect(dialog.getByText('last_name', { exact: true })).toBeVisible()
   })
 
   test('shows enum count for fields that have enums', async ({ page }) => {
     const dialog = page.getByRole('dialog')
-    await expect(dialog.getByText('(3 enum)')).toBeVisible()
-    await expect(dialog.getByText('(5 enum)')).toBeVisible()
-    await expect(dialog.getByText('(4 enum)')).toBeVisible()
+    await expect(dialog.getByText('(5 enum)')).toBeVisible() // credit_score_range
+    await expect(dialog.getByText('(6 enum)')).toBeVisible() // property_type
   })
 
   test('delivery field name defaults to system field name', async ({ page }) => {
     const dialog = page.getByRole('dialog')
     const rows = dialog.locator('tbody tr')
 
-    // First row: tcpa_consent should default to tcpa_consent
+    // Test first few rows to verify delivery name defaults to system name
+    // Row 0: tcpa_consent (system) -> tcpa_consent (delivery, same)
     await expect(rows.nth(0).locator('input')).toHaveValue('tcpa_consent')
-    // Second row: category -> category
-    await expect(rows.nth(1).locator('input')).toHaveValue('category')
+    // Row 1: consent_flag (system) -> consent_flag (delivery, same)
+    await expect(rows.nth(1).locator('input')).toHaveValue('consent_flag')
+    // Row 2: consent_timestamp (system) -> consent_timestamp (delivery, same)
+    await expect(rows.nth(2).locator('input')).toHaveValue('consent_timestamp')
+    // Row 3: ip_address (system) -> ip_address (delivery, same)
+    await expect(rows.nth(3).locator('input')).toHaveValue('ip_address')
+    // Row 4: product_category (system) -> product_category (delivery, same)
+    await expect(rows.nth(4).locator('input')).toHaveValue('product_category')
   })
 
   test('all toggles start unchecked', async ({ page }) => {

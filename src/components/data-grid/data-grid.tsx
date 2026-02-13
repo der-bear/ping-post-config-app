@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useMemo, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
-import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
+import { ArrowUp, ArrowDown } from 'lucide-react'
 import type { DataGridColumn, SortState } from './types'
 
 interface DataGridProps<T extends { id: string }> {

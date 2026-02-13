@@ -1,11 +1,7 @@
 import { DeliveryMethodEntry } from '@/features/delivery-method/components/delivery-method-entry'
-import { useThemeStore } from '@/hooks/use-theme'
-import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/toaster'
-import { Moon, Sun } from 'lucide-react'
 
 function App() {
-  const { resolvedTheme, setTheme } = useThemeStore()
 
   return (
     <div className="h-screen flex flex-col bg-background">

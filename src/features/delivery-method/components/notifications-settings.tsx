@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo } from 'react'
 import { useDeliveryMethodStore } from '@/features/delivery-method/store'
 import { Switch } from '@/components/ui/switch'
-import { Separator } from '@/components/ui/separator'
 import {
   DataGrid,
   DataGridToolbar,

@@ -134,10 +134,6 @@ export function CreateDeliveryMethodModal({
   const filteredBasic = filterMethods(BASIC_METHODS)
   const filteredAdvanced = filterMethods(ADVANCED_METHODS)
 
-  const selectedMethodData = [...BASIC_METHODS, ...ADVANCED_METHODS].find(
-    (m) => m.id === selectedMethod,
-  )
-
   const handleContinue = () => {
     if (!selectedMethod) {
       setErrors({ method: 'Select delivery method to continue' })
