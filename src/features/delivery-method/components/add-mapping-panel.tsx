@@ -123,7 +123,7 @@ export function AddMappingPanel() {
         }
       })
       if (Object.keys(newVmErrors).length > 0) {
-        newErrors.valueMappings = 'All value mappings must have both source and target values'
+        newErrors.valueMappings = 'Enter both source and target for all mappings'
       }
     }
 
@@ -290,23 +290,18 @@ export function AddMappingPanel() {
               <>
                 <Separator />
 
-                <div>
-                  <div className="flex items-center justify-between">
-                    <SectionHeading title="Value Mappings" />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="gap-1.5 text-muted-foreground"
-                      onClick={handleAddValueMapping}
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add
-                    </Button>
-                  </div>
-                  {errors.valueMappings && (
-                    <p className="text-xs text-destructive mt-2">{errors.valueMappings}</p>
-                  )}
+                <div className="flex items-center justify-between">
+                  <SectionHeading title="Value Mappings" />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1.5 text-muted-foreground"
+                    onClick={handleAddValueMapping}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add
+                  </Button>
                 </div>
 
                 <table className="w-full border-collapse">
@@ -404,6 +399,9 @@ export function AddMappingPanel() {
                     )}
                   </tbody>
                 </table>
+                {errors.valueMappings && (
+                  <p className="text-xs text-destructive mt-2">{errors.valueMappings}</p>
+                )}
               </>
             )}
           </div>
