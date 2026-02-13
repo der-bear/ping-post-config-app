@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 
 export interface Toast {
-  id: string
   title?: string
   description?: string
   action?: React.ReactNode
@@ -10,6 +9,8 @@ export interface Toast {
 
 type ToasterToast = Toast & {
   id: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 const TOAST_LIMIT = 1

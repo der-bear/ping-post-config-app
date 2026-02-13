@@ -126,27 +126,37 @@ export function DeliveryMethodEditor({ onClose }: DeliveryMethodEditorProps = {}
   const handleSave = useCallback(async (closeAfterSave = false) => {
     setIsSaving(true)
 
-    // Simulate async save operation (API call)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      // Simulate async save operation (API call)
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    // TODO: Replace with actual API call
-    console.log('Save changes', config)
+      // TODO: Replace with actual API call
+      console.log('Save changes', config)
 
-    // Update initial config snapshot to current state after save
-    initialConfigRef.current = JSON.stringify(config)
-    setHasUnsavedChanges(false)
-    setUnsavedDialogOpen(false)
-    setIsSaving(false)
+      // Update initial config snapshot to current state after save
+      initialConfigRef.current = JSON.stringify(config)
+      setHasUnsavedChanges(false)
+      setUnsavedDialogOpen(false)
 
-    // Show success toast
-    toast({
-      variant: 'success',
-      title: 'Changes saved successfully',
-    })
+      // Show success toast
+      toast({
+        variant: 'success',
+        title: 'Changes saved successfully',
+      })
 
-    // Close editor and return to Create Delivery Method modal only if requested
-    if (closeAfterSave) {
-      onClose?.()
+      // Close editor and return to Create Delivery Method modal only if requested
+      if (closeAfterSave) {
+        onClose?.()
+      }
+    } catch (error) {
+      // Show error toast if save fails
+      toast({
+        variant: 'destructive',
+        title: 'Failed to save changes',
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+      })
+    } finally {
+      setIsSaving(false)
     }
   }, [config, onClose])
 

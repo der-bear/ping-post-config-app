@@ -23,7 +23,14 @@ export function UnsavedChangesDialog({
   isSaving = false,
 }: UnsavedChangesDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={isSaving ? undefined : onCancel}>
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        if (!isSaving && !open) {
+          onCancel()
+        }
+      }}
+    >
       <DialogContent
         className="max-w-[480px] p-0 gap-0 overflow-hidden shadow-[0px_16px_32px_-8px_rgba(0,0,0,0.1)]"
         showClose={false}
