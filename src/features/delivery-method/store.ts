@@ -369,8 +369,8 @@ export const useDeliveryMethodStore = create<DeliveryMethodStore>()((set, get) =
   // ---- State ----
   config: defaultConfig,
   activePanel: { section: 'general' } as ActivePanel,
-  isPingExpanded: true,
-  isPostExpanded: true,
+  isPingExpanded: false,
+  isPostExpanded: false,
   isPanelExpanded: false,
   flyoutOpen: false,
   flyoutData: null,
@@ -883,8 +883,8 @@ export const useDeliveryMethodStore = create<DeliveryMethodStore>()((set, get) =
     set({
       config: defaultConfig,
       activePanel: { section: 'general' } as ActivePanel,
-      isPingExpanded: true,
-      isPostExpanded: true,
+      isPingExpanded: false,
+      isPostExpanded: false,
       isPanelExpanded: false,
       flyoutOpen: false,
       flyoutData: null,

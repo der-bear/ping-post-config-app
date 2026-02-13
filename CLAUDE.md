@@ -347,6 +347,53 @@ const [errors, setErrors] = useState<Record<string, string>>({})
 
 ---
 
+## Deployment
+
+### GitHub Pages
+
+The project is configured for automatic deployment to GitHub Pages via GitHub Actions.
+
+**Live URL**: `https://<username>.github.io/ping-post-config-app/`
+
+**Setup Requirements**:
+1. Enable GitHub Pages in repository settings:
+   - Go to Settings → Pages
+   - Set Source to "GitHub Actions"
+
+2. Configuration files (already set up):
+   - `vite.config.ts` — Base path set to `/ping-post-config-app/`
+   - `.github/workflows/deploy.yml` — GitHub Actions workflow
+
+**Deployment Workflow**:
+- Automatically deploys on every push to `main` branch
+- Can also be triggered manually via Actions tab → "Deploy to GitHub Pages" → Run workflow
+- Build process runs TypeScript check + Vite production build
+- Artifacts are uploaded to GitHub Pages environment
+- Deployment typically completes in 2-3 minutes
+
+**Vite Configuration**:
+```typescript
+// vite.config.ts
+export default defineConfig({
+  base: '/ping-post-config-app/',  // Must match repository name
+  plugins: [react(), tailwindcss()],
+  // ...
+})
+```
+
+**GitHub Actions Workflow** (`.github/workflows/deploy.yml`):
+- Triggers: push to main, manual workflow_dispatch
+- Node version: 20
+- Steps: checkout → install dependencies → build → deploy
+- Permissions: requires `pages: write` and `id-token: write`
+
+**Common Issues**:
+- **Build failures**: Check TypeScript errors with `npm run build` locally
+- **404 on deployment**: Verify base path in `vite.config.ts` matches repository name
+- **Pages not enabled**: Ensure GitHub Pages source is set to "GitHub Actions" in repository settings
+
+---
+
 ## Recent Changes (February 2026)
 
 ### Dark Mode Refinement
