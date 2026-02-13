@@ -6,6 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectSeparator,
 } from '@/components/ui/select'
 
 interface RetrySettingsProps {
@@ -95,9 +96,12 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
           </SelectTrigger>
           <SelectContent>
             {!isPing && (
-              <SelectItem value="same-as-ping" meta={sameAsPingMeta}>
-                {pingRetry.retryAfterFailure ? 'Yes' : 'No'}
-              </SelectItem>
+              <>
+                <SelectItem value="same-as-ping" meta={sameAsPingMeta}>
+                  {pingRetry.retryAfterFailure ? 'Yes' : 'No'}
+                </SelectItem>
+                <SelectSeparator />
+              </>
             )}
             <SelectItem value="yes">Yes</SelectItem>
             <SelectItem value="no">No</SelectItem>

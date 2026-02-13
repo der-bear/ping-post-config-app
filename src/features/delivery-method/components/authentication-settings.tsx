@@ -9,6 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectSeparator,
 } from '@/components/ui/select'
 import type {
   AuthenticationType,
@@ -106,9 +107,12 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
           </SelectTrigger>
           <SelectContent>
             {!isPing && (
-              <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
-                {getAuthLabel(pingAuth.type)}
-              </SelectItem>
+              <>
+                <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
+                  {getAuthLabel(pingAuth.type)}
+                </SelectItem>
+                <SelectSeparator />
+              </>
             )}
             {AUTH_TYPES.map((at) => (
               <SelectItem key={at.value} value={at.value} disabled={at.disabled}>
