@@ -3,14 +3,14 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
-// Route definitions shared with src/config/routes.ts
+// Route definitions — slugs must match src/config/routes.ts
 const FEATURE_PATHS = [
-  { path: '/ping-post-config-app', html: 'ping-post-config-app.html' },
-  { path: '/campaign-configuration', html: 'campaign-configuration.html' },
+  { slug: 'ping-post', html: 'ping-post-config-app.html' },
+  { slug: 'campaign-configuration', html: 'campaign-configuration.html' },
 ]
 
 export default defineConfig({
-  base: '/',
+  base: '/ping-post-config-app/',
   plugins: [
     react(),
     tailwindcss(),
@@ -19,7 +19,7 @@ export default defineConfig({
       name: 'mpa-rewrite',
       configureServer(server) {
         server.middlewares.use((req, _res, next) => {
-          const match = FEATURE_PATHS.find((f) => req.url?.startsWith(f.path))
+          const match = FEATURE_PATHS.find((f) => req.url?.includes(f.slug))
           if (match) req.url = `/${match.html}`
           next()
         })
