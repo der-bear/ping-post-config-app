@@ -174,4 +174,50 @@ input[type="time"] {
   color-scheme: dark;
 }
 
+/* InputGroup (used by Combobox) — match project input styling */
+[data-slot="input-group"] {
+  border-color: var(--color-border-strong);
+  border-radius: 4px;
+  box-shadow: none;
+  height: 2.5rem; /* h-10 matching Input */
+}
+
+[data-slot="input-group"]:hover {
+  border-color: var(--color-border-hover);
+}
+
+[data-slot="input-group"]:focus-within {
+  border-color: var(--color-ring);
+  outline: 2px solid var(--color-ring);
+  outline-offset: 1px;
+  box-shadow: none;
+}
+
+/* Combobox dropdown — match dropdown-menu styling */
+[data-slot="combobox-content"] {
+  border-radius: 4px;
+  box-shadow: var(--shadow-md);
+  ring: none;
+  --tw-ring-shadow: none;
+  border: 1px solid var(--color-border);
+}
+
+[data-slot="combobox-item"] {
+  border-radius: 0;
+  padding: 8px 12px;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+[data-slot="combobox-item"][data-highlighted] {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+[data-slot="combobox-label"] {
+  padding: 8px 12px;
+  font-weight: 600;
+  color: var(--color-muted-foreground);
+}
+
 /* CodeMirror — all styling handled in EditorView.theme() inside code-editor.tsx */

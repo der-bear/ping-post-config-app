@@ -1,5 +1,5 @@
 import { useDeliveryMethodStore } from '@/features/delivery-method/store'
-import { FieldGroup, SectionHeading } from '@/components/field-group'
+import { FieldGroup, SectionHeading } from '@/components/ui/field-group'
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import {
   Select,

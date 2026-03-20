@@ -1,0 +1,60 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e7]:
+    - navigation [ref=e9]:
+      - button "General" [ref=e10]
+      - generic [ref=e11]:
+        - button "PING Configuration" [ref=e12]:
+          - generic [ref=e13]: PING Configuration
+          - img [ref=e14]
+        - generic [ref=e16]:
+          - button "URL Endpoint" [ref=e17]
+          - button "Authentication" [ref=e18]
+          - button "Mappings" [ref=e19]
+          - button "Request Body" [ref=e20]
+          - button "Response Settings" [ref=e21]
+          - button "Retry Settings" [ref=e22]
+      - generic [ref=e23]:
+        - button "POST Configuration" [ref=e24]:
+          - generic [ref=e25]: POST Configuration
+          - img [ref=e26]
+        - generic [ref=e28]:
+          - button "URL Endpoint" [ref=e29]
+          - button "Authentication" [active] [ref=e30]
+          - button "Mappings" [ref=e31]
+          - button "Request Body" [ref=e32]
+          - button "Response Settings" [ref=e33]
+          - button "Retry Settings" [ref=e34]
+      - button "Portal Permissions" [ref=e35]
+      - button "Delivery Schedule" [ref=e36]
+      - button "Notifications" [ref=e37]
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - heading "Authentication (POST)" [level=1] [ref=e41]
+        - generic [ref=e42]:
+          - button "Expand" [ref=e43]:
+            - img
+          - button "Close" [ref=e44]:
+            - img
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - generic [ref=e48]: Authentication Type
+          - combobox [ref=e50]:
+            - generic:
+              - generic:
+                - generic: No Authentication
+                - generic: Same as PING
+            - img [ref=e51]
+        - button "Test Authentication" [disabled]
+      - generic [ref=e53]:
+        - generic [ref=e54]:
+          - button "Generate Request" [ref=e55]
+          - button "Export" [ref=e56]
+        - generic [ref=e57]:
+          - button "Close" [ref=e58]
+          - button "Save" [ref=e59]
+  - region "Notifications (F8)":
+    - list
+```

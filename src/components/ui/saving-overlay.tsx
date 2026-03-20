@@ -4,20 +4,23 @@ import { cn } from '@/lib/utils'
 interface SavingOverlayProps {
   open: boolean
   message?: string
+  className?: string
 }
 
 /**
  * Overlay with loading spinner for save operations
  * Scoped to parent container (use within panel body)
  */
-export function SavingOverlay({ open, message = 'Saving...' }: SavingOverlayProps) {
+export function SavingOverlay({ open, message = 'Saving...', className }: SavingOverlayProps) {
   if (!open) return null
 
   return (
     <div
+      data-slot="saving-overlay"
       className={cn(
         'absolute inset-0 z-50 bg-background/80 backdrop-blur-sm',
-        'flex items-center justify-center'
+        'flex items-center justify-center',
+        className,
       )}
       role="status"
       aria-live="polite"

@@ -6,6 +6,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface UnsavedChangesDialogProps {
   open: boolean
@@ -13,6 +14,7 @@ interface UnsavedChangesDialogProps {
   onDiscard: () => void
   onSave: () => void
   isSaving?: boolean
+  className?: string
 }
 
 export function UnsavedChangesDialog({
@@ -21,6 +23,7 @@ export function UnsavedChangesDialog({
   onDiscard,
   onSave,
   isSaving = false,
+  className,
 }: UnsavedChangesDialogProps) {
   return (
     <Dialog
@@ -32,7 +35,8 @@ export function UnsavedChangesDialog({
       }}
     >
       <DialogContent
-        className="max-w-[480px] p-0 gap-0 overflow-hidden shadow-[0px_16px_32px_-8px_rgba(0,0,0,0.1)]"
+        data-slot="unsaved-changes-dialog"
+        className={cn("max-w-[480px] p-0 gap-0 overflow-hidden shadow-panel", className)}
         showClose={false}
         onPointerDownOutside={(e) => isSaving && e.preventDefault()}
       >

@@ -10,8 +10,7 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
   test.describe('Authentication Inheritance', () => {
     test('should show "Same as PING" option with separator in POST authentication', async ({ page }) => {
       // Navigate to POST Authentication
-      await page.getByRole('button', { name: 'POST', exact: true }).click()
-      await page.getByRole('button', { name: 'Authentication', exact: true }).first().click()
+      await page.getByRole('button', { name: 'Authentication' }).nth(1).click()
 
       // Open Authentication Type dropdown
       await page.getByLabel('Authentication Type').click()
@@ -30,7 +29,6 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
 
     test('should inherit PING authentication settings in POST', async ({ page }) => {
       // Set PING authentication to Basic
-      await page.getByRole('button', { name: 'PING', exact: true }).click()
       await page.getByRole('button', { name: 'Authentication', exact: true }).first().click()
       await page.getByLabel('Authentication Type').click()
       await page.getByRole('option', { name: 'Basic' }).click()
@@ -40,8 +38,7 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
       await page.getByLabel('Password').fill('testpass')
 
       // Navigate to POST Authentication
-      await page.getByRole('button', { name: 'POST', exact: true }).click()
-      await page.getByRole('button', { name: 'Authentication', exact: true }).first().click()
+      await page.getByRole('button', { name: 'Authentication' }).nth(1).click()
 
       // Verify POST shows "Same as PING" with Basic auth
       const authTypeSelect = page.getByLabel('Authentication Type')
@@ -60,14 +57,12 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
 
     test('should break inheritance when changing auth type in POST', async ({ page }) => {
       // Set PING authentication to Basic
-      await page.getByRole('button', { name: 'PING', exact: true }).click()
       await page.getByRole('button', { name: 'Authentication', exact: true }).first().click()
       await page.getByLabel('Authentication Type').click()
       await page.getByRole('option', { name: 'Basic' }).click()
 
       // Navigate to POST and change auth type
-      await page.getByRole('button', { name: 'POST', exact: true }).click()
-      await page.getByRole('button', { name: 'Authentication', exact: true }).first().click()
+      await page.getByRole('button', { name: 'Authentication' }).nth(1).click()
       await page.getByLabel('Authentication Type').click()
       await page.getByRole('option', { name: 'Bearer Token' }).click()
 
@@ -83,15 +78,13 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
 
     test('should break inheritance when focusing on auth field in POST', async ({ page }) => {
       // Set PING authentication to Basic
-      await page.getByRole('button', { name: 'PING', exact: true }).click()
       await page.getByRole('button', { name: 'Authentication', exact: true }).first().click()
       await page.getByLabel('Authentication Type').click()
       await page.getByRole('option', { name: 'Basic' }).click()
       await page.getByLabel('Username').fill('pinguser')
 
       // Navigate to POST (should inherit)
-      await page.getByRole('button', { name: 'POST', exact: true }).click()
-      await page.getByRole('button', { name: 'Authentication', exact: true }).first().click()
+      await page.getByRole('button', { name: 'Authentication' }).nth(1).click()
 
       // Verify initially inheriting and disabled
       await expect(page.getByLabel('Username')).toBeDisabled()
@@ -109,8 +102,7 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
   test.describe('Retry Inheritance', () => {
     test('should show "Same as PING" option with separator in POST retry settings', async ({ page }) => {
       // Navigate to POST Retry Settings
-      await page.getByRole('button', { name: 'POST', exact: true }).click()
-      await page.getByRole('button', { name: 'Retry Settings', exact: true }).first().click()
+      await page.getByRole('button', { name: 'Retry Settings' }).nth(1).click()
 
       // Open Retry After Failure dropdown
       await page.getByLabel('Retry After Failure').click()
@@ -130,7 +122,6 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
 
     test('should inherit PING retry settings in POST', async ({ page }) => {
       // Set PING retry settings
-      await page.getByRole('button', { name: 'PING', exact: true }).click()
       await page.getByRole('button', { name: 'Retry Settings', exact: true }).first().click()
       await page.getByLabel('Retry After Failure').click()
       await page.getByRole('option', { name: 'Yes', exact: true }).click()
@@ -142,8 +133,7 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
       await page.getByRole('option', { name: '10 seconds' }).click()
 
       // Navigate to POST Retry Settings
-      await page.getByRole('button', { name: 'POST', exact: true }).click()
-      await page.getByRole('button', { name: 'Retry Settings', exact: true }).first().click()
+      await page.getByRole('button', { name: 'Retry Settings' }).nth(1).click()
 
       // Verify POST shows "Same as PING" with Yes
       const retrySelect = page.getByLabel('Retry After Failure')
@@ -163,7 +153,6 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
 
     test('should show PING values (not blank) when inheriting retry settings', async ({ page }) => {
       // Set PING retry settings with specific values
-      await page.getByRole('button', { name: 'PING', exact: true }).click()
       await page.getByRole('button', { name: 'Retry Settings', exact: true }).first().click()
       await page.getByLabel('Retry After Failure').click()
       await page.getByRole('option', { name: 'Yes', exact: true }).click()
@@ -173,8 +162,7 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
       await page.getByRole('option', { name: '30 seconds' }).click()
 
       // Navigate to POST
-      await page.getByRole('button', { name: 'POST', exact: true }).click()
-      await page.getByRole('button', { name: 'Retry Settings', exact: true }).first().click()
+      await page.getByRole('button', { name: 'Retry Settings' }).nth(1).click()
 
       // Verify fields show PING's actual values (not blank)
       await expect(page.getByLabel('Max Retry Count')).toContainText('5')
@@ -187,14 +175,12 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
 
     test('should break inheritance when changing retry after failure in POST', async ({ page }) => {
       // Set PING retry to Yes
-      await page.getByRole('button', { name: 'PING', exact: true }).click()
       await page.getByRole('button', { name: 'Retry Settings', exact: true }).first().click()
       await page.getByLabel('Retry After Failure').click()
       await page.getByRole('option', { name: 'Yes', exact: true }).click()
 
       // Navigate to POST and change to No
-      await page.getByRole('button', { name: 'POST', exact: true }).click()
-      await page.getByRole('button', { name: 'Retry Settings', exact: true }).first().click()
+      await page.getByRole('button', { name: 'Retry Settings' }).nth(1).click()
       await page.getByLabel('Retry After Failure').click()
       await page.getByRole('option', { name: 'No', exact: true }).click()
 
@@ -210,7 +196,6 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
 
     test('should break inheritance when opening retry count dropdown in POST', async ({ page }) => {
       // Set PING retry settings
-      await page.getByRole('button', { name: 'PING', exact: true }).click()
       await page.getByRole('button', { name: 'Retry Settings', exact: true }).first().click()
       await page.getByLabel('Retry After Failure').click()
       await page.getByRole('option', { name: 'Yes', exact: true }).click()
@@ -218,8 +203,7 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
       await page.getByRole('option', { name: '3' }).click()
 
       // Navigate to POST (should inherit)
-      await page.getByRole('button', { name: 'POST', exact: true }).click()
-      await page.getByRole('button', { name: 'Retry Settings', exact: true }).first().click()
+      await page.getByRole('button', { name: 'Retry Settings' }).nth(1).click()
 
       // Verify initially disabled
       await expect(page.getByLabel('Max Retry Count')).toBeDisabled()
@@ -238,7 +222,6 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
 
     test('should handle switching back to "Same as PING" after breaking inheritance', async ({ page }) => {
       // Set PING retry to Yes with count 3
-      await page.getByRole('button', { name: 'PING', exact: true }).click()
       await page.getByRole('button', { name: 'Retry Settings', exact: true }).first().click()
       await page.getByLabel('Retry After Failure').click()
       await page.getByRole('option', { name: 'Yes', exact: true }).click()
@@ -246,8 +229,7 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
       await page.getByRole('option', { name: '3' }).click()
 
       // Navigate to POST, break inheritance by selecting different value
-      await page.getByRole('button', { name: 'POST', exact: true }).click()
-      await page.getByRole('button', { name: 'Retry Settings', exact: true }).first().click()
+      await page.getByRole('button', { name: 'Retry Settings' }).nth(1).click()
       await page.getByLabel('Retry After Failure').click()
       await page.getByRole('option', { name: 'No', exact: true }).click()
 
@@ -266,7 +248,6 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
   test.describe('Cross-setting Inheritance', () => {
     test('should maintain independent inheritance states for auth and retry', async ({ page }) => {
       // Set PING auth to Basic
-      await page.getByRole('button', { name: 'PING', exact: true }).click()
       await page.getByRole('button', { name: 'Authentication', exact: true }).first().click()
       await page.getByLabel('Authentication Type').click()
       await page.getByRole('option', { name: 'Basic' }).click()
@@ -277,8 +258,7 @@ test.describe('Inheritance Logic - Authentication and Retry Settings', () => {
       await page.getByRole('option', { name: 'Yes', exact: true }).click()
 
       // Go to POST - verify both inherit
-      await page.getByRole('button', { name: 'POST', exact: true }).click()
-      await page.getByRole('button', { name: 'Authentication', exact: true }).first().click()
+      await page.getByRole('button', { name: 'Authentication' }).nth(1).click()
       await expect(page.getByLabel('Authentication Type')).toContainText('Same as PING')
 
       await page.getByRole('button', { name: 'Retry Settings', exact: true }).first().click()

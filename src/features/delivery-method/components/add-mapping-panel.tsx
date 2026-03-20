@@ -7,30 +7,42 @@ import {
   DialogFooter,
   DialogPanelHeader,
 } from '@/components/ui/dialog'
-import { FieldGroup, SectionHeading } from '@/components/field-group'
+import { FieldGroup, SectionHeading } from '@/components/ui/field-group'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  SelectGroup,
-  SelectLabel,
-} from '@/components/ui/select'
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxGroup,
+  ComboboxLabel,
+  ComboboxCollection,
+  ComboboxEmpty,
+} from '@/components/ui/combobox'
 import { Plus, Trash2 } from 'lucide-react'
 import { LEAD_FIELDS, LEAD_FIELD_CATEGORIES } from '@/data/lead-fields'
 import type { FieldMapping, ValueMapping } from '@/features/delivery-method/types'
 import { cn } from '@/lib/utils'
 
-// Group lead fields by category — static data, computed once at module level
-const groupedFields = LEAD_FIELD_CATEGORIES.map((cat) => ({
-  ...cat,
-  fields: LEAD_FIELDS.filter((f) => f.category === cat.id),
+// Lead field items for combobox — { value, label } structure for @base-ui auto-detection
+type LeadFieldOption = { value: string; label: string }
+
+// Group lead fields by category — nested structure for @base-ui grouped combobox
+const leadFieldGroups = LEAD_FIELD_CATEGORIES.map((cat) => ({
+  value: cat.id,
+  label: cat.label,
+  items: LEAD_FIELDS.filter((f) => f.category === cat.id).map((f) => ({
+    value: f.name,
+    label: f.label,
+  })),
 }))
+
+// Flat list for value lookup
+const allLeadFieldOptions: LeadFieldOption[] = LEAD_FIELDS.map((f) => ({ value: f.name, label: f.label }))
 
 export function AddMappingPanel() {
   const flyoutOpen = useDeliveryMethodStore((s) => s.flyoutOpen)
@@ -177,7 +189,7 @@ export function AddMappingPanel() {
   return (
     <Dialog open={flyoutOpen} onOpenChange={(open) => !open && closeFlyout()}>
       <DialogContent
-        className="max-w-md p-0 gap-0 overflow-hidden shadow-[0px_16px_32px_-8px_rgba(0,0,0,0.1)]"
+        className="max-w-md p-0 gap-0 overflow-hidden shadow-panel"
         showClose={false}
       >
         <DialogPanelHeader title={isEditing ? 'Edit Field Mapping' : 'Lead Field Mapping'} />
@@ -207,29 +219,36 @@ export function AddMappingPanel() {
             </FieldGroup>
 
             <FieldGroup label="Lead Field" required>
-              <Select
-                value={leadField}
-                onValueChange={(v) => {
-                  setLeadField(v)
+              <Combobox
+                items={leadFieldGroups}
+                value={leadField ? allLeadFieldOptions.find((f) => f.value === leadField) ?? null : null}
+                onValueChange={(item: LeadFieldOption | null) => {
+                  setLeadField(item?.value ?? '')
                   if (errors.leadField) setErrors((prev) => ({ ...prev, leadField: '' }))
                 }}
               >
-                <SelectTrigger className={cn(errors.leadField && 'border-destructive')}>
-                  <SelectValue placeholder="Select a lead field" />
-                </SelectTrigger>
-                <SelectContent>
-                  {groupedFields.map((group) => (
-                    <SelectGroup key={group.id}>
-                      <SelectLabel>{group.label}</SelectLabel>
-                      {group.fields.map((field) => (
-                        <SelectItem key={field.id} value={field.name}>
-                          {field.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  ))}
-                </SelectContent>
-              </Select>
+                <ComboboxInput
+                  placeholder="Search lead fields..."
+                  className={cn(errors.leadField && 'border-destructive')}
+                />
+                <ComboboxContent>
+                  <ComboboxEmpty>No lead field found.</ComboboxEmpty>
+                  <ComboboxList>
+                    {(group) => (
+                      <ComboboxGroup key={group.value} items={group.items}>
+                        <ComboboxLabel>{group.label}</ComboboxLabel>
+                        <ComboboxCollection>
+                          {(field: LeadFieldOption) => (
+                            <ComboboxItem key={field.value} value={field}>
+                              {field.label}
+                            </ComboboxItem>
+                          )}
+                        </ComboboxCollection>
+                      </ComboboxGroup>
+                    )}
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
               {errors.leadField && (
                 <p className="text-xs text-destructive mt-1">{errors.leadField}</p>
               )}

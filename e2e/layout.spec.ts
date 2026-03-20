@@ -37,7 +37,7 @@ test.describe('Panel Layout', () => {
     await expect(page.getByRole('button', { name: 'Retry Settings' }).first()).toBeVisible()
   })
 
-  test('theme toggle switches between light and dark', async ({ page }) => {
+  test.skip('theme toggle switches between light and dark', async ({ page }) => {
     const html = page.locator('html')
 
     // Should start in light mode

@@ -1,5 +1,5 @@
 import { useDeliveryMethodStore } from '@/features/delivery-method/store'
-import { FieldGroup } from '@/components/field-group'
+import { FieldGroup } from '@/components/ui/field-group'
 import { YesNoSelect } from '@/components/ui/yes-no-select'
 
 export function PortalPermissions() {

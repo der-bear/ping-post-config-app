@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { FieldGroup } from '@/components/field-group'
+import { FieldGroup } from '@/components/ui/field-group'
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import {
   Select,

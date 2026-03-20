@@ -20,7 +20,7 @@ export function FieldGroup({
   horizontal = false,
 }: FieldGroupProps) {
   return (
-    <div className={cn('flex flex-col gap-2', horizontal && 'flex-row items-center gap-4', className)}>
+    <div data-slot="field-group" className={cn('flex flex-col gap-2', horizontal && 'flex-row items-center gap-4', className)}>
       {label && (
         <Label className={cn('block font-normal', horizontal && 'min-w-[140px] mb-0')}>
           {label}
@@ -40,16 +40,21 @@ export function FieldGroup({
 interface SectionHeadingProps {
   title: string
   description?: string
+  icon?: ReactNode
   className?: string
 }
 
-export function SectionHeading({ title, description, className }: SectionHeadingProps) {
+export function SectionHeading({ title, description, icon, className }: SectionHeadingProps) {
   return (
-    <div className={cn('space-y-1', className)}>
+    <div data-slot="section-heading" className={cn('space-y-1', className)}>
       <h3 className={cn(
         'font-semibold text-foreground',
         'text-sm leading-5',
-      )}>{title}</h3>
+        icon && 'flex items-center gap-2',
+      )}>
+        {icon && <span className="shrink-0 size-5 text-primary">{icon}</span>}
+        {title}
+      </h3>
       {description && (
         <p className="text-xs text-muted-foreground">{description}</p>
       )}

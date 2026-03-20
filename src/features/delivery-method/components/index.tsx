@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect, useRef } from 'react'
+import { useCallback, useState } from 'react'
 import { useDeliveryMethodStore } from '@/features/delivery-method/store'
 import {
   PanelLayout,
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { UnsavedChangesDialog } from '@/components/ui/unsaved-changes-dialog'
 import { SavingOverlay } from '@/components/ui/saving-overlay'
 import { toast } from '@/components/ui/use-toast'
+import { useUnsavedChanges } from '@/hooks/use-unsaved-changes'
 import { GeneralSettings } from './general-settings'
 import { UrlEndpointSettings } from './url-endpoint-settings'
 import { AuthenticationSettings } from './authentication-settings'
@@ -85,28 +86,10 @@ export function DeliveryMethodEditor({ onClose }: DeliveryMethodEditorProps = {}
   const config = useDeliveryMethodStore((s) => s.config)
 
   const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-
-  // Store initial config snapshot on mount to detect changes
-  const initialConfigRef = useRef<string | null>(null)
+  const { hasUnsavedChanges, markSaved } = useUnsavedChanges(config)
 
   const title = getPanelTitle(activePanel)
-
-  // Track changes by comparing current config to initial snapshot
-  useEffect(() => {
-    const currentSnapshot = JSON.stringify(config)
-
-    // On first mount, store the initial config
-    if (initialConfigRef.current === null) {
-      initialConfigRef.current = currentSnapshot
-      return
-    }
-
-    // Compare current config to initial config
-    const hasChanges = currentSnapshot !== initialConfigRef.current
-    setHasUnsavedChanges(hasChanges)
-  }, [config])
 
   const handleNavClick = useCallback(
     (panel: ActivePanel) => {
@@ -133,9 +116,7 @@ export function DeliveryMethodEditor({ onClose }: DeliveryMethodEditorProps = {}
       // TODO: Replace with actual API call
       console.log('Save changes', config)
 
-      // Update initial config snapshot to current state after save
-      initialConfigRef.current = JSON.stringify(config)
-      setHasUnsavedChanges(false)
+      markSaved()
       setUnsavedDialogOpen(false)
 
       // Show success toast

@@ -173,7 +173,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(
     }), [])
 
     return (
-      <div className={cn('border border-border rounded-[4px] overflow-hidden h-full', className)}>
+      <div data-slot="code-editor" className={cn('border border-border rounded-[4px] overflow-hidden h-full', className)}>
         <div ref={containerRef} className="h-full" />
       </div>
     )

@@ -20,7 +20,7 @@ export function YesNoSelect({ value, onValueChange, disabled, className }: YesNo
       onValueChange={(v) => onValueChange(v === 'yes')}
       disabled={disabled}
     >
-      <SelectTrigger className={className}>
+      <SelectTrigger data-slot="yes-no-select" className={className}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogPanelHeader } from '@/components/ui/dialog'
-import { MethodSelectorCard } from '@/components/ui/method-selector-card'
+import { SelectableCard } from '@/components/ui/selectable-card'
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import { Input } from '@/components/ui/input'
-import { FieldGroup } from '@/components/field-group'
+import { FieldGroup } from '@/components/ui/field-group'
 import {
   Select,
   SelectContent,
@@ -194,7 +194,7 @@ export function CreateDeliveryMethodModal({
     <Dialog open={open} onOpenChange={(open) => !open && (step === 'select' ? handleClose() : handleBack())}>
       <DialogContent
         className={cn(
-          'p-0 gap-0 overflow-hidden shadow-[0px_16px_32px_-8px_rgba(0,0,0,0.1)]',
+          'p-0 gap-0 overflow-hidden shadow-panel',
           step === 'select' ? 'max-w-[95vw] sm:max-w-[884px]' : 'max-w-[95vw] sm:max-w-[480px]'
         )}
         showClose={false}
@@ -240,7 +240,7 @@ export function CreateDeliveryMethodModal({
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {filteredBasic.map((method) => (
-                      <MethodSelectorCard
+                      <SelectableCard
                         key={method.id}
                         icon={method.icon}
                         title={method.title}
@@ -265,7 +265,7 @@ export function CreateDeliveryMethodModal({
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {filteredAdvanced.map((method) => (
-                      <MethodSelectorCard
+                      <SelectableCard
                         key={method.id}
                         icon={method.icon}
                         title={method.title}

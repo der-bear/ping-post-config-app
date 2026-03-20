@@ -14,6 +14,7 @@ export const ToolbarAction = forwardRef<HTMLButtonElement, ToolbarActionProps>(
   ({ icon: Icon, label, variant = 'default', className, ...props }, ref) => (
     <Button
       ref={ref}
+      data-slot="toolbar-action"
       variant="ghost"
       size="sm"
       className={cn('gap-1.5 px-2', className)}

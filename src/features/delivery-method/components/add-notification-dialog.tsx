@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogPanelHeader,
 } from '@/components/ui/dialog'
-import { FieldGroup } from '@/components/field-group'
+import { FieldGroup } from '@/components/ui/field-group'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -81,7 +81,7 @@ export function AddNotificationDialog({ open, onClose, onSave }: AddNotification
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
-        className="max-w-md p-0 gap-0 overflow-hidden shadow-[0px_16px_32px_-8px_rgba(0,0,0,0.1)]"
+        className="max-w-md p-0 gap-0 overflow-hidden shadow-panel"
         showClose={false}
       >
         <DialogPanelHeader title="Add Notification Recipient" />

@@ -44,7 +44,9 @@ export { ConfirmDialog } from './confirm-dialog'
 
 export { UnsavedChangesDialog } from './unsaved-changes-dialog'
 
-export { MethodSelectorCard } from './method-selector-card'
+export { SelectableCard } from './selectable-card'
+
+export { FieldGroup, SectionHeading } from './field-group'
 
 export { DebouncedInput } from './debounced-input'
 
@@ -103,3 +105,23 @@ export { useToast, toast } from './use-toast'
 export { Toaster } from './toaster'
 
 export { SavingOverlay } from './saving-overlay'
+
+export { SwitchField } from './switch-field'
+
+export { EditableList } from './editable-list'
+export type { EditableListItem } from './editable-list'
+
+export {
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxGroup,
+  ComboboxLabel,
+  ComboboxCollection,
+  ComboboxEmpty,
+  ComboboxSeparator,
+  ComboboxTrigger,
+  ComboboxValue,
+} from './combobox'

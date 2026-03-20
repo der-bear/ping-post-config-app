@@ -80,9 +80,9 @@ export function DataGrid<T extends { id: string }>({
   }
 
   return (
-    <div className={cn('flex flex-col h-full', className)}>
+    <div data-slot="data-grid" className={cn('flex flex-col h-full', className)}>
       {toolbar && (
-        <div className="flex items-center gap-1 px-1 py-2 border-b border-border">
+        <div data-slot="data-grid-toolbar" className="flex items-center gap-1 px-1 py-2 border-b border-border">
           {toolbar}
         </div>
       )}
@@ -94,7 +94,7 @@ export function DataGrid<T extends { id: string }>({
         <div className="overflow-auto flex-1 min-h-0">
           <table className="w-full border-separate border-spacing-0">
             <thead>
-              <tr>
+              <tr data-slot="data-grid-header">
                 {columns.map((col) => (
                   <th
                     key={col.key}
@@ -117,6 +117,7 @@ export function DataGrid<T extends { id: string }>({
               {sortedData.map((row, index) => (
                 <tr
                   key={row.id}
+                  data-slot="data-grid-row"
                   className={cn(
                     'cursor-pointer',
                     selectedIds.has(row.id) ? 'bg-primary-light' : 'hover:bg-accent',

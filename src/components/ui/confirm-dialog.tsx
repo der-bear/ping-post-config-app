@@ -5,6 +5,7 @@ import {
   DialogPanelHeader,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface ConfirmDialogProps {
   open: boolean
@@ -15,6 +16,7 @@ interface ConfirmDialogProps {
   confirmLabel?: string
   cancelLabel?: string
   variant?: 'default' | 'destructive'
+  className?: string
 }
 
 export function ConfirmDialog({
@@ -26,6 +28,7 @@ export function ConfirmDialog({
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
   variant = 'default',
+  className,
 }: ConfirmDialogProps) {
   const handleConfirm = () => {
     onConfirm()
@@ -35,7 +38,8 @@ export function ConfirmDialog({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-[480px] p-0 gap-0 overflow-hidden shadow-[0px_16px_32px_-8px_rgba(0,0,0,0.1)]"
+        data-slot="confirm-dialog"
+        className={cn("max-w-[480px] p-0 gap-0 overflow-hidden shadow-panel", className)}
         showClose={false}
       >
         <DialogPanelHeader title={title} />

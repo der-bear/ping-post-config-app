@@ -4,7 +4,7 @@ import { bypassCreationModal } from './helpers/bypass-creation-modal'
 test.describe('Critical Screen Analysis', () => {
   test('capture all screens for analysis', async ({ page }) => {
     // 1. Creation Modal Flow
-    await page.goto('/')
+    await page.goto('/ping-post-config-app')
     await page.screenshot({ path: 'analysis/01-creation-modal-step1.png', fullPage: true })
 
     await page.getByRole('button', { name: 'Continue' }).click()
@@ -20,6 +20,12 @@ test.describe('Critical Screen Analysis', () => {
 
     // 2. General Settings (Default View)
     await page.screenshot({ path: 'analysis/04-general-settings.png', fullPage: true })
+
+    // Expand PING and POST sections
+    await page.getByRole('button', { name: 'PING Configuration' }).click()
+    await page.waitForTimeout(100)
+    await page.getByRole('button', { name: 'POST Configuration' }).click()
+    await page.waitForTimeout(100)
 
     // 3. PING - URL Endpoint
     await page.getByRole('button', { name: 'URL Endpoint' }).first().click()
@@ -95,7 +101,7 @@ test.describe('Critical Screen Analysis', () => {
     await page.screenshot({ path: 'analysis/21-notifications.png', fullPage: true })
 
     // 17. Dark Mode
-    await page.getByRole('button', { name: 'Toggle theme' }).click()
+    await page.evaluate(() => document.documentElement.classList.add('dark'))
     await page.screenshot({ path: 'analysis/22-dark-mode.png', fullPage: true })
   })
 })

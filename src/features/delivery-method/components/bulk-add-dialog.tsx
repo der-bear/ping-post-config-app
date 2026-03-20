@@ -129,7 +129,7 @@ export function BulkAddDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="max-w-[653px] max-h-[80vh] flex flex-col p-0 gap-0 overflow-hidden shadow-[0px_16px_32px_-8px_rgba(0,0,0,0.1)]"
+        className="max-w-[653px] max-h-[80vh] flex flex-col p-0 gap-0 overflow-hidden shadow-panel"
         showClose={false}
       >
         <DialogPanelHeader title="Select Fields to Add" />

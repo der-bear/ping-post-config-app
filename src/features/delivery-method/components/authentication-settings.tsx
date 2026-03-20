@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useDeliveryMethodStore } from '@/features/delivery-method/store'
-import { FieldGroup } from '@/components/field-group'
+import { FieldGroup } from '@/components/ui/field-group'
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import { Button } from '@/components/ui/button'
 import {
