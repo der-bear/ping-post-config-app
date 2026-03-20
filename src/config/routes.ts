@@ -3,7 +3,7 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, '')
 export const FEATURES = [
   {
     id: 'ping-post',
-    slug: 'ping-post',
+    slug: '', // root — serves at the base URL
     title: 'Ping/Post Config',
     description: 'Open the delivery method prototype and its create flow.',
   },
@@ -19,11 +19,14 @@ export type FeatureId = (typeof FEATURES)[number]['id']
 export type AppRouteId = FeatureId | 'home'
 
 export function featurePath(slug: string): string {
-  return `${BASE}/${slug}`
+  return slug ? `${BASE}/${slug}` : BASE || '/'
 }
 
 export function getRouteFromPath(): AppRouteId {
   const path = window.location.pathname
-  const match = FEATURES.find((f) => path.includes(f.slug))
-  return match?.id ?? 'home'
+  // Check non-root features first (campaign, etc.)
+  const subFeature = FEATURES.find((f) => f.slug && path.includes(f.slug))
+  if (subFeature) return subFeature.id
+  // Root URL → ping-post (default)
+  return 'ping-post'
 }
