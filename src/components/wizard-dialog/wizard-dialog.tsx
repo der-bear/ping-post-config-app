@@ -53,7 +53,7 @@ export function WizardDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showClose={false}
-        className="p-0 gap-0 overflow-hidden"
+        className="p-0 gap-0 overflow-hidden top-[10vh] translate-y-0"
         style={{ maxWidth: width }}
       >
         <DialogPanelHeader
@@ -61,7 +61,7 @@ export function WizardDialog({
           onClose={onCancel}
         />
 
-        <div className="flex flex-1 h-[520px] gap-6 px-4 pt-4 pb-8">
+        <div className="flex flex-1 min-h-0 gap-6 px-4 pt-4 pb-8">
           {/* Sidebar navigation — list-group style */}
           {showSidebarNav && (
             <nav className="w-[216px] shrink-0 self-start overflow-hidden rounded-sm border border-border">
