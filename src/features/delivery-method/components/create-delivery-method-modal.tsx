@@ -38,21 +38,21 @@ const BASIC_METHODS = [
     icon: <Building2 />,
     title: 'Lead Portal',
     description:
-      'Delivers leads directly to the client portal where buyers can view, manage, and process their leads.',
+      'Routes leads to the client portal for buyers to review, manage, and process.',
   },
   {
     id: 'email',
     icon: <Mail />,
     title: 'Email',
     description:
-      'Sends lead details directly in the body of a customizable email template, typically including a link to the client portal.',
+      'Sends leads in a customizable email template, with an optional client portal link.',
   },
   {
     id: 'http-webhook',
     icon: <Webhook />,
     title: 'HTTP Webhook',
     description:
-      'Delivers leads to external systems via HTTP POST or GET using JSON or XML payloads. Supports real-time delivery and custom endpoints.',
+      'Posts leads to an external endpoint in real time via HTTP, using JSON or XML.',
   },
 ]
 
@@ -62,41 +62,41 @@ const ADVANCED_METHODS = [
     icon: <Repeat />,
     title: 'Ping/Post',
     description:
-      'Sends partial lead data for bidding evaluation, followed by full lead delivery if pricing or acceptance criteria are met.',
+      'Sends partial lead data (ping) so buyers can evaluate it and bid. The full record (post) is sent to the winning buyer.',
   },
   {
     id: 'csv-attachment',
     icon: <FileSpreadsheet />,
     title: 'CSV Attachment',
-    description: 'Delivers each lead as an individual CSV file attached to an email message.',
+    description: 'Sends leads as individual CSV files attached to an email.',
   },
   {
     id: 'batch-email',
     icon: <MailPlus />,
     title: 'Batch Email Delivery',
     description:
-      'Aggregates all leads received within a defined timeframe into a single CSV or Excel file and delivers it via email on a schedule.',
+      'Aggregates leads on a set schedule and emails them as a single CSV or Excel attachment.',
   },
   {
     id: 'ftp',
     icon: <Upload />,
     title: 'FTP',
     description:
-      'Sends lead details directly in the body of a customizable email template, typically including a link to the client portal.',
+      'Uploads lead data as a file (e.g., CSV or Excel) to a specified FTP or SFTP directory, in real time or on a schedule.',
   },
   {
     id: 'sms',
     icon: <MessageSquare />,
     title: 'SMS Notification',
     description:
-      'Sends lead notifications via SMS using a configurable message template that includes a link to the client portal.',
+      'Sends lead notifications via a customizable SMS message with a link to the client portal.',
   },
   {
     id: 'salesexec',
     icon: <Package />,
     title: 'SalesExec Integration',
     description:
-      'Provides bidirectional, real-time delivery within SalesExec, including lead status updates, workflow events, and file synchronization.',
+      'Synchronizes bidirectionally with SalesExec, including lead status updates, workflow events, and files.',
   },
 ]
 

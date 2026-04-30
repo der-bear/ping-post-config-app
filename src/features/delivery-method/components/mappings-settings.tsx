@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import {
   Plus,
@@ -27,9 +28,13 @@ import {
   User,
   Globe,
   Code2,
+  KeyRound,
+  Download,
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import type { FieldMapping, MappingType } from '@/features/delivery-method/types'
 import { BulkAddDialog } from './bulk-add-dialog'
+import { AddReferenceIdDialog } from './add-reference-id-dialog'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 const MAPPING_TYPE_OPTIONS: { type: MappingType; icon: typeof Type; disabled: boolean }[] = [
@@ -44,6 +49,14 @@ const MAPPING_TYPE_OPTIONS: { type: MappingType; icon: typeof Type; disabled: bo
   { type: 'Function', icon: Code2, disabled: true },
 ]
 
+const MAPPING_TYPE_ICONS = MAPPING_TYPE_OPTIONS.reduce(
+  (acc, opt) => {
+    acc[opt.type] = opt.icon
+    return acc
+  },
+  {} as Record<MappingType, typeof Type>,
+)
+
 interface MappingsSettingsProps {
   phase: 'ping' | 'post'
 }
@@ -55,35 +68,31 @@ export function MappingsSettings({ phase }: MappingsSettingsProps) {
   const postMappings = useDeliveryMethodStore((s) => s.config.post.mappings.mappings)
   const removePingMapping = useDeliveryMethodStore((s) => s.removePingMapping)
   const removePostMapping = useDeliveryMethodStore((s) => s.removePostMapping)
-  const updatePingMapping = useDeliveryMethodStore((s) => s.updatePingMapping)
   const addPingMappings = useDeliveryMethodStore((s) => s.addPingMappings)
   const addPostMappings = useDeliveryMethodStore((s) => s.addPostMappings)
+  const addPostMapping = useDeliveryMethodStore((s) => s.addPostMapping)
   const replacePingMappings = useDeliveryMethodStore((s) => s.replacePingMappings)
   const replacePostMappings = useDeliveryMethodStore((s) => s.replacePostMappings)
   const openFlyout = useDeliveryMethodStore((s) => s.openFlyout)
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [bulkAddOpen, setBulkAddOpen] = useState(false)
+  const [referenceIdOpen, setReferenceIdOpen] = useState(false)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 
-  // For POST phase, always show combined PING (useInPost) + POST mappings
-  const displayMappings = useMemo(() => {
-    if (isPing) return pingMappings
-
-    const inheritedPingMappings = pingMappings
-      .filter((m) => m.useInPost)
-
-    return [...inheritedPingMappings, ...postMappings]
-  }, [isPing, pingMappings, postMappings])
-
-  // Set of PING mapping IDs for quick inherited-check in POST view
-  const pingMappingIds = useMemo(
-    () => new Set(pingMappings.map((m) => m.id)),
-    [pingMappings],
-  )
+  const displayMappings = isPing ? pingMappings : postMappings
 
   const columns: DataGridColumn<FieldMapping>[] = useMemo(
     () => [
+      {
+        key: 'type',
+        header: '',
+        width: '40px',
+        render: (_value, row) => {
+          const Icon = MAPPING_TYPE_ICONS[row.type]
+          return Icon ? <Icon className="size-4 text-muted-foreground" /> : null
+        },
+      },
       {
         key: 'type',
         header: 'Type',
@@ -108,16 +117,33 @@ export function MappingsSettings({ phase }: MappingsSettingsProps) {
     openFlyout(phase)
   }, [openFlyout, phase])
 
+  const handleAddReferenceId = useCallback(() => {
+    setReferenceIdOpen(true)
+  }, [])
+
+  const handleSaveReferenceId = useCallback(
+    (deliveryFieldName: string) => {
+      addPostMapping({
+        id: `ref-${Date.now()}`,
+        type: 'System Field',
+        name: deliveryFieldName,
+        mappedTo: 'ping_request_id',
+        defaultValue: '',
+        testValue: '',
+        useInPost: false,
+        hasValueMappings: false,
+        valueMappings: [],
+      })
+    },
+    [addPostMapping],
+  )
+
   const handleEdit = useCallback(() => {
     if (selectedIds.size !== 1) return
     const id = Array.from(selectedIds)[0]
     const mapping = displayMappings.find((m) => m.id === id)
-    if (mapping) {
-      // Inherited PING mappings open in PING context so the flyout updates the PING store
-      const context = !isPing && pingMappingIds.has(mapping.id) ? 'ping' : phase
-      openFlyout(context, mapping)
-    }
-  }, [selectedIds, displayMappings, isPing, pingMappingIds, openFlyout, phase])
+    if (mapping) openFlyout(phase, mapping)
+  }, [selectedIds, displayMappings, openFlyout, phase])
 
   const handleRemove = useCallback(() => {
     setDeleteConfirmOpen(true)
@@ -125,26 +151,40 @@ export function MappingsSettings({ phase }: MappingsSettingsProps) {
 
   const handleConfirmDelete = useCallback(() => {
     selectedIds.forEach((id) => {
-      if (isPing) {
-        removePingMapping(id)
-      } else if (pingMappingIds.has(id)) {
-        // Inherited PING mapping — reset useInPost instead of deleting
-        updatePingMapping(id, { useInPost: false })
-      } else {
-        removePostMapping(id)
-      }
+      if (isPing) removePingMapping(id)
+      else removePostMapping(id)
     })
     setSelectedIds(new Set())
-  }, [selectedIds, isPing, pingMappingIds, removePingMapping, removePostMapping, updatePingMapping])
+  }, [selectedIds, isPing, removePingMapping, removePostMapping])
 
   const handleRowDoubleClick = useCallback(
     (row: FieldMapping) => {
-      // Inherited PING mappings open in PING context
-      const context = !isPing && pingMappingIds.has(row.id) ? 'ping' : phase
-      openFlyout(context, row)
+      openFlyout(phase, row)
     },
-    [openFlyout, phase, isPing, pingMappingIds],
+    [openFlyout, phase],
   )
+
+  const importableFromPing = useMemo(() => {
+    if (isPing) return []
+    const existingKeys = new Set(
+      postMappings.map((m) => `${m.type}:${m.name}:${m.mappedTo}`),
+    )
+    return pingMappings.filter(
+      (m) => !existingKeys.has(`${m.type}:${m.name}:${m.mappedTo}`),
+    )
+  }, [isPing, pingMappings, postMappings])
+
+  const handleImportFromPing = useCallback(() => {
+    if (importableFromPing.length === 0) return
+    const stamp = Date.now()
+    addPostMappings(
+      importableFromPing.map((m, i) => ({
+        ...m,
+        id: `import-${stamp}-${i}`,
+        useInPost: false,
+      })),
+    )
+  }, [importableFromPing, addPostMappings])
 
   const handleBulkAdd = useCallback(
     (mappings: FieldMapping[]) => {
@@ -183,6 +223,15 @@ export function MappingsSettings({ phase }: MappingsSettingsProps) {
                 <ToolbarAction icon={Plus} label="New" variant="dropdown" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
+                {!isPing && (
+                  <>
+                    <DropdownMenuItem onSelect={handleAddReferenceId}>
+                      <KeyRound className="h-4 w-4" />
+                      PING Reference ID
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 {MAPPING_TYPE_OPTIONS.map((opt) => (
                   <DropdownMenuItem
                     key={opt.type}
@@ -216,6 +265,21 @@ export function MappingsSettings({ phase }: MappingsSettingsProps) {
           </DataGridToolbar>
         }
         emptyMessage="No field mappings configured"
+        afterContent={
+          !isPing && pingMappings.length > 0 ? (
+            <Button
+              size="sm"
+              onClick={handleImportFromPing}
+              disabled={importableFromPing.length === 0}
+              className="h-8 px-3.5 text-xs [&_svg]:size-3.5 disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100 disabled:shadow-none"
+            >
+              <Download />
+              {importableFromPing.length === 0
+                ? 'No PING mappings to import'
+                : `Import ${importableFromPing.length} ${importableFromPing.length === 1 ? 'mapping' : 'mappings'} from PING`}
+            </Button>
+          ) : undefined
+        }
       />
       <BulkAddDialog
         open={bulkAddOpen}
@@ -223,6 +287,11 @@ export function MappingsSettings({ phase }: MappingsSettingsProps) {
         onAdd={handleBulkAdd}
         onReplace={handleBulkReplace}
         phase={phase}
+      />
+      <AddReferenceIdDialog
+        open={referenceIdOpen}
+        onClose={() => setReferenceIdOpen(false)}
+        onSave={handleSaveReferenceId}
       />
       <ConfirmDialog
         open={deleteConfirmOpen}

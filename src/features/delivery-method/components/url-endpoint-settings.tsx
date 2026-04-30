@@ -8,6 +8,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectSeparator,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -99,18 +100,14 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
   const removePingHeader = useDeliveryMethodStore((s) => s.removePingHeader)
   const addPostHeader = useDeliveryMethodStore((s) => s.addPostHeader)
   const removePostHeader = useDeliveryMethodStore((s) => s.removePostHeader)
-  const updatePingHeader = useDeliveryMethodStore((s) => s.updatePingHeader)
-  const updatePostHeader = useDeliveryMethodStore((s) => s.updatePostHeader)
 
   const endpoint = isPing ? pingEndpoint : postEndpoint
   const updateEndpoint = isPing ? updatePingUrlEndpoint : updatePostUrlEndpoint
   const addHeader = isPing ? addPingHeader : addPostHeader
   const removeHeader = isPing ? removePingHeader : removePostHeader
-  const updateHeader = isPing ? updatePingHeader : updatePostHeader
 
   const [selectedHeaderIds, setSelectedHeaderIds] = useState<Set<string>>(new Set())
   const [headerDialogOpen, setHeaderDialogOpen] = useState(false)
-  const [editingHeader, setEditingHeader] = useState<CustomHeader | null>(null)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -136,23 +133,12 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
   }, [headerData])
 
   const handleAddHeader = useCallback(() => {
-    setEditingHeader(null)
-    setHeaderDialogOpen(true)
-  }, [])
-
-  const handleRowDoubleClick = useCallback((row: HeaderDisplay) => {
-    if (row.inherited) return // Prevent editing inherited headers
-    setEditingHeader(row)
     setHeaderDialogOpen(true)
   }, [])
 
   const handleSaveHeader = useCallback((header: CustomHeader) => {
-    if (editingHeader) {
-      updateHeader(editingHeader.id, { name: header.name, value: header.value })
-    } else {
-      addHeader(header)
-    }
-  }, [editingHeader, updateHeader, addHeader])
+    addHeader(header)
+  }, [addHeader])
 
   const handleRemoveHeaders = useCallback(() => {
     setDeleteConfirmOpen(true)
@@ -268,20 +254,19 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
             <SelectValue placeholder="Select content type" />
           </SelectTrigger>
           <SelectContent>
-            {CONTENT_TYPES_PING.map((ct) => {
-              if (!isPing && ct.value === pingEndpoint.contentType) {
-                return (
-                  <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
-                    {ct.label}
-                  </SelectItem>
-                )
-              }
-              return (
-                <SelectItem key={ct.value} value={ct.value}>
-                  {ct.label}
+            {!isPing && (
+              <>
+                <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
+                  {CONTENT_TYPES_PING.find((ct) => ct.value === pingEndpoint.contentType)?.label ?? pingEndpoint.contentType}
                 </SelectItem>
-              )
-            })}
+                <SelectSeparator />
+              </>
+            )}
+            {CONTENT_TYPES_PING.map((ct) => (
+              <SelectItem key={ct.value} value={ct.value}>
+                {ct.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </FieldGroup>
@@ -305,20 +290,19 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
             <SelectValue placeholder="Select timeout" />
           </SelectTrigger>
           <SelectContent>
-            {TIMEOUT_OPTIONS_PING.map((opt) => {
-              if (!isPing && opt.value === String(pingEndpoint.timeout)) {
-                return (
-                  <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
-                    {opt.label}
-                  </SelectItem>
-                )
-              }
-              return (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+            {!isPing && (
+              <>
+                <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
+                  {TIMEOUT_OPTIONS_PING.find((opt) => opt.value === String(pingEndpoint.timeout))?.label ?? `${pingEndpoint.timeout} seconds`}
                 </SelectItem>
-              )
-            })}
+                <SelectSeparator />
+              </>
+            )}
+            {TIMEOUT_OPTIONS_PING.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </FieldGroup>
@@ -345,7 +329,6 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
         data={headerData}
         selectedIds={selectedHeaderIds}
         onSelectionChange={handleSelectionChange}
-        onRowDoubleClick={handleRowDoubleClick}
         getRowClassName={(row) => row.inherited ? 'bg-muted/30 hover:bg-muted/40' : ''}
         emptyMessage="No custom headers"
         toolbar={
@@ -369,7 +352,6 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
         open={headerDialogOpen}
         onClose={() => setHeaderDialogOpen(false)}
         onSave={handleSaveHeader}
-        editData={editingHeader}
       />
       <ConfirmDialog
         open={deleteConfirmOpen}

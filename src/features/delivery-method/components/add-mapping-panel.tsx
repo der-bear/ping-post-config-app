@@ -165,6 +165,9 @@ export function AddMappingPanel() {
     } else {
       if (phase === 'ping') {
         addPingMapping(mapping)
+        if (useInPost) {
+          addPostMapping({ ...mapping, id: `mapping-${Date.now()}-post`, useInPost: false })
+        }
       } else {
         addPostMapping(mapping)
       }
@@ -222,6 +225,7 @@ export function AddMappingPanel() {
               <Combobox
                 items={leadFieldGroups}
                 value={leadField ? allLeadFieldOptions.find((f) => f.value === leadField) ?? null : null}
+                defaultInputValue={leadField ? allLeadFieldOptions.find((f) => f.value === leadField)?.label ?? '' : ''}
                 onValueChange={(item: LeadFieldOption | null) => {
                   setLeadField(item?.value ?? '')
                   if (errors.leadField) setErrors((prev) => ({ ...prev, leadField: '' }))
@@ -271,15 +275,15 @@ export function AddMappingPanel() {
               </FieldGroup>
             </div>
 
-            {phase === 'ping' && (
+            {phase === 'ping' && !isEditing && (
               <>
                 <Separator />
                 <label className="flex gap-4 items-start cursor-pointer">
                   <Switch checked={useInPost} onCheckedChange={setUseInPost} />
                   <div className="space-y-0.5">
-                    <span className="text-sm font-normal">Use also in POST</span>
+                    <span className="text-sm font-normal">Also add to POST</span>
                     <p className="text-xs text-muted-foreground">
-                      Automatically add the field mapping into the POST configuration.
+                      Copy this mapping into the POST configuration as well.
                     </p>
                   </div>
                 </label>
