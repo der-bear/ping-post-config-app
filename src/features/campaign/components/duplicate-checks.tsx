@@ -9,6 +9,7 @@ import {
   SwitchField,
 } from '@/components/ui'
 import { DebouncedInput } from '@/components/ui/debounced-input'
+import { Separator } from '@/components/ui/separator'
 
 export function DuplicateChecks() {
   const checks = useCampaignStore((s) => s.config.duplicateChecks)
@@ -27,6 +28,8 @@ export function DuplicateChecks() {
         </Select>
       </FieldGroup>
 
+      <Separator />
+
       <SwitchField
         label="Check Rejected Leads"
         description="Should this campaign apply duplicate checking to previously rejected leads."
@@ -42,6 +45,8 @@ export function DuplicateChecks() {
         />
       </FieldGroup>
 
+      <Separator />
+
       <SwitchField
         label="Append Duplicate Data"
         description="When receiving a duplicate lead, update existing lead with updated lead data."
@@ -51,7 +56,16 @@ export function DuplicateChecks() {
 
       <SwitchField
         label="Allow PING Duplicate API Check"
-        description="Allow this campaign to utilize the duplicate check API to ensure non-duplicate before final lead submission. Note: A fee may apply when using this feature, please refer to your subscription page for more information."
+        description={
+          <>
+            Allow this campaign to utilize the duplicate check API to ensure non-duplicate before final lead submission.
+            {' '}
+            <span className="italic">
+              Note: A fee may apply when using this feature, please refer to your{' '}
+              <a href="#" className="text-primary hover:underline">subscription</a> page for more information.
+            </span>
+          </>
+        }
         checked={checks.allowPingDuplicateCheck}
         onCheckedChange={(v) => update({ allowPingDuplicateCheck: v })}
       />

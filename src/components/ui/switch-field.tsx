@@ -4,7 +4,7 @@ import { Switch } from '@/components/ui/switch'
 
 interface SwitchFieldProps {
   label: string
-  description?: string
+  description?: ReactNode
   meta?: string
   checked: boolean
   onCheckedChange: (checked: boolean) => void
