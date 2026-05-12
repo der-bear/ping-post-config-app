@@ -18,7 +18,7 @@ export function PanelHeader({ title, subtitle, isExpanded, onMaximize, onClose, 
     <div data-slot="panel-header" className={cn('flex items-center justify-between px-5 py-3 bg-panel-header', className)}>
       <div>
         {subtitle && <p className="text-xs text-primary-foreground/70 leading-4">{subtitle}</p>}
-        <h1 className="text-lg leading-6 font-semibold text-primary-foreground">{title}</h1>
+        <h1 className="text-xl leading-7 font-semibold text-primary-foreground">{title}</h1>
       </div>
       <div className="flex items-center gap-1.5">
         {onMaximize && (

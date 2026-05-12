@@ -34,7 +34,7 @@ export function AgentForms() {
         }
         footer={
           <p className="text-xs text-muted-foreground italic px-4 py-2">
-            Note: Required criteria changes save automatically
+            Note: Criteria changes save automatically
           </p>
         }
       />

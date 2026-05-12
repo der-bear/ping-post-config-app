@@ -16,7 +16,7 @@ export function DuplicateChecks() {
   const update = useCampaignStore((s) => s.updateDuplicateChecks)
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <FieldGroup label="Lead Type">
         <Select value={checks.leadType} disabled>
           <SelectTrigger disabled>
@@ -28,7 +28,7 @@ export function DuplicateChecks() {
         </Select>
       </FieldGroup>
 
-      <Separator />
+      <Separator className="my-0" />
 
       <SwitchField
         label="Check Rejected Leads"
@@ -36,6 +36,8 @@ export function DuplicateChecks() {
         checked={checks.checkRejectedLeads}
         onCheckedChange={(v) => update({ checkRejectedLeads: v })}
       />
+
+      <Separator className="my-0" />
 
       <FieldGroup label="Duplicate Day Setting" description="Specify how many days back the duplicate check should apply.">
         <DebouncedInput
@@ -45,7 +47,7 @@ export function DuplicateChecks() {
         />
       </FieldGroup>
 
-      <Separator />
+      <Separator className="my-0" />
 
       <SwitchField
         label="Append Duplicate Data"

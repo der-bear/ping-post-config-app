@@ -1,5 +1,5 @@
 import { useCampaignStore } from '../store'
-import { SwitchField } from '@/components/ui'
+import { Separator, SwitchField } from '@/components/ui'
 import { Input } from '@/components/ui/input'
 
 export function QuantityLimits() {
@@ -7,7 +7,7 @@ export function QuantityLimits() {
   const update = useCampaignStore((s) => s.updateQuantityLimits)
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <SwitchField
         label="Hour Limit"
         description="The amount of leads that can be received within 60 minutes"
@@ -20,6 +20,8 @@ export function QuantityLimits() {
         />
       </SwitchField>
 
+      <Separator className="my-0" />
+
       <SwitchField
         label="Daily Limit"
         description="The amount of leads that can be received in a single day"
@@ -31,6 +33,8 @@ export function QuantityLimits() {
           onChange={(e) => update({ dailyLimit: { ...limits.dailyLimit, value: e.target.value } })}
         />
       </SwitchField>
+
+      <Separator className="my-0" />
 
       <SwitchField
         label="Monthly Limit"

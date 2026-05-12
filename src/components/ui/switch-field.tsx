@@ -29,7 +29,7 @@ export function SwitchField({
       <div className="flex-1 min-w-0 space-y-2">
         <label htmlFor={id} className="flex items-start justify-between gap-2 cursor-pointer">
           <div className="space-y-0.5">
-            <p className="text-sm font-medium leading-5 text-foreground">{label}</p>
+            <p className="text-sm font-normal leading-5 text-foreground">{label}</p>
             {description && (
               <p className="text-xs text-muted-foreground">{description}</p>
             )}

@@ -1,6 +1,6 @@
 import { useCampaignStore } from '../store'
 import { Button } from '@/components/ui/button'
-import { SectionHeading } from '@/components/ui'
+import { SectionHeading, Separator } from '@/components/ui'
 
 export function IntegrationsManage() {
   const integrations = useCampaignStore((s) => s.config.integrations)
@@ -8,18 +8,21 @@ export function IntegrationsManage() {
   const removeIntegration = useCampaignStore((s) => s.removeIntegration)
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       {/* Added integrations */}
-      <SectionHeading title="Added" />
+      <div className="flex flex-col gap-2">
+        <SectionHeading title="Added" />
+        <Separator className="my-0" />
+      </div>
       {integrations.added.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No integrations added yet.</p>
+        <p className="text-xs leading-4 text-muted-foreground">No integrations added yet.</p>
       ) : (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {integrations.added.map((item) => (
             <div key={item.id} className="flex items-center justify-between py-2 border-b border-border">
               <div className="flex items-center gap-3">
                 {item.icon && <span className="text-lg">{item.icon}</span>}
-                <span className="text-sm font-medium">{item.name}</span>
+                <span className="text-sm font-normal leading-5">{item.name}</span>
               </div>
               <Button
                 variant="destructive"
@@ -34,16 +37,19 @@ export function IntegrationsManage() {
       )}
 
       {/* Available integrations */}
-      <SectionHeading title="Other Available" />
+      <div className="flex flex-col gap-2">
+        <SectionHeading title="Other Available" />
+        <Separator className="my-0" />
+      </div>
       {integrations.available.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No more integrations available.</p>
+        <p className="text-xs leading-4 text-muted-foreground">No more integrations available.</p>
       ) : (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {integrations.available.map((item) => (
             <div key={item.id} className="flex items-center justify-between py-2">
               <div className="flex items-center gap-3">
                 {item.icon && <span className="text-lg">{item.icon}</span>}
-                <span className="text-sm">{item.name}</span>
+                <span className="text-sm font-normal leading-5">{item.name}</span>
               </div>
               <Button
                 variant="default"

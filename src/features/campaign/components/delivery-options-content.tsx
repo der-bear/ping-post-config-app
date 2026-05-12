@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
   EditableList,
+  Separator,
 } from '@/components/ui'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import type { DeliveryMode, TargetMode } from '../types'
@@ -68,8 +69,8 @@ export function DeliveryOptionsContent({
   stacked = false,
 }: DeliveryOptionsContentProps) {
   return (
-    <div className="space-y-5">
-      <p className="text-sm text-muted-foreground">
+    <div className="flex flex-col gap-4">
+      <p className="text-xs leading-4 text-muted-foreground">
         Choose how leads will be distributed: to a specific buyer, a group of buyers, or all qualified buyers.
       </p>
 
@@ -99,6 +100,8 @@ export function DeliveryOptionsContent({
           compact={compact}
         />
       </div>
+
+      <Separator className="my-0" />
 
       {/* Single Buyer */}
       {deliveryMode === 'single' && (
@@ -161,6 +164,8 @@ export function DeliveryOptionsContent({
               </div>
             )}
           </div>
+
+          <Separator className="my-0" />
 
           <DistributionSettings
             automationMethod={automationMethod}

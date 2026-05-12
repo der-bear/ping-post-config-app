@@ -6,6 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Separator,
 } from '@/components/ui'
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import { PricingModelSelector } from './pricing-model-selector'
@@ -16,7 +17,7 @@ export function GeneralSettings() {
   const update = useCampaignStore((s) => s.updateGeneral)
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <FieldGroup label="Campaign Name">
         <DebouncedInput
           value={general.name}
@@ -24,6 +25,8 @@ export function GeneralSettings() {
           placeholder="Enter campaign name"
         />
       </FieldGroup>
+
+      <Separator className="my-0" />
 
       <PricingModelSelector
         value={general.pricingModel}
@@ -36,6 +39,8 @@ export function GeneralSettings() {
         onRevenueSharePctChange={(v) => update({ revenueSharePct: v })}
         idPrefix="gs-"
       />
+
+      <Separator className="my-0" />
 
       <FieldGroup label="Status" description="Select the current status of this campaign">
         <Select
@@ -51,8 +56,8 @@ export function GeneralSettings() {
             <SelectItem value="disabled">Disabled</SelectItem>
           </SelectContent>
         </Select>
-        <p className="text-xs text-muted-foreground italic mt-1">
-          <strong>Note:</strong> Only active campaigns can successfully send in leads, all other statuses will be rejected.
+        <p className="text-xs leading-4 text-muted-foreground mt-2">
+          <span className="font-semibold">Note:</span> Only active campaigns can successfully send in leads, all other statuses will be rejected.
         </p>
       </FieldGroup>
     </div>

@@ -13,7 +13,7 @@ export function ComplianceSettings() {
   const update = useCampaignStore((s) => s.updateCompliance)
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <SectionHeading
         title="TCPA"
         icon={<Shield className="size-5" />}
@@ -26,7 +26,7 @@ export function ComplianceSettings() {
         onCheckedChange={(v) => update({ enableTcpa: v })}
       />
 
-      <Separator />
+      <Separator className="my-0" />
 
       <SectionHeading
         title="FCC 1 to 1 Consent"
@@ -40,7 +40,7 @@ export function ComplianceSettings() {
         onCheckedChange={(v) => update({ returnClientOffers: v })}
       />
 
-      <Separator />
+      <Separator className="my-0" />
 
       <SectionHeading
         title="GDPR"

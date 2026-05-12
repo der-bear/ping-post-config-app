@@ -18,7 +18,7 @@ export function LeadValidation() {
   const update = useCampaignStore((s) => s.updateLeadValidation)
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       <SectionHeading
         title="Quality Control"
         icon={<CheckSquare className="size-5" />}
@@ -30,6 +30,8 @@ export function LeadValidation() {
         checked={validation.useQualityControl}
         onCheckedChange={(v) => update({ useQualityControl: v })}
       />
+
+      <Separator className="my-0" />
 
       <FieldGroup label="Default Reject Action" description="Specify the action to take when a lead is rejected.">
         <Select value={validation.defaultRejectAction} onValueChange={(v) => update({ defaultRejectAction: v })}>
@@ -43,8 +45,6 @@ export function LeadValidation() {
           </SelectContent>
         </Select>
       </FieldGroup>
-
-      <Separator />
 
       <SwitchField
         label="Scan Coverage"
@@ -94,7 +94,7 @@ export function LeadValidation() {
         onCheckedChange={(v) => update({ geolocateIp: v })}
       />
 
-      <Separator />
+      <Separator className="my-0" />
 
       <SectionHeading
         title="Lead Grading"
@@ -108,8 +108,10 @@ export function LeadValidation() {
         onCheckedChange={(v) => update({ enableLeadGrading: v })}
       />
 
+      <Separator className="my-0" />
+
       <div className="space-y-2">
-        <p className="text-sm font-medium">Configuration</p>
+        <p className="text-sm font-normal leading-5">Configuration</p>
         <p className="text-xs text-muted-foreground">
           Current Setting: Using default settings from parent lead source
         </p>

@@ -31,14 +31,14 @@ export function FieldGroup({
         <div className={cn('flex flex-col gap-0.5', horizontal && 'min-w-[140px]')}>
           {label && (
             <div className="flex items-start gap-1">
-              <span className="text-base font-semibold leading-6 text-foreground">{label}</span>
+              <span className="text-sm font-normal leading-5 text-foreground">{label}</span>
               {required && (
-                <span className="text-sm leading-5 text-destructive" aria-hidden="true">*</span>
+                <span className="text-sm font-normal leading-5 text-destructive" aria-hidden="true">*</span>
               )}
             </div>
           )}
           {description && (
-            <p className="text-xs leading-4 text-muted-foreground">{description}</p>
+            <p className="text-xs font-normal leading-4 text-muted-foreground">{description}</p>
           )}
         </div>
       )}

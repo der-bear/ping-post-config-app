@@ -115,8 +115,9 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
       id: 'general',
       label: 'General Information',
       content: (
-        <div className="space-y-5">
+        <div className="flex flex-col gap-4">
           <SectionHeading title="General Information" />
+          <Separator className="my-0" />
 
           <FieldGroup label="Campaign Name">
             <DebouncedInput
@@ -152,6 +153,8 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
             </Select>
           </FieldGroup>
 
+          <Separator className="my-0" />
+
           <PricingModelSelector
             value={pricingModel}
             onChange={setPricingModel}
@@ -162,6 +165,8 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
             revenueSharePct={revenueSharePct}
             onRevenueSharePctChange={setRevenueSharePct}
           />
+
+          <Separator className="my-0" />
 
           <FieldGroup label="Status" description="Select the current status of this campaign">
             <Select value={status} onValueChange={setStatus}>
@@ -174,8 +179,8 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
                 <SelectItem value="disabled">Disabled</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground italic mt-1">
-              <strong>Note:</strong> Only active campaigns can successfully send in leads, all other statuses will be rejected.
+            <p className="text-xs leading-4 text-muted-foreground mt-2">
+              <span className="font-semibold">Note:</span> Only active campaigns can successfully send in leads, all other statuses will be rejected.
             </p>
           </FieldGroup>
         </div>
@@ -217,8 +222,9 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
       id: 'quality',
       label: 'Quality Options',
       content: (
-        <div className="space-y-5">
+        <div className="flex flex-col gap-4">
           <SectionHeading title="Quality Options" />
+          <Separator className="my-0" />
 
           <SwitchField
             label="Use Quality Control"
@@ -226,6 +232,8 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
             checked={useQualityControl}
             onCheckedChange={setUseQualityControl}
           />
+
+          <Separator className="my-0" />
 
           <FieldGroup label="Duplicate Day Setting" description="Specify how many days back the duplicate check should apply.">
             <DebouncedInput
@@ -235,48 +243,44 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
             />
           </FieldGroup>
 
-          <Separator />
+          <Separator className="my-0" />
 
-          <div className="divide-y divide-border">
-            <div className="pb-4">
-              <SwitchField
-                label="Standardize Address"
-                meta="$0.03 per lead"
-                description="Apply industry standardization to the primary address."
-                checked={standardizeAddress}
-                onCheckedChange={setStandardizeAddress}
-              />
-            </div>
+          <SwitchField
+            label="Standardize Address"
+            meta="$0.03 per lead"
+            description="Apply industry standardization to the primary address."
+            checked={standardizeAddress}
+            onCheckedChange={setStandardizeAddress}
+          />
 
-            <div className="py-4">
-              <SwitchField
-                label="Append City and State"
-                meta="$0.03 per lead"
-                description="Leads received with a postal code and country will attempt to append a city and state."
-                checked={appendCityState}
-                onCheckedChange={setAppendCityState}
-              />
-            </div>
+          <Separator className="my-0" />
 
-            <div className="py-4">
-              <SwitchField
-                label="Mobile Check"
-                meta="$0.03 per lead"
-                description="Check if the lead's primary phone number is a mobile number."
-                checked={mobileCheck}
-                onCheckedChange={setMobileCheck}
-              />
-            </div>
+          <SwitchField
+            label="Append City and State"
+            meta="$0.03 per lead"
+            description="Leads received with a postal code and country will attempt to append a city and state."
+            checked={appendCityState}
+            onCheckedChange={setAppendCityState}
+          />
 
-            <div className="pt-4">
-              <SwitchField
-                label="Geolocate IP Address"
-                description="Geolocation IP address of the lead. (fee may apply)"
-                checked={geolocateIp}
-                onCheckedChange={setGeolocateIp}
-              />
-            </div>
-          </div>
+          <Separator className="my-0" />
+
+          <SwitchField
+            label="Mobile Check"
+            meta="$0.03 per lead"
+            description="Check if the lead's primary phone number is a mobile number."
+            checked={mobileCheck}
+            onCheckedChange={setMobileCheck}
+          />
+
+          <Separator className="my-0" />
+
+          <SwitchField
+            label="Geolocate IP Address"
+            description="Geolocation IP address of the lead. (fee may apply)"
+            checked={geolocateIp}
+            onCheckedChange={setGeolocateIp}
+          />
         </div>
       ),
     },
@@ -284,8 +288,9 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
       id: 'quantity',
       label: 'Quantity Limits',
       content: (
-        <div className="space-y-5">
+        <div className="flex flex-col gap-4">
           <SectionHeading title="Quantity Limits" />
+          <Separator className="my-0" />
 
           <SwitchField
             label="Hour Limit"
@@ -299,6 +304,8 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
             />
           </SwitchField>
 
+          <Separator className="my-0" />
+
           <SwitchField
             label="Daily Limit"
             description="The amount of leads that can be received in a single day"
@@ -310,6 +317,8 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
               onChange={(e) => setDailyLimitValue(e.target.value)}
             />
           </SwitchField>
+
+          <Separator className="my-0" />
 
           <SwitchField
             label="Monthly Limit"
@@ -329,20 +338,21 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
       id: 'next-steps',
       label: 'Next Steps',
       content: (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <SectionHeading title="Next Steps" />
+          <Separator className="my-0" />
 
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm leading-5 text-foreground">
             You can complete your initial setup by clicking the Create button below,
             after our new lead provider campaign is created you will be automatically directed
             to the detail page to finish your campaign setup.
           </p>
 
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm leading-5 text-foreground">
             Below are some items that you will want to review:
           </p>
 
-          <ul className="list-disc pl-6 space-y-2 text-sm text-muted-foreground">
+          <ul className="list-disc pl-6 space-y-2 text-sm leading-5 text-foreground">
             <li>
               Your campaign information will auto-open, review and add any criteria,
               revenue requirements or quantity limits needed.
@@ -354,7 +364,7 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
             </li>
           </ul>
 
-          <p className="text-sm text-muted-foreground italic">
+          <p className="text-sm leading-5 text-foreground">
             Press &quot;Create&quot; to continue...
           </p>
         </div>
