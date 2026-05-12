@@ -1,10 +1,9 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
-import { Label } from '@/components/ui/label'
 
 interface FieldGroupProps {
   label?: string
-  description?: string
+  description?: ReactNode
   required?: boolean
   children: ReactNode
   className?: string
@@ -20,19 +19,30 @@ export function FieldGroup({
   horizontal = false,
 }: FieldGroupProps) {
   return (
-    <div data-slot="field-group" className={cn('flex flex-col gap-2', horizontal && 'flex-row items-center gap-4', className)}>
-      {label && (
-        <Label className={cn('block font-normal', horizontal && 'min-w-[140px] mb-0')}>
-          {label}
-          {required && <span className="text-muted-foreground ml-1 italic">(required)</span>}
-        </Label>
+    <div
+      data-slot="field-group"
+      className={cn(
+        'flex flex-col gap-4',
+        horizontal && 'flex-row items-center gap-4',
+        className,
       )}
-      {description && (
-        <p className="text-xs text-muted-foreground -mt-1">{description}</p>
+    >
+      {(label || description) && (
+        <div className={cn('flex flex-col gap-0.5', horizontal && 'min-w-[140px]')}>
+          {label && (
+            <div className="flex items-start gap-1">
+              <span className="text-base font-semibold leading-6 text-foreground">{label}</span>
+              {required && (
+                <span className="text-sm leading-5 text-destructive" aria-hidden="true">*</span>
+              )}
+            </div>
+          )}
+          {description && (
+            <p className="text-xs leading-4 text-muted-foreground">{description}</p>
+          )}
+        </div>
       )}
-      <div className={cn(horizontal && 'flex-1')}>
-        {children}
-      </div>
+      <div className={cn(horizontal && 'flex-1')}>{children}</div>
     </div>
   )
 }

@@ -11,15 +11,16 @@
 
   /* Grays - matching Figma border/neutral tokens */
   --color-border: #ebedef;
-  --color-border-strong: #d8dbe0;
+  --color-border-strong: #cdd0d4;
   --color-border-hover: #b1b7c1;
   --color-input: #ebedef;
+  --color-input-emphasis: #636f83;
   --color-ring: #498bff;
 
   --color-background: #ffffff;
-  --color-foreground: #3c4b64;
+  --color-foreground: #474b55;
   --color-muted: #f5f6f7;
-  --color-muted-foreground: #636f83;
+  --color-muted-foreground: #838890;
   --color-subtle: #b1b7c1;
   --color-accent: #f5f6f7;
   --color-accent-foreground: #3c4b64;
