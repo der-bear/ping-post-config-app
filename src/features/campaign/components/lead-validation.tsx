@@ -108,30 +108,28 @@ export function LeadValidation() {
         onCheckedChange={(v) => update({ enableLeadGrading: v })}
       />
 
-      {validation.enableLeadGrading && (
-        <div className="space-y-2">
-          <p className="text-sm font-medium">Configuration</p>
-          <p className="text-xs text-muted-foreground">
-            Current Setting: Using default settings from parent lead source
-          </p>
-          <div className="flex flex-col gap-2">
-            <Button
-              variant={validation.gradingConfigMode === 'lead-source' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => update({ gradingConfigMode: 'lead-source' })}
-            >
-              Use Lead Source Settings
-            </Button>
-            <Button
-              variant={validation.gradingConfigMode === 'custom' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => update({ gradingConfigMode: 'custom' })}
-            >
-              Customize Settings for this Campaign
-            </Button>
-          </div>
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Configuration</p>
+        <p className="text-xs text-muted-foreground">
+          Current Setting: Using default settings from parent lead source
+        </p>
+        <div className="flex flex-col gap-2">
+          <Button
+            variant={validation.gradingConfigMode === 'lead-source' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => update({ gradingConfigMode: 'lead-source' })}
+          >
+            Use Lead Source Settings
+          </Button>
+          <Button
+            variant={validation.gradingConfigMode === 'custom' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => update({ gradingConfigMode: 'custom' })}
+          >
+            Customize Settings for this Campaign
+          </Button>
         </div>
-      )}
+      </div>
     </div>
   )
 }

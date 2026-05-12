@@ -88,36 +88,40 @@ export function DataGrid<T extends { id: string }>({
           {toolbar}
         </div>
       )}
-      {sortedData.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-3 text-xs text-muted-foreground min-h-32 py-8">
-          <div>{emptyMessage}</div>
-          {afterContent}
-        </div>
-      ) : (
-        <div className="overflow-auto flex-1 min-h-0">
-          <table className="w-full border-separate border-spacing-0">
-            <thead>
-              <tr data-slot="data-grid-header">
-                {columns.map((col, colIdx) => (
-                  <th
-                    key={`${col.key}-${colIdx}`}
-                    className={cn(
-                      'text-left px-3 py-3 text-xs font-semibold text-foreground select-none bg-background sticky top-0 z-10 border-b border-border',
-                      col.sortable && 'cursor-pointer hover:bg-accent',
-                    )}
-                    style={col.width ? { width: col.width } : undefined}
-                    onClick={() => col.sortable && handleSort(col.key)}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      {col.header}
-                      {col.sortable && getSortIcon(col.key)}
-                    </span>
-                  </th>
-                ))}
+      <div className="overflow-auto flex-1 min-h-0">
+        <table className="w-full border-separate border-spacing-0">
+          <thead>
+            <tr data-slot="data-grid-header">
+              {columns.map((col, colIdx) => (
+                <th
+                  key={`${col.key}-${colIdx}`}
+                  className={cn(
+                    'text-left px-3 py-3 text-xs font-semibold text-foreground select-none bg-background sticky top-0 z-10 border-b border-border',
+                    col.sortable && 'cursor-pointer hover:bg-accent',
+                  )}
+                  style={col.width ? { width: col.width } : undefined}
+                  onClick={() => col.sortable && handleSort(col.key)}
+                >
+                  <span className="inline-flex items-center gap-2">
+                    {col.header}
+                    {col.sortable && getSortIcon(col.key)}
+                  </span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sortedData.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="px-3 py-12 text-center text-xs text-muted-foreground"
+                >
+                  {emptyMessage}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {sortedData.map((row, index) => (
+            ) : (
+              sortedData.map((row, index) => (
                 <tr
                   key={row.id}
                   data-slot="data-grid-row"
@@ -137,14 +141,14 @@ export function DataGrid<T extends { id: string }>({
                     </td>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {afterContent && (
-            <div className="flex justify-center px-3 pt-6 pb-3">{afterContent}</div>
-          )}
-        </div>
-      )}
+              ))
+            )}
+          </tbody>
+        </table>
+        {afterContent && (
+          <div className="flex justify-center px-3 pt-6 pb-3">{afterContent}</div>
+        )}
+      </div>
       {footer && (
         <div className="px-3 py-3 text-xs text-muted-foreground">
           {footer}

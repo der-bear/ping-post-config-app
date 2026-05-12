@@ -1,4 +1,4 @@
-import { User, Users, Settings2 } from 'lucide-react'
+import { User, Users, Workflow } from 'lucide-react'
 import type { EditableListItem } from '@/components/ui'
 import {
   FieldGroup,
@@ -69,10 +69,9 @@ export function DeliveryOptionsContent({
 }: DeliveryOptionsContentProps) {
   return (
     <div className="space-y-5">
-      <SectionHeading
-        title="Deliver Options"
-        description="Choose how leads will be distributed: to a specific buyer, a group of buyers, or all qualified buyers."
-      />
+      <p className="text-sm text-muted-foreground">
+        Choose how leads will be distributed: to a specific buyer, a group of buyers, or all qualified buyers.
+      </p>
 
       <div className={stacked ? 'flex flex-col gap-3' : 'grid grid-cols-3 gap-3'}>
         <SelectableCard
@@ -92,7 +91,7 @@ export function DeliveryOptionsContent({
           compact={compact}
         />
         <SelectableCard
-          icon={<Settings2 className="size-5" />}
+          icon={<Workflow className="size-5" />}
           title="Any Qualified"
           description="Distribute leads among all qualified buyers."
           selected={deliveryMode === 'any-qualified'}
@@ -120,7 +119,7 @@ export function DeliveryOptionsContent({
       {/* Multiple Buyers */}
       {deliveryMode === 'multiple' && (
         <>
-          <div className="rounded-sm border border-border p-4 space-y-4">
+          <div className="space-y-4">
             <SectionHeading title="Select Target Buyer" />
 
             <RadioGroup value={targetMode} onValueChange={onTargetModeChange} className="flex gap-4">
@@ -163,14 +162,12 @@ export function DeliveryOptionsContent({
             )}
           </div>
 
-          <div className="rounded-sm border border-border p-4 space-y-4">
-            <DistributionSettings
-              automationMethod={automationMethod}
-              onAutomationMethodChange={onAutomationMethodChange}
-              maxDeliveryCount={maxDeliveryCount}
-              onMaxDeliveryCountChange={onMaxDeliveryCountChange}
-            />
-          </div>
+          <DistributionSettings
+            automationMethod={automationMethod}
+            onAutomationMethodChange={onAutomationMethodChange}
+            maxDeliveryCount={maxDeliveryCount}
+            onMaxDeliveryCountChange={onMaxDeliveryCountChange}
+          />
         </>
       )}
 

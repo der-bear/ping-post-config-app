@@ -27,12 +27,12 @@ export function FieldGroup({
           {required && <span className="text-muted-foreground ml-1 italic">(required)</span>}
         </Label>
       )}
+      {description && (
+        <p className="text-xs text-muted-foreground -mt-1">{description}</p>
+      )}
       <div className={cn(horizontal && 'flex-1')}>
         {children}
       </div>
-      {description && (
-        <p className="text-xs text-muted-foreground">{description}</p>
-      )}
     </div>
   )
 }

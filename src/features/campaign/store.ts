@@ -119,7 +119,7 @@ export const useCampaignStore = create<CampaignStore>()((set) => ({
   config: defaultConfig,
   activePanel: { section: 'general' } as ActivePanel,
   isQualityControlExpanded: true,
-  isIntegrationsExpanded: false,
+  isIntegrationsExpanded: true,
   isPanelExpanded: false,
 
   // ---- Navigation ----
@@ -241,7 +241,7 @@ export const useCampaignStore = create<CampaignStore>()((set) => ({
       config: defaultConfig,
       activePanel: { section: 'general' },
       isQualityControlExpanded: true,
-      isIntegrationsExpanded: false,
+      isIntegrationsExpanded: true,
       isPanelExpanded: false,
     }),
 }))
