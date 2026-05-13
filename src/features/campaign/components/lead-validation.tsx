@@ -46,6 +46,8 @@ export function LeadValidation() {
         </Select>
       </FieldGroup>
 
+      <Separator className="my-0" />
+
       <SwitchField
         label="Scan Coverage"
         description="Verify coverage or delivery of record before sending response"
@@ -98,7 +100,11 @@ export function LeadValidation() {
 
       <SectionHeading
         title="Lead Grading"
-        icon={<span className="text-sm font-bold">A</span>}
+        icon={
+          <span className="flex h-5 w-5 items-center justify-center rounded-sm border border-current text-xs font-bold leading-none">
+            A
+          </span>
+        }
       />
 
       <SwitchField
@@ -115,7 +121,7 @@ export function LeadValidation() {
         <p className="text-xs text-muted-foreground">
           Current Setting: Using default settings from parent lead source
         </p>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             variant="default"
             size="sm"
