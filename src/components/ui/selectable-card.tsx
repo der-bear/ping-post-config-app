@@ -64,7 +64,7 @@ export function SelectableCard({
           <p className={cn('font-semibold text-sm leading-5', disabled ? 'text-muted-foreground' : 'text-foreground')}>
             {title}
           </p>
-          <p className="text-xs text-muted-foreground leading-4">{description}</p>
+          <p className="text-xs text-text-medium leading-4">{description}</p>
         </div>
         <RadioIndicator selected={selected} disabled={disabled} />
       </button>
@@ -104,7 +104,7 @@ export function SelectableCard({
         <p className={cn('font-semibold text-sm leading-5', disabled ? 'text-muted-foreground' : 'text-foreground')}>
           {title}
         </p>
-        <p className="text-xs text-muted-foreground leading-4">{description}</p>
+        <p className="text-xs text-text-medium leading-4">{description}</p>
       </div>
 
       {/* Mobile: Radio on right */}
