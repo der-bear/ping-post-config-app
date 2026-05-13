@@ -64,7 +64,12 @@ export function ComplianceSettings() {
 
       <SwitchField
         label="Rejected Retention Policy"
-        description="The amount of days before only rejected leads are automatically removed from the system. Note: This will override any retention policy set above for rejected leads."
+        description={
+          <>
+            The amount of days before only rejected leads are automatically removed from the system.
+            <span className="block mt-2 italic">Note: This will override any retention policy set above for rejected leads.</span>
+          </>
+        }
         checked={compliance.rejectedRetentionDays !== '0'}
         onCheckedChange={(v) => update({ rejectedRetentionDays: v ? '30' : '0' })}
       >
