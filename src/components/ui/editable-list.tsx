@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { AlertTriangle, X } from 'lucide-react'
+import { AlertTriangle, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -119,14 +119,15 @@ export function EditableList({
                     </span>
                   )}
                 </div>
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
                   onClick={() => onRemove(item.id)}
-                  className="shrink-0 size-4 inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground"
                   aria-label={`Remove ${item.label}`}
                 >
-                  <X className="size-4" />
-                </button>
+                  <Trash2 />
+                </Button>
               </div>
             ))}
           </div>

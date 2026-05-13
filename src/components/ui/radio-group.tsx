@@ -17,6 +17,7 @@ const RadioGroup = React.forwardRef<
 })
 RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
 
+// 20px click zone, 16px visual control (per Figma spec).
 const RadioGroupItem = React.forwardRef<
   React.ComponentRef<typeof RadioGroupPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
@@ -25,11 +26,18 @@ const RadioGroupItem = React.forwardRef<
     <RadioGroupPrimitive.Item
       ref={ref}
       className={cn(
-        'shrink-0 aspect-square h-5 w-5 rounded-full border border-border-strong bg-background transition-colors duration-75 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-[6px] data-[state=checked]:border-primary',
+        'inline-flex h-5 w-5 shrink-0 items-center justify-center bg-transparent transition-colors duration-75 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+        '[&_[data-radio-visual]]:border-border-strong',
+        'data-[state=checked]:[&_[data-radio-visual]]:border-[5px] data-[state=checked]:[&_[data-radio-visual]]:border-primary',
         className
       )}
       {...props}
-    />
+    >
+      <span
+        data-radio-visual
+        className="block h-4 w-4 rounded-full border bg-background transition-colors"
+      />
+    </RadioGroupPrimitive.Item>
   )
 })
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName

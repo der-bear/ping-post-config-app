@@ -12,19 +12,18 @@ interface SelectableCardProps {
   className?: string
 }
 
+// 20px click zone, 16px visual control (matches RadioGroupItem).
 function RadioIndicator({ selected, disabled }: { selected: boolean; disabled: boolean }) {
   return (
-    <div className="relative shrink-0 size-5">
-      {selected && !disabled && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="size-5 rounded-full border-[6px] border-primary bg-background" />
-        </div>
-      )}
-      {!selected && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="size-[18px] rounded-full border border-border-strong" />
-        </div>
-      )}
+    <div className="inline-flex h-5 w-5 shrink-0 items-center justify-center">
+      <div
+        className={cn(
+          'size-4 rounded-full bg-background transition-colors',
+          selected && !disabled
+            ? 'border-[5px] border-primary'
+            : 'border border-border-strong',
+        )}
+      />
     </div>
   )
 }
