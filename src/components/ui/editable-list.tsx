@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { AlertTriangle, Trash2 } from 'lucide-react'
+import { AlertTriangle, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -81,7 +81,7 @@ export function EditableList({
         </Button>
       </div>
 
-      {/* Buyers table — bordered container per Figma 3611:10718 */}
+      {/* Buyers table — bordered container per Figma 3617:11201 */}
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground py-2">{emptyMessage}</p>
       ) : (
@@ -91,13 +91,12 @@ export function EditableList({
               <span className="text-sm font-semibold leading-5 text-foreground">{heading}</span>
             </div>
           )}
-          <div>
+          <div className="max-h-[200px] overflow-y-auto">
             {items.map((item, idx) => (
               <div
                 key={item.id}
                 className={cn(
-                  'group flex items-center justify-between h-10 px-3 transition-colors',
-                  idx % 2 === 1 && 'bg-background-tertiary',
+                  'group flex items-center justify-between h-10 px-3 transition-colors hover:bg-background-tertiary',
                   idx < items.length - 1 && 'border-b border-border',
                 )}
               >
@@ -114,21 +113,20 @@ export function EditableList({
                   {item.warning && (
                     <span className="relative group/tip ml-1">
                       <AlertTriangle className="size-3 text-warning shrink-0" />
-                      <span className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-2 rounded bg-foreground text-background text-xs leading-snug w-56 opacity-0 pointer-events-none group-hover/tip:opacity-100 transition-opacity z-10">
+                      <span className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-2 rounded bg-tooltip text-tooltip-foreground text-xs leading-4 w-48 opacity-0 pointer-events-none group-hover/tip:opacity-100 transition-opacity z-10">
                         {item.warning}
                       </span>
                     </span>
                   )}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
+                <button
+                  type="button"
                   onClick={() => onRemove(item.id)}
-                  className="opacity-0 group-hover:opacity-70 hover:!opacity-100 text-muted-foreground"
+                  className="shrink-0 size-4 inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={`Remove ${item.label}`}
                 >
-                  <Trash2 />
-                </Button>
+                  <X className="size-4" />
+                </button>
               </div>
             ))}
           </div>
