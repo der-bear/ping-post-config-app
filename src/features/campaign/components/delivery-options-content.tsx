@@ -11,14 +11,30 @@ import {
   SelectTrigger,
   SelectValue,
   EditableList,
+  Separator,
 } from '@/components/ui'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
 import type { DeliveryMode, TargetMode } from '../types'
 
-function SectionCard({ children, className }: { children: ReactNode; className?: string }) {
+// Section wrapper: bordered card (modal/wizard) or plain stack (flyout).
+function Section({
+  framed,
+  children,
+  className,
+}: {
+  framed: boolean
+  children: ReactNode
+  className?: string
+}) {
   return (
-    <div className={cn('flex flex-col gap-5 rounded-[4px] border border-border bg-background p-5', className)}>
+    <div
+      className={cn(
+        'flex flex-col gap-4 w-full',
+        framed && 'gap-5 rounded-[4px] border border-border bg-background p-5',
+        className,
+      )}
+    >
       {children}
     </div>
   )
@@ -56,6 +72,9 @@ interface DeliveryOptionsContentProps {
   onMaxDeliveryCountChange: (value: string) => void
   compact?: boolean
   stacked?: boolean
+  /** When true, wrap sub-sections (Select Target Buyer / Distribution Settings) in bordered cards.
+   *  When false (flyout default), separate sub-sections with horizontal dividers. */
+  framed?: boolean
 }
 
 export function DeliveryOptionsContent({
@@ -76,7 +95,9 @@ export function DeliveryOptionsContent({
   onMaxDeliveryCountChange,
   compact = false,
   stacked = false,
+  framed = false,
 }: DeliveryOptionsContentProps) {
+  // When unframed, dividers separate sections; gap is uniform 16px.
   return (
     <div className="flex flex-col gap-4">
       <p className="text-xs leading-4 text-text-medium">
@@ -112,26 +133,30 @@ export function DeliveryOptionsContent({
 
       {/* Single Buyer */}
       {deliveryMode === 'single' && (
-        <SectionCard>
-          <FieldGroup label="Select Target Buyer">
-            <Select value={selectedBuyer} onValueChange={onSelectedBuyerChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a buyer" />
-              </SelectTrigger>
-              <SelectContent>
-                {BUYER_SUGGESTIONS.map((b) => (
-                  <SelectItem key={b.value} value={b.value}>{b.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldGroup>
-        </SectionCard>
+        <>
+          {!framed && <Separator className="my-0" />}
+          <Section framed={framed}>
+            <FieldGroup label="Select Target Buyer">
+              <Select value={selectedBuyer} onValueChange={onSelectedBuyerChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a buyer" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BUYER_SUGGESTIONS.map((b) => (
+                    <SelectItem key={b.value} value={b.value}>{b.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldGroup>
+          </Section>
+        </>
       )}
 
       {/* Multiple Buyers */}
       {deliveryMode === 'multiple' && (
         <>
-          <SectionCard>
+          {!framed && <Separator className="my-0" />}
+          <Section framed={framed}>
             <SectionHeading title="Select Target Buyer" />
 
             <RadioGroup value={targetMode} onValueChange={onTargetModeChange} className="flex gap-4">
@@ -172,29 +197,33 @@ export function DeliveryOptionsContent({
                 </p>
               </div>
             )}
-          </SectionCard>
+          </Section>
 
-          <SectionCard>
+          {!framed && <Separator className="my-0" />}
+          <Section framed={framed}>
             <DistributionSettings
               automationMethod={automationMethod}
               onAutomationMethodChange={onAutomationMethodChange}
               maxDeliveryCount={maxDeliveryCount}
               onMaxDeliveryCountChange={onMaxDeliveryCountChange}
             />
-          </SectionCard>
+          </Section>
         </>
       )}
 
       {/* Any Qualified */}
       {deliveryMode === 'any-qualified' && (
-        <SectionCard>
-          <DistributionSettings
-            automationMethod={automationMethod}
-            onAutomationMethodChange={onAutomationMethodChange}
-            maxDeliveryCount={maxDeliveryCount}
-            onMaxDeliveryCountChange={onMaxDeliveryCountChange}
-          />
-        </SectionCard>
+        <>
+          {!framed && <Separator className="my-0" />}
+          <Section framed={framed}>
+            <DistributionSettings
+              automationMethod={automationMethod}
+              onAutomationMethodChange={onAutomationMethodChange}
+              maxDeliveryCount={maxDeliveryCount}
+              onMaxDeliveryCountChange={onMaxDeliveryCountChange}
+            />
+          </Section>
+        </>
       )}
     </div>
   )

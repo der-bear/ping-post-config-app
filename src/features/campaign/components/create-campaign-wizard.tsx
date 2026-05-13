@@ -194,6 +194,7 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
           <SectionHeading title="Delivery Options" />
           <Separator className="my-0" />
           <DeliveryOptionsContent
+            framed
             deliveryMode={deliveryMode}
             onDeliveryModeChange={setDeliveryMode}
             targetMode={targetMode}
