@@ -190,32 +190,36 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
       id: 'delivery',
       label: 'Delivery Options',
       content: (
-        <DeliveryOptionsContent
-          deliveryMode={deliveryMode}
-          onDeliveryModeChange={setDeliveryMode}
-          targetMode={targetMode}
-          onTargetModeChange={setTargetMode}
-          selectedBuyer={targetBuyer}
-          onSelectedBuyerChange={setTargetBuyer}
-          selectedGroup={targetGroup}
-          onSelectedGroupChange={setTargetGroup}
-          buyers={buyers}
-          onAddBuyer={(value) => {
-            const s = BUYER_SUGGESTIONS.find((b) => b.value === value)
-            if (s) {
-              setBuyers((prev) => [...prev, {
-                id: s.value,
-                label: s.label,
-                warning: getBuyerWarning(s.value),
-              }])
-            }
-          }}
-          onRemoveBuyer={(id) => setBuyers((prev) => prev.filter((b) => b.id !== id))}
-          automationMethod={automationMethod}
-          onAutomationMethodChange={setAutomationMethod}
-          maxDeliveryCount={maxDeliveryCount}
-          onMaxDeliveryCountChange={setMaxDeliveryCount}
-        />
+        <div className="flex flex-col gap-4">
+          <SectionHeading title="Delivery Options" />
+          <Separator className="my-0" />
+          <DeliveryOptionsContent
+            deliveryMode={deliveryMode}
+            onDeliveryModeChange={setDeliveryMode}
+            targetMode={targetMode}
+            onTargetModeChange={setTargetMode}
+            selectedBuyer={targetBuyer}
+            onSelectedBuyerChange={setTargetBuyer}
+            selectedGroup={targetGroup}
+            onSelectedGroupChange={setTargetGroup}
+            buyers={buyers}
+            onAddBuyer={(value) => {
+              const s = BUYER_SUGGESTIONS.find((b) => b.value === value)
+              if (s) {
+                setBuyers((prev) => [...prev, {
+                  id: s.value,
+                  label: s.label,
+                  warning: getBuyerWarning(s.value),
+                }])
+              }
+            }}
+            onRemoveBuyer={(id) => setBuyers((prev) => prev.filter((b) => b.id !== id))}
+            automationMethod={automationMethod}
+            onAutomationMethodChange={setAutomationMethod}
+            maxDeliveryCount={maxDeliveryCount}
+            onMaxDeliveryCountChange={setMaxDeliveryCount}
+          />
+        </div>
       ),
     },
     {
