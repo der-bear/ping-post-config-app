@@ -114,12 +114,19 @@ export interface ComplianceConfig {
 export interface Integration {
   id: string
   name: string
+  subtitle?: string
   icon?: string
+  iconBg?: string
 }
 
 export interface IntegrationsConfig {
   added: Integration[]
   available: Integration[]
+}
+
+export interface ReorderIntegrationsArgs {
+  activeId: string
+  overId: string
 }
 
 // ---- Full Config ----

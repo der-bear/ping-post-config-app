@@ -59,9 +59,18 @@ const defaultConfig: CampaignConfig = {
     rejectedRetentionDays: '0',
   },
   integrations: {
-    added: [],
+    added: [
+      { id: 'pure-caller-id', name: 'Pure Caller ID', subtitle: 'Single Lead Load', icon: '📱', iconBg: '#ffffff' },
+      { id: 'dnc', name: 'DNC', subtitle: '1 Litigator Scrub', icon: '🌙', iconBg: '#ffffff' },
+      { id: 'trestle-real-contact', name: 'Trestle', subtitle: 'Real Contact', icon: '🌿', iconBg: '#ffffff' },
+    ],
     available: [
-      { id: 'purecallerid', name: 'PureCallerIdSSL', icon: '🟩' },
+      { id: 'briteverify', name: 'BriteVerify', subtitle: 'Email Verification', icon: '✅', iconBg: '#ffffff' },
+      { id: 'twilio', name: 'Twilio', subtitle: 'SMS & Voice', icon: '📞', iconBg: '#ffffff' },
+      { id: 'jornaya', name: 'Jornaya', subtitle: 'TCPA Compliance', icon: '🔵', iconBg: '#ffffff' },
+      { id: 'trustedform', name: 'TrustedForm', subtitle: 'Consent Certificate', icon: '🟢', iconBg: '#ffffff' },
+      { id: 'ipqs', name: 'IPQS', subtitle: 'Fraud Detection', icon: '🔥', iconBg: '#ffffff' },
+      { id: 'searchbug', name: 'Searchbug', subtitle: 'Data Enrichment', icon: '🐛', iconBg: '#ffffff' },
     ],
   },
   integrationCriteria: [],
@@ -107,6 +116,7 @@ export interface CampaignStore {
   // Integrations
   addIntegration: (id: string) => void
   removeIntegration: (id: string) => void
+  reorderAddedIntegrations: (fromId: string, toId: string) => void
 
   // Reset
   resetStore: () => void
@@ -231,6 +241,23 @@ export const useCampaignStore = create<CampaignStore>()((set) => ({
             added: s.config.integrations.added.filter((i) => i.id !== id),
             available: [...s.config.integrations.available, item],
           },
+        },
+      }
+    }),
+
+  reorderAddedIntegrations: (fromId, toId) =>
+    set((s) => {
+      const list = s.config.integrations.added
+      const fromIdx = list.findIndex((i) => i.id === fromId)
+      const toIdx = list.findIndex((i) => i.id === toId)
+      if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return s
+      const next = [...list]
+      const [moved] = next.splice(fromIdx, 1)
+      next.splice(toIdx, 0, moved)
+      return {
+        config: {
+          ...s.config,
+          integrations: { ...s.config.integrations, added: next },
         },
       }
     }),
