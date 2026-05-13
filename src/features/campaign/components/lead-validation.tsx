@@ -91,6 +91,7 @@ export function LeadValidation() {
 
       <SwitchField
         label="Geolocate IP Address"
+        meta="$0.02 per lead"
         description="Geolocation IP address of the lead. (fee may apply)"
         checked={validation.geolocateIp}
         onCheckedChange={(v) => update({ geolocateIp: v })}
