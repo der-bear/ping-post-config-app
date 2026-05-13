@@ -17,7 +17,7 @@ const RadioGroup = React.forwardRef<
 })
 RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
 
-// 20px click zone, 16px visual control (per Figma spec).
+// 20px click zone, 18px visual control (per Figma spec).
 const RadioGroupItem = React.forwardRef<
   React.ComponentRef<typeof RadioGroupPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
@@ -35,7 +35,7 @@ const RadioGroupItem = React.forwardRef<
     >
       <span
         data-radio-visual
-        className="block h-4 w-4 rounded-full border bg-background transition-colors"
+        className="block size-[18px] rounded-full border bg-background transition-colors"
       />
     </RadioGroupPrimitive.Item>
   )

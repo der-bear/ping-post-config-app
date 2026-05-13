@@ -12,13 +12,13 @@ interface SelectableCardProps {
   className?: string
 }
 
-// 20px click zone, 16px visual control (matches RadioGroupItem).
+// 20px click zone, 18px visual control (matches RadioGroupItem).
 function RadioIndicator({ selected, disabled }: { selected: boolean; disabled: boolean }) {
   return (
     <div className="inline-flex h-5 w-5 shrink-0 items-center justify-center">
       <div
         className={cn(
-          'size-4 rounded-full bg-background transition-colors',
+          'size-[18px] rounded-full bg-background transition-colors',
           selected && !disabled
             ? 'border-[5px] border-primary'
             : 'border border-border-strong',

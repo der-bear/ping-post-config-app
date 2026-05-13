@@ -4,7 +4,7 @@ import { Check } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
-// 20px click zone, 16px visual control (per Figma spec).
+// 20px click zone, 18px visual control (per Figma spec).
 const Checkbox = React.forwardRef<
   React.ComponentRef<typeof CheckboxPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
@@ -21,7 +21,7 @@ const Checkbox = React.forwardRef<
   >
     <span
       data-checkbox-visual
-      className="flex h-4 w-4 items-center justify-center rounded-sm border text-primary-foreground transition-colors"
+      className="flex size-[18px] items-center justify-center rounded-sm border text-primary-foreground transition-colors"
     >
       <CheckboxPrimitive.Indicator className="flex items-center justify-center">
         <Check className="h-3 w-3" strokeWidth={3} />
