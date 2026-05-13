@@ -10,20 +10,22 @@
   --color-primary-foreground: #FFFFFF;
 
   /* Grays - matching Figma border/neutral tokens */
-  --color-border: #ebedef;
+  --color-border: #e7e9eb;
   --color-border-strong: #cdd0d4;
   --color-border-hover: #b1b7c1;
-  --color-input: #ebedef;
+  --color-input: #e7e9eb;
   --color-input-emphasis: #636f83;
   --color-ring: #498bff;
 
   --color-background: #ffffff;
+  --color-background-tertiary: #fbfbfb;
   --color-foreground: #474b55;
   --color-muted: #f5f6f7;
   --color-muted-foreground: #838890;
   --color-text-medium: #626770;
   --color-info-link: #2b6de4;
   --color-info-link-hover: #1469b8;
+  --color-info-on-accent: #d0e0ff;
   --color-subtle: #b1b7c1;
   --color-accent: #f5f6f7;
   --color-accent-foreground: #3c4b64;
@@ -36,7 +38,9 @@
   --color-destructive: #e55353;
   --color-destructive-foreground: #FFFFFF;
   --color-success: #2eb85c;
-  --color-warning: #f9b115;
+  --color-warning: #f5892d;
+  --color-tooltip: #333641;
+  --color-tooltip-foreground: #ffffff;
 
   /* Panel specific */
   --color-panel-header: #498bff;

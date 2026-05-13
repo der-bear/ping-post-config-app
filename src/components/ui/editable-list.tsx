@@ -97,7 +97,7 @@ export function EditableList({
                 key={item.id}
                 className={cn(
                   'group flex items-center justify-between h-10 px-3 transition-colors',
-                  idx % 2 === 1 && 'bg-muted/30',
+                  idx % 2 === 1 && 'bg-background-tertiary',
                   idx < items.length - 1 && 'border-b border-border',
                 )}
               >
