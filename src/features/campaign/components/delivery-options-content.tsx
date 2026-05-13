@@ -70,7 +70,7 @@ export function DeliveryOptionsContent({
 }: DeliveryOptionsContentProps) {
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-xs leading-4 text-muted-foreground">
+      <p className="text-xs leading-4 text-text-medium">
         Choose how leads will be distributed: to a specific buyer, a group of buyers, or all qualified buyers.
       </p>
 

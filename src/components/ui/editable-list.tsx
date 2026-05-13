@@ -54,7 +54,7 @@ export function EditableList({
   }
 
   return (
-    <div data-slot="editable-list" className={cn('space-y-3', className)}>
+    <div data-slot="editable-list" className={cn('flex flex-col gap-2', className)}>
       {/* Add row */}
       <div className="flex gap-2">
         <div className="flex-1">
@@ -75,48 +75,63 @@ export function EditableList({
           variant="outline"
           onClick={handleAdd}
           disabled={!selectedValue}
+          className="w-20"
         >
           Add
         </Button>
       </div>
 
-      {/* List */}
-      {heading && (
-        <p className="text-sm font-semibold text-foreground">{heading}</p>
-      )}
+      {/* Buyers table — bordered container per Figma 3611:10718 */}
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground py-2">{emptyMessage}</p>
       ) : (
-        <div className="divide-y divide-border border-t border-border">
-          {items.map(item => (
-            <div
-              key={item.id}
-              className="flex items-center justify-between py-2.5 px-3 group transition-colors hover:bg-accent/40 border-l-2 border-l-transparent hover:border-l-primary"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                {renderItem ? renderItem(item) : (
-                  <span className="text-sm text-primary cursor-pointer hover:underline truncate">{item.label}</span>
-                )}
-                {item.warning && (
-                  <span className="relative group/tip">
-                    <AlertTriangle className="size-4 text-warning shrink-0" />
-                    <span className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-2 rounded bg-foreground text-background text-xs leading-snug w-56 opacity-0 pointer-events-none group-hover/tip:opacity-100 transition-opacity z-10">
-                      {item.warning}
-                    </span>
-                  </span>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                onClick={() => onRemove(item.id)}
-                className="opacity-0 group-hover:opacity-70 hover:!opacity-100 text-muted-foreground"
-                aria-label={`Remove ${item.label}`}
-              >
-                <Trash2 />
-              </Button>
+        <div className="rounded-[4px] border border-border bg-background overflow-hidden">
+          {heading && (
+            <div className="flex items-center h-9 px-3 border-b border-border">
+              <span className="text-sm font-semibold leading-5 text-foreground">{heading}</span>
             </div>
-          ))}
+          )}
+          <div>
+            {items.map((item, idx) => (
+              <div
+                key={item.id}
+                className={cn(
+                  'group flex items-center justify-between h-10 px-3 transition-colors',
+                  idx % 2 === 1 && 'bg-muted/30',
+                  idx < items.length - 1 && 'border-b border-border',
+                )}
+              >
+                <div className="flex items-center gap-1 min-w-0">
+                  {renderItem ? renderItem(item) : (
+                    <a
+                      href="#"
+                      onClick={(e) => e.preventDefault()}
+                      className="text-sm leading-5 text-info-link underline decoration-solid cursor-pointer truncate hover:text-info-link-hover"
+                    >
+                      {item.label}
+                    </a>
+                  )}
+                  {item.warning && (
+                    <span className="relative group/tip ml-1">
+                      <AlertTriangle className="size-3 text-warning shrink-0" />
+                      <span className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-2 rounded bg-foreground text-background text-xs leading-snug w-56 opacity-0 pointer-events-none group-hover/tip:opacity-100 transition-opacity z-10">
+                        {item.warning}
+                      </span>
+                    </span>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => onRemove(item.id)}
+                  className="opacity-0 group-hover:opacity-70 hover:!opacity-100 text-muted-foreground"
+                  aria-label={`Remove ${item.label}`}
+                >
+                  <Trash2 />
+                </Button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
