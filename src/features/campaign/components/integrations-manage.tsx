@@ -62,6 +62,10 @@ export function IntegrationsManage() {
           ))}
         </div>
       )}
+
+      <p className="text-xs leading-4 text-muted-foreground mt-2">
+        <span className="font-semibold">Note:</span> Adding too many integrations may delay lead processing.
+      </p>
     </div>
   )
 }
