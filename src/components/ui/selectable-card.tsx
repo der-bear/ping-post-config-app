@@ -22,7 +22,7 @@ function RadioIndicator({ selected, disabled }: { selected: boolean; disabled: b
       )}
       {!selected && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="size-[18px] rounded-full border border-border" />
+          <div className="size-[18px] rounded-full border border-border-strong" />
         </div>
       )}
     </div>
