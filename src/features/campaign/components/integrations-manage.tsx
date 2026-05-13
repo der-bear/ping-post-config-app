@@ -1,3 +1,4 @@
+import { GripVertical } from 'lucide-react'
 import { useCampaignStore } from '../store'
 import { Button } from '@/components/ui/button'
 import { SectionHeading, Separator } from '@/components/ui'
@@ -17,19 +18,29 @@ export function IntegrationsManage() {
       {integrations.added.length === 0 ? (
         <p className="text-xs leading-4 text-muted-foreground">No integrations added yet.</p>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col">
           {integrations.added.map((item) => (
-            <div key={item.id} className="flex items-center justify-between py-2 border-b border-border">
-              <div className="flex items-center gap-3">
+            <div key={item.id} className="group flex items-center gap-3 py-2">
+              <button
+                type="button"
+                className="shrink-0 inline-flex h-5 w-5 items-center justify-center text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing"
+                aria-label={`Reorder ${item.name}`}
+              >
+                <GripVertical className="size-4" />
+              </button>
+              <div className="flex flex-1 items-center gap-3 min-w-0">
                 {item.icon && <span className="text-lg">{item.icon}</span>}
-                <span className="text-sm font-normal leading-5">{item.name}</span>
+                <span className="text-sm font-normal leading-5 truncate">{item.name}</span>
               </div>
-              <Button
-                variant="destructive"
-                size="sm"
+              <button
+                type="button"
                 onClick={() => removeIntegration(item.id)}
+                className="text-sm leading-5 text-destructive hover:underline transition-colors"
               >
                 Remove
+              </button>
+              <Button variant="secondary" size="sm">
+                Edit
               </Button>
             </div>
           ))}
