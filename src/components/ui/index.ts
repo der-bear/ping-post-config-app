@@ -125,3 +125,6 @@ export {
   ComboboxTrigger,
   ComboboxValue,
 } from './combobox'
+
+export { SearchableSelect } from './searchable-select'
+export type { SearchableSelectOption } from './searchable-select'

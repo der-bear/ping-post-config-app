@@ -1,15 +1,8 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { AlertTriangle, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from '@/components/ui/combobox'
+import { SearchableSelect } from '@/components/ui/searchable-select'
 
 export interface EditableListItem {
   id: string
@@ -41,55 +34,36 @@ export function EditableList({
   renderItem,
   className,
 }: EditableListProps) {
-  const [selectedItem, setSelectedItem] = useState<{ value: string; label: string } | null>(null)
-  const [inputValue, setInputValue] = useState('')
-  const containerRef = useRef<HTMLDivElement | null>(null)
+  const [selectedValue, setSelectedValue] = useState('')
 
   const availableSuggestions = suggestions.filter(
     s => !items.some(item => item.id === s.value)
   )
 
   const handleAdd = () => {
-    if (selectedItem) {
-      onAdd(selectedItem.value)
-      setSelectedItem(null)
-      setInputValue('')
+    if (selectedValue) {
+      onAdd(selectedValue)
+      setSelectedValue('')
     }
   }
 
   return (
-    <div data-slot="editable-list" ref={containerRef} className={cn('flex flex-col gap-2', className)}>
-      {/* Add row — searchable combobox + Add button */}
+    <div data-slot="editable-list" className={cn('flex flex-col gap-4', className)}>
+      {/* Add row — searchable select + Add button */}
       <div className="flex gap-2">
         <div className="flex-1">
-          <Combobox
-            items={availableSuggestions}
-            value={selectedItem}
-            inputValue={inputValue}
-            onInputValueChange={setInputValue}
-            onValueChange={(item: { value: string; label: string } | null) => {
-              setSelectedItem(item)
-              if (item) setInputValue(item.label)
-            }}
-            itemToStringLabel={(item: { value: string; label: string }) => item.label}
-          >
-            <ComboboxInput placeholder={placeholder} />
-            <ComboboxContent>
-              <ComboboxEmpty>No matches.</ComboboxEmpty>
-              <ComboboxList>
-                {(item: { value: string; label: string }) => (
-                  <ComboboxItem key={item.value} value={item}>
-                    {item.label}
-                  </ComboboxItem>
-                )}
-              </ComboboxList>
-            </ComboboxContent>
-          </Combobox>
+          <SearchableSelect
+            options={availableSuggestions}
+            value={selectedValue}
+            onValueChange={setSelectedValue}
+            placeholder={placeholder}
+            emptyMessage="No clients found"
+          />
         </div>
         <Button
           variant="outline"
           onClick={handleAdd}
-          disabled={!selectedItem}
+          disabled={!selectedValue}
           className="w-20"
         >
           Add
@@ -106,7 +80,7 @@ export function EditableList({
               <span className="text-sm font-semibold leading-5 text-foreground">{heading}</span>
             </div>
           )}
-          <div className="max-h-[200px] overflow-y-auto">
+          <div className="max-h-[280px] overflow-y-auto">
             {items.map((item, idx) => (
               <div
                 key={item.id}
