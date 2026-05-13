@@ -62,7 +62,7 @@ export function SectionHeading({ title, description, icon, className }: SectionH
         'text-base leading-6',
         icon && 'flex items-center gap-3',
       )}>
-        {icon && <span className="shrink-0 size-5 text-primary">{icon}</span>}
+        {icon && <span className="shrink-0 size-5 text-text-medium">{icon}</span>}
         {title}
       </h3>
       {description && (
