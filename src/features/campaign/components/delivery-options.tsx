@@ -6,11 +6,12 @@ export function DeliveryOptions() {
   const update = useCampaignStore((s) => s.updateDeliveryOptions)
   const addBuyer = useCampaignStore((s) => s.addBuyer)
   const removeBuyer = useCampaignStore((s) => s.removeBuyer)
+  const isPanelExpanded = useCampaignStore((s) => s.isPanelExpanded)
 
   return (
     <DeliveryOptionsContent
-      compact
-      stacked
+      compact={!isPanelExpanded}
+      stacked={!isPanelExpanded}
       deliveryMode={options.deliveryMode}
       onDeliveryModeChange={(v) => update({ deliveryMode: v })}
       targetMode={options.targetMode}

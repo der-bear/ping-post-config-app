@@ -34,7 +34,7 @@ export function PricingModelSelector({
       className="flex flex-col gap-4"
     >
       <label htmlFor={id('per-lead')} className="flex items-start gap-3 cursor-pointer">
-        <RadioGroupItem value="per-lead" id={id('per-lead')} className="mt-0.5" />
+        <RadioGroupItem value="per-lead" id={id('per-lead')} className="" />
         <div className="flex flex-col gap-2 flex-1">
           <div className="flex flex-col gap-0.5">
             <p className="text-sm font-normal leading-5 text-foreground">Price Per Lead</p>
@@ -51,7 +51,7 @@ export function PricingModelSelector({
         </div>
       </label>
       <label htmlFor={id('per-sale')} className="flex items-start gap-3 cursor-pointer">
-        <RadioGroupItem value="per-sale" id={id('per-sale')} className="mt-0.5" />
+        <RadioGroupItem value="per-sale" id={id('per-sale')} className="" />
         <div className="flex flex-col gap-2 flex-1">
           <div className="flex flex-col gap-0.5">
             <p className="text-sm font-normal leading-5 text-foreground">Price Per Sale</p>
@@ -67,7 +67,7 @@ export function PricingModelSelector({
         </div>
       </label>
       <label htmlFor={id('revenue-share')} className="flex items-start gap-3 cursor-pointer">
-        <RadioGroupItem value="revenue-share" id={id('revenue-share')} className="mt-0.5" />
+        <RadioGroupItem value="revenue-share" id={id('revenue-share')} className="" />
         <div className="flex flex-col gap-2 flex-1">
           <div className="flex flex-col gap-0.5">
             <p className="text-sm font-normal leading-5 text-foreground">Revenue Share, %</p>
