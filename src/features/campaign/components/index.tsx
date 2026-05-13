@@ -183,12 +183,14 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
 
             <NavItem label="Agent Forms" active={isActive('agent-forms')} onClick={nav('agent-forms')} />
 
-            <div
-              className="w-full flex items-center justify-between pl-4 pr-3 py-3 text-sm leading-5 text-muted-foreground border-t border-border"
+            <button
+              type="button"
+              onClick={() => {}}
+              className="w-full flex items-center justify-between pl-4 pr-3 py-3 text-sm leading-5 text-muted-foreground hover:bg-sidebar-hover border-t border-border transition-colors duration-75"
             >
               <span>Advanced Options</span>
               <ExternalLink className="h-4 w-4 text-muted-foreground" />
-            </div>
+            </button>
           </PanelSidebar>
         }
         header={
