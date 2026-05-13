@@ -59,14 +59,14 @@ export function SectionHeading({ title, description, icon, className }: SectionH
     <div data-slot="section-heading" className={cn('space-y-1', className)}>
       <h3 className={cn(
         'font-semibold text-foreground',
-        'text-sm leading-5',
-        icon && 'flex items-center gap-2',
+        'text-base leading-6',
+        icon && 'flex items-center gap-3',
       )}>
         {icon && <span className="shrink-0 size-5 text-primary">{icon}</span>}
         {title}
       </h3>
       {description && (
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <p className="text-xs leading-4 text-muted-foreground">{description}</p>
       )}
     </div>
   )

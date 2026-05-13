@@ -111,20 +111,20 @@ export function LeadValidation() {
       <Separator className="my-0" />
 
       <div className="space-y-2">
-        <p className="text-sm font-normal leading-5">Configuration</p>
+        <p className="text-sm font-semibold leading-5">Configuration</p>
         <p className="text-xs text-muted-foreground">
           Current Setting: Using default settings from parent lead source
         </p>
         <div className="flex flex-col gap-2">
           <Button
-            variant={validation.gradingConfigMode === 'lead-source' ? 'default' : 'outline'}
+            variant="default"
             size="sm"
             onClick={() => update({ gradingConfigMode: 'lead-source' })}
           >
             Use Lead Source Settings
           </Button>
           <Button
-            variant={validation.gradingConfigMode === 'custom' ? 'default' : 'outline'}
+            variant="default"
             size="sm"
             onClick={() => update({ gradingConfigMode: 'custom' })}
           >
