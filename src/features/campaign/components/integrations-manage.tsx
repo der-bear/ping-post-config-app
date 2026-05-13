@@ -14,7 +14,6 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import { useCampaignStore } from '../store'
 import { Button } from '@/components/ui/button'
 import { SectionHeading, Separator } from '@/components/ui'
@@ -39,8 +38,10 @@ function AddedRow({
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
   })
+  // Lock movement to the vertical axis so dragging never produces horizontal
+  // overflow / triggers the flyout's horizontal scroll.
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: transform ? `translate3d(0px, ${transform.y}px, 0)` : undefined,
     transition,
     opacity: isDragging ? 0.5 : 1,
   }
