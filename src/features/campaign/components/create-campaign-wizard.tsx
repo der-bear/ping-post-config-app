@@ -72,7 +72,7 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
   const [targetBuyer, setTargetBuyer] = useState('')
   const [targetMode, setTargetMode] = useState<TargetMode>('specific-buyers')
   const [targetGroup, setTargetGroup] = useState('')
-  const [automationMethod, setAutomationMethod] = useState('priority')
+  const [automationMethod, setAutomationMethod] = useState('system-default')
   const [maxDeliveryCount, setMaxDeliveryCount] = useState('3')
   const [buyers, setBuyers] = useState<EditableListItem[]>([])
 

@@ -247,9 +247,14 @@ function DistributionSettings({
         <Select value={automationMethod} onValueChange={onAutomationMethodChange}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="priority">Priority (System Default)</SelectItem>
+            <SelectItem value="none">No Automation</SelectItem>
+            <SelectItem value="system-default">System Default (Price)</SelectItem>
+            <SelectItem value="price">Price</SelectItem>
+            <SelectItem value="priority">Priority</SelectItem>
             <SelectItem value="round-robin">Round Robin</SelectItem>
-            <SelectItem value="weighted">Weighted Distribution</SelectItem>
+            <SelectItem value="weighted">Weighted</SelectItem>
+            <SelectItem value="percentage">Percentage</SelectItem>
+            <SelectItem value="geolocation">Geolocation</SelectItem>
           </SelectContent>
         </Select>
       </FieldGroup>

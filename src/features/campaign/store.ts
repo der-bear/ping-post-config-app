@@ -24,7 +24,7 @@ const defaultConfig: CampaignConfig = {
     selectedBuyer: '',
     selectedGroup: '',
     buyers: [],
-    automationMethod: 'priority',
+    automationMethod: 'system-default',
     maxDeliveryCount: '3',
   },
   duplicateChecks: {
