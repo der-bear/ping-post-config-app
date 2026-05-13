@@ -20,14 +20,12 @@ import { Button } from '@/components/ui/button'
 import { SectionHeading, Separator } from '@/components/ui'
 import type { Integration } from '../types'
 
-function IntegrationIcon({ item }: { item: Integration }) {
+function IntegrationIcon(_props: { item: Integration }) {
   return (
     <div
-      className="flex shrink-0 size-12 items-center justify-center rounded-[4px] border border-border bg-background"
-      style={item.iconBg ? { backgroundColor: item.iconBg } : undefined}
-    >
-      <span className="text-xl leading-none">{item.icon}</span>
-    </div>
+      aria-hidden="true"
+      className="shrink-0 size-12 rounded-[4px] border border-border bg-muted"
+    />
   )
 }
 
