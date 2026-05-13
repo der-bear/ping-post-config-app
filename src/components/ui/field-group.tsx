@@ -22,7 +22,7 @@ export function FieldGroup({
     <div
       data-slot="field-group"
       className={cn(
-        'flex flex-col gap-4',
+        'flex flex-col gap-2',
         horizontal && 'flex-row items-center gap-4',
         className,
       )}
