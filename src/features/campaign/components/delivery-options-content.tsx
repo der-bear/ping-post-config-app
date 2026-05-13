@@ -5,7 +5,12 @@ import {
   FieldGroup,
   SectionHeading,
   SelectableCard,
-  SearchableSelect,
+  SelectBox,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   EditableList,
   Separator,
 } from '@/components/ui'
@@ -133,7 +138,8 @@ export function DeliveryOptionsContent({
           {!framed && <Separator className="my-0" />}
           <Section framed={framed}>
             <FieldGroup label="Select Target Buyer">
-              <SearchableSelect
+              <SelectBox
+                searchable
                 options={BUYER_SUGGESTIONS}
                 value={selectedBuyer}
                 onValueChange={onSelectedBuyerChange}
@@ -175,7 +181,8 @@ export function DeliveryOptionsContent({
             ) : (
               <div className="flex flex-col gap-2">
                 <FieldGroup>
-                  <SearchableSelect
+                  <SelectBox
+                    searchable
                     options={[
                       { value: 'group-1', label: 'Premium Buyers Group' },
                       { value: 'group-2', label: 'Standard Buyers Group' },
@@ -183,6 +190,7 @@ export function DeliveryOptionsContent({
                     value={selectedGroup}
                     onValueChange={onSelectedGroupChange}
                     placeholder="Select a buyers delivery group"
+                    emptyMessage="No delivery groups found"
                   />
                 </FieldGroup>
                 <p className="text-xs leading-4 text-text-medium">
@@ -237,32 +245,30 @@ function DistributionSettings({
     <>
       <SectionHeading title="Distribution Settings" />
       <FieldGroup label="Automation Method" description="Supply which automation preference should take place when delivering leads.">
-        <SearchableSelect
-          options={[
-            { value: 'none', label: 'No Automation' },
-            { value: 'system-default', label: 'System Default (Price)' },
-            { value: 'price', label: 'Price' },
-            { value: 'priority', label: 'Priority' },
-            { value: 'round-robin', label: 'Round Robin' },
-            { value: 'weighted', label: 'Weighted' },
-            { value: 'percentage', label: 'Percentage' },
-            { value: 'geolocation', label: 'Geolocation' },
-          ]}
-          value={automationMethod}
-          onValueChange={onAutomationMethodChange}
-        />
+        <Select value={automationMethod} onValueChange={onAutomationMethodChange}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No Automation</SelectItem>
+            <SelectItem value="system-default">System Default (Price)</SelectItem>
+            <SelectItem value="price">Price</SelectItem>
+            <SelectItem value="priority">Priority</SelectItem>
+            <SelectItem value="round-robin">Round Robin</SelectItem>
+            <SelectItem value="weighted">Weighted</SelectItem>
+            <SelectItem value="percentage">Percentage</SelectItem>
+            <SelectItem value="geolocation">Geolocation</SelectItem>
+          </SelectContent>
+        </Select>
       </FieldGroup>
       <FieldGroup label="Maximum Delivery Count" description="The amount of times a lead from this campaign can be automatically delivered out.">
-        <SearchableSelect
-          options={[
-            { value: '1', label: 'Up to 1 Delivery' },
-            { value: '3', label: 'Up to 3 Deliveries' },
-            { value: '5', label: 'Up to 5 Deliveries' },
-            { value: '10', label: 'Up to 10 Deliveries' },
-          ]}
-          value={maxDeliveryCount}
-          onValueChange={onMaxDeliveryCountChange}
-        />
+        <Select value={maxDeliveryCount} onValueChange={onMaxDeliveryCountChange}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">Up to 1 Delivery</SelectItem>
+            <SelectItem value="3">Up to 3 Deliveries</SelectItem>
+            <SelectItem value="5">Up to 5 Deliveries</SelectItem>
+            <SelectItem value="10">Up to 10 Deliveries</SelectItem>
+          </SelectContent>
+        </Select>
       </FieldGroup>
     </>
   )

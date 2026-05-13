@@ -126,5 +126,5 @@ export {
   ComboboxValue,
 } from './combobox'
 
-export { SearchableSelect } from './searchable-select'
-export type { SearchableSelectOption } from './searchable-select'
+export { SelectBox } from './select-box'
+export type { SelectBoxOption } from './select-box'

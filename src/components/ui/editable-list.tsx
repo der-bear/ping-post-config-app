@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { AlertTriangle, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { SearchableSelect } from '@/components/ui/searchable-select'
+import { SelectBox } from '@/components/ui/select-box'
 
 export interface EditableListItem {
   id: string
@@ -52,7 +52,8 @@ export function EditableList({
       {/* Add row — searchable select + Add button */}
       <div className="flex gap-2">
         <div className="flex-1">
-          <SearchableSelect
+          <SelectBox
+            searchable
             options={availableSuggestions}
             value={selectedValue}
             onValueChange={setSelectedValue}
