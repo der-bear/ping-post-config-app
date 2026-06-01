@@ -88,6 +88,9 @@ function SearchableImpl({
   const selectedItem = optionsByValue.get(value) ?? null
   const selectedLabel = selectedItem?.label ?? ''
   const [inputValue, setInputValue] = React.useState(selectedLabel)
+  // Anchor the popup to the full field box (input + chevron) so the popover
+  // width and left edge align exactly with the visible trigger.
+  const fieldRef = React.useRef<HTMLDivElement | null>(null)
 
   React.useEffect(() => {
     setInputValue(selectedLabel)
@@ -107,6 +110,7 @@ function SearchableImpl({
       disabled={disabled}
     >
       <div
+        ref={fieldRef}
         className={cn(
           // Mirrors SelectTrigger exactly so the field is visually a drop-in.
           'flex h-10 w-full items-center justify-between gap-2 rounded-[4px] border border-border-strong bg-background pl-3 pr-2 text-sm leading-5 text-foreground transition-shadow duration-75',
@@ -135,8 +139,9 @@ function SearchableImpl({
       </div>
       <ComboboxPrimitive.Portal>
         <ComboboxPrimitive.Positioner
+          anchor={fieldRef}
           side="bottom"
-          sideOffset={6}
+          sideOffset={4}
           align="start"
           className="isolate z-50 pointer-events-auto"
         >

@@ -53,7 +53,7 @@ export function WizardDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showClose={false}
-        className="p-0 gap-0 overflow-hidden top-[10vh] translate-y-0"
+        className="p-0 gap-0 flex flex-col max-h-[80vh] top-[10vh] translate-y-0"
         style={{ maxWidth: width }}
       >
         <DialogPanelHeader
@@ -61,7 +61,7 @@ export function WizardDialog({
           onClose={onCancel}
         />
 
-        <div className="flex flex-1 min-h-0 gap-6 px-4 pt-4 pb-8">
+        <div className="flex flex-1 min-h-0 gap-6 px-4 pt-4 pb-8 overflow-hidden">
           {/* Sidebar navigation — list-group style */}
           {showSidebarNav && (
             <nav className="w-[216px] shrink-0 self-start overflow-hidden rounded-sm border border-border">
@@ -84,14 +84,14 @@ export function WizardDialog({
             </nav>
           )}
 
-          {/* Step content */}
-          <div className="flex-1 overflow-y-auto">
+          {/* Step content — vertical scroll when content exceeds modal height */}
+          <div className="flex-1 min-w-0 overflow-y-auto pr-1">
             {currentStep?.content}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-border">
+        <div className="flex shrink-0 items-center justify-end gap-2 px-4 py-3 border-t border-border">
           <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>

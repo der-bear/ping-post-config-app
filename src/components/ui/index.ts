@@ -128,3 +128,6 @@ export {
 
 export { SelectBox } from './select-box'
 export type { SelectBoxOption } from './select-box'
+
+export { MultiSelect } from './multi-select'
+export type { MultiSelectOption } from './multi-select'

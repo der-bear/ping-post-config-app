@@ -11,7 +11,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  EditableList,
+  MultiSelect,
   Separator,
 } from '@/components/ui'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -41,13 +41,22 @@ function Section({
   )
 }
 
-export const BUYER_SUGGESTIONS = [
-  { value: 'cody-fisher', label: 'Cody Fisher' },
-  { value: 'bessie-cooper', label: 'Bessie Cooper' },
-  { value: 'brooklyn-simmons', label: 'Brooklyn Simmons' },
-  { value: 'devon-lane', label: 'Devon Lane' },
-  { value: 'jenny-wilson', label: 'Jenny Wilson' },
+const REAL_NAMES = [
+  'Cody Fisher', 'Bessie Cooper', 'Brooklyn Simmons', 'Devon Lane', 'Jenny Wilson',
+  'Robert Fox', 'Jane Cooper', 'Wade Warren', 'Esther Howard', 'Cameron Williamson',
+  'Leslie Alexander', 'Kristin Watson', 'Albert Flores', 'Marvin McKinney', 'Jacob Jones',
+  'Theresa Webb', 'Kathryn Murphy', 'Ralph Edwards', 'Floyd Miles', 'Eleanor Pena',
+  'Annette Black', 'Darrell Steward', 'Guy Hawkins', 'Arlene McCoy', 'Dianne Russell',
+  'Courtney Henry', 'Darlene Robertson', 'Savannah Nguyen', 'Ronald Richards', 'Jerome Bell',
 ]
+export const BUYER_SUGGESTIONS = Array.from({ length: 120 }, (_, i) => {
+  const name = REAL_NAMES[i % REAL_NAMES.length]
+  const suffix = Math.floor(i / REAL_NAMES.length) + 1
+  return {
+    value: `buyer-${i + 1}`,
+    label: suffix > 1 ? `${name} ${suffix}` : name,
+  }
+})
 
 export function getBuyerWarning(id: string): string | undefined {
   return id === 'devon-lane'
@@ -170,14 +179,24 @@ export function DeliveryOptionsContent({
             </RadioGroup>
 
             {targetMode === 'specific-buyers' ? (
-              <EditableList
-                items={buyers}
-                onAdd={onAddBuyer}
-                onRemove={onRemoveBuyer}
-                placeholder="Select a buyer to add"
-                suggestions={BUYER_SUGGESTIONS}
-                heading={`Buyers (${buyers.length})`}
-              />
+              <FieldGroup label={`Buyers (${buyers.length})`}>
+                <MultiSelect
+                  options={BUYER_SUGGESTIONS}
+                  value={buyers.map((b) => b.id)}
+                  onValueChange={(nextIds) => {
+                    const current = new Set(buyers.map((b) => b.id))
+                    const next = new Set(nextIds)
+                    nextIds.forEach((id) => {
+                      if (!current.has(id)) onAddBuyer(id)
+                    })
+                    buyers.forEach((b) => {
+                      if (!next.has(b.id)) onRemoveBuyer(b.id)
+                    })
+                  }}
+                  placeholder="Select buyers"
+                  emptyMessage="No clients found"
+                />
+              </FieldGroup>
             ) : (
               <div className="flex flex-col gap-2">
                 <FieldGroup>
