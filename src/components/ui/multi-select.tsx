@@ -184,7 +184,7 @@ export function MultiSelect({
               />
               <span className="text-sm font-medium leading-5 text-foreground">Select All</span>
             </label>
-            <div className="max-h-72 overflow-y-auto py-1">
+            <div className="max-h-72 overflow-y-auto overscroll-contain py-1">
               {filteredOptions.map((option) => {
                 const checked = draft.includes(option.value)
                 return (
@@ -209,13 +209,18 @@ export function MultiSelect({
         )}
 
         {commitOnConfirm && (
-          <div className="flex items-center justify-end gap-2 border-t border-border px-3 py-2">
-            <Button variant="outline" size="sm" onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Button size="sm" onClick={handleOk}>
-              OK
-            </Button>
+          <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2">
+            <span className="text-xs leading-4 text-text-medium">
+              {draft.length} selected
+            </span>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button size="sm" onClick={handleOk}>
+                OK
+              </Button>
+            </div>
           </div>
         )}
       </PopoverContent>
