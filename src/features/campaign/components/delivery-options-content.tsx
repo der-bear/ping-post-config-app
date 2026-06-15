@@ -60,7 +60,7 @@ export const BUYER_SUGGESTIONS = Array.from({ length: 120 }, (_, i) => {
 
 export function getBuyerWarning(id: string): string | undefined {
   return id === 'devon-lane'
-    ? "This buyer doesn't have eligible buyer campaigns to receive leads yet."
+    ? "This client doesn't have eligible client campaigns to receive leads yet."
     : undefined
 }
 
@@ -82,7 +82,7 @@ interface DeliveryOptionsContentProps {
   onMaxDeliveryCountChange: (value: string) => void
   compact?: boolean
   stacked?: boolean
-  /** When true, wrap sub-sections (Select Target Buyer / Distribution Settings) in bordered cards.
+  /** When true, wrap sub-sections (Select Target Client / Distribution Settings) in bordered cards.
    *  When false (flyout default), separate sub-sections with horizontal dividers. */
   framed?: boolean
 }
@@ -111,48 +111,48 @@ export function DeliveryOptionsContent({
   return (
     <div className="flex flex-col gap-4">
       <p className="text-xs leading-4 text-text-medium">
-        Choose how leads will be distributed: to a specific buyer, a group of buyers, or all qualified buyers.
+        Choose how leads will be distributed: to a specific client, a group of clients, or all qualified clients.
       </p>
 
       <div className={stacked ? 'flex flex-col gap-3' : 'grid grid-cols-3 gap-3'}>
         <SelectableCard
+          icon={<Workflow className="size-5" />}
+          title="Any Qualified"
+          description="Distribute leads among all qualified clients."
+          selected={deliveryMode === 'any-qualified'}
+          onClick={() => onDeliveryModeChange('any-qualified')}
+          compact={compact}
+        />
+        <SelectableCard
           icon={<User className="size-5" />}
-          title="Single Buyer"
-          description="Deliver leads to one buyer only."
+          title="Single Client"
+          description="Deliver leads to one client only."
           selected={deliveryMode === 'single'}
           onClick={() => onDeliveryModeChange('single')}
           compact={compact}
         />
         <SelectableCard
           icon={<Users className="size-5" />}
-          title="Multiple Buyers"
-          description="Distribute leads among selected buyers."
+          title="Multiple Clients"
+          description="Distribute leads among selected clients."
           selected={deliveryMode === 'multiple'}
           onClick={() => onDeliveryModeChange('multiple')}
           compact={compact}
         />
-        <SelectableCard
-          icon={<Workflow className="size-5" />}
-          title="Any Qualified"
-          description="Distribute leads among all qualified buyers."
-          selected={deliveryMode === 'any-qualified'}
-          onClick={() => onDeliveryModeChange('any-qualified')}
-          compact={compact}
-        />
       </div>
 
-      {/* Single Buyer */}
+      {/* Single Client */}
       {deliveryMode === 'single' && (
         <>
           {!framed && <Separator className="my-0" />}
           <Section framed={framed}>
-            <FieldGroup label="Select Target Buyer">
+            <FieldGroup label="Select Target Client">
               <SelectBox
                 searchable
                 options={BUYER_SUGGESTIONS}
                 value={selectedBuyer}
                 onValueChange={onSelectedBuyerChange}
-                placeholder="Select a buyer"
+                placeholder="Select a client"
                 emptyMessage="No clients found"
               />
             </FieldGroup>
@@ -160,17 +160,17 @@ export function DeliveryOptionsContent({
         </>
       )}
 
-      {/* Multiple Buyers */}
+      {/* Multiple Clients */}
       {deliveryMode === 'multiple' && (
         <>
           {!framed && <Separator className="my-0" />}
           <Section framed={framed}>
-            <SectionHeading title="Select Target Buyer" />
+            <SectionHeading title="Select Target Client" />
 
             <RadioGroup value={targetMode} onValueChange={onTargetModeChange} className="flex gap-4">
               <label htmlFor="do-specific" className="flex items-center gap-2 cursor-pointer">
                 <RadioGroupItem value="specific-buyers" id="do-specific" />
-                <span className="text-sm">Select specific buyers</span>
+                <span className="text-sm">Select specific clients</span>
               </label>
               <label htmlFor="do-group" className="flex items-center gap-2 cursor-pointer">
                 <RadioGroupItem value="delivery-group" id="do-group" />
@@ -179,7 +179,7 @@ export function DeliveryOptionsContent({
             </RadioGroup>
 
             {targetMode === 'specific-buyers' ? (
-              <FieldGroup label={`Buyers (${buyers.length})`}>
+              <FieldGroup label={`Clients (${buyers.length})`}>
                 <MultiSelect
                   options={BUYER_SUGGESTIONS}
                   value={buyers.map((b) => b.id)}
@@ -193,7 +193,7 @@ export function DeliveryOptionsContent({
                       if (!next.has(b.id)) onRemoveBuyer(b.id)
                     })
                   }}
-                  placeholder="Select buyers"
+                  placeholder="Select clients"
                   emptyMessage="No clients found"
                 />
               </FieldGroup>
@@ -203,17 +203,17 @@ export function DeliveryOptionsContent({
                   <SelectBox
                     searchable
                     options={[
-                      { value: 'group-1', label: 'Premium Buyers Group' },
-                      { value: 'group-2', label: 'Standard Buyers Group' },
+                      { value: 'group-1', label: 'Premium Clients Group' },
+                      { value: 'group-2', label: 'Standard Clients Group' },
                     ]}
                     value={selectedGroup}
                     onValueChange={onSelectedGroupChange}
-                    placeholder="Select a buyers delivery group"
+                    placeholder="Select a clients delivery group"
                     emptyMessage="No delivery groups found"
                   />
                 </FieldGroup>
                 <p className="text-xs leading-4 text-text-medium">
-                  Navigate to the <a href="#" className="text-primary hover:underline">&quot;Buyers Delivery Groups&quot;</a> management screen.
+                  Navigate to the <a href="#" className="text-primary hover:underline">&quot;Clients Delivery Groups&quot;</a> management screen.
                 </p>
               </div>
             )}

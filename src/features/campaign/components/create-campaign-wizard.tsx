@@ -68,7 +68,7 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
   const [status, setStatus] = useState('active')
 
   // Step 2: Delivery Options
-  const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('single')
+  const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('any-qualified')
   const [targetBuyer, setTargetBuyer] = useState('')
   const [targetMode, setTargetMode] = useState<TargetMode>('specific-buyers')
   const [targetGroup, setTargetGroup] = useState('')
@@ -349,7 +349,7 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
 
           <p className="text-sm leading-5 text-foreground">
             You can complete your initial setup by clicking the Create button below,
-            after our new lead provider campaign is created you will be automatically directed
+            after our new lead source campaign is created you will be automatically directed
             to the detail page to finish your campaign setup.
           </p>
 

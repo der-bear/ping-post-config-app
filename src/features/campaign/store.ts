@@ -19,7 +19,7 @@ const defaultConfig: CampaignConfig = {
     status: 'active',
   },
   deliveryOptions: {
-    deliveryMode: 'single',
+    deliveryMode: 'any-qualified',
     targetMode: 'specific-buyers',
     selectedBuyer: '',
     selectedGroup: '',
