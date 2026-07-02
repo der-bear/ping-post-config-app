@@ -120,7 +120,8 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
       label: 'General Information',
       content: (
         <div className="flex flex-col gap-4">
-          <SectionHeading title="General" />
+          <SectionHeading title="General Information" />
+          <Separator className="my-0" />
 
           <FieldGroup label="Campaign Name">
             <DebouncedInput
@@ -128,22 +129,6 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
               onValueCommit={setName}
               placeholder="Required (Example: Contact Us Form)"
             />
-          </FieldGroup>
-
-          <FieldGroup label="Status" description="Select the current status of this campaign">
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="paused">Paused</SelectItem>
-                <SelectItem value="disabled">Disabled</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs leading-4 text-muted-foreground mt-2">
-              <span className="font-semibold">Note:</span> Only active campaigns can successfully send in leads, all other statuses will be rejected.
-            </p>
           </FieldGroup>
 
           <FieldGroup label="Lead Type" description="The lead field schema for this vertical.">
@@ -172,35 +157,54 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
             </Select>
           </FieldGroup>
 
-          <Separator className="my-0" />
+          <FieldGroup label="Status" description="Select the current status of this campaign">
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="paused">Paused</SelectItem>
+                <SelectItem value="disabled">Disabled</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs leading-4 text-muted-foreground mt-2">
+              <span className="font-semibold">Note:</span> Only active campaigns can accept leads.
+            </p>
+          </FieldGroup>
 
-          <SectionHeading title="Payout Options" />
+          <div className="flex flex-col gap-5 rounded-[4px] border border-border bg-background p-5">
+            <SectionHeading title="Payout Options" />
 
-          <PricingModelSelector
-            value={pricingModel}
-            onChange={(v) => {
-              setPricingModel(v)
-              if (v !== 'per-lead') setScanCoverage('reject-no-coverage')
-            }}
-            pricePerLead={pricePerLead}
-            onPricePerLeadChange={setPricePerLead}
-            pricePerSale={pricePerSale}
-            onPricePerSaleChange={setPricePerSale}
-            revenueSharePct={revenueSharePct}
-            onRevenueSharePctChange={setRevenueSharePct}
-          />
+            <PricingModelSelector
+              value={pricingModel}
+              onChange={(v) => {
+                setPricingModel(v)
+                if (v !== 'per-lead') setScanCoverage('reject-no-coverage')
+              }}
+              pricePerLead={pricePerLead}
+              onPricePerLeadChange={setPricePerLead}
+              pricePerSale={pricePerSale}
+              onPricePerSaleChange={setPricePerSale}
+              revenueSharePct={revenueSharePct}
+              onRevenueSharePctChange={setRevenueSharePct}
+            />
 
-          <SwitchField
-            label="Reject if no coverage"
-            description={
-              coverageLocked
-                ? 'Required for Price Per Sale and Revenue Share — payout only applies when a lead sells.'
-                : 'Reject leads with no coverage instead of accepting them.'
-            }
-            checked={coverageLocked || scanCoverage === 'reject-no-coverage'}
-            disabled={coverageLocked}
-            onCheckedChange={(v) => setScanCoverage(v ? 'reject-no-coverage' : 'accept-no-coverage')}
-          />
+            <Separator className="my-0" />
+
+            <SwitchField
+              label="Reject if no coverage"
+              description="Payout only will apply only to sold leads."
+              tooltip={
+                coverageLocked
+                  ? 'Required for Price Per Sale and Revenue Share. Payout only applies when a lead sells.'
+                  : undefined
+              }
+              checked={coverageLocked || scanCoverage === 'reject-no-coverage'}
+              disabled={coverageLocked}
+              onCheckedChange={(v) => setScanCoverage(v ? 'reject-no-coverage' : 'accept-no-coverage')}
+            />
+          </div>
         </div>
       ),
     },

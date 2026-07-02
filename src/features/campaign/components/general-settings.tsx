@@ -27,8 +27,6 @@ export function GeneralSettings() {
 
   return (
     <div className="flex flex-col gap-4">
-      <SectionHeading title="General" />
-
       <FieldGroup label="Campaign Name">
         <DebouncedInput
           value={general.name}
@@ -52,7 +50,7 @@ export function GeneralSettings() {
           </SelectContent>
         </Select>
         <p className="text-xs leading-4 text-muted-foreground mt-2">
-          <span className="font-semibold">Note:</span> Only active campaigns can successfully send in leads, all other statuses will be rejected.
+          <span className="font-semibold">Note:</span> Only active campaigns can accept leads.
         </p>
       </FieldGroup>
 
@@ -75,12 +73,15 @@ export function GeneralSettings() {
         idPrefix="gs-"
       />
 
+      <Separator className="my-0" />
+
       <SwitchField
         label="Reject if no coverage"
-        description={
+        description="Payout only will apply only to sold leads."
+        tooltip={
           coverageLocked
-            ? 'Required for Price Per Sale and Revenue Share — payout only applies when a lead sells.'
-            : 'Reject leads with no coverage instead of accepting them.'
+            ? 'Required for Price Per Sale and Revenue Share. Payout only applies when a lead sells.'
+            : undefined
         }
         checked={coverageLocked || scanCoverage === 'reject-no-coverage'}
         disabled={coverageLocked}
