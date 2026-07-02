@@ -87,7 +87,7 @@ export function SwitchField({
     <TooltipProvider delayDuration={100}>
       <Tooltip open={tipOpen} onOpenChange={setTipOpen}>
         {field}
-        <TooltipContent side="bottom" align="center">
+        <TooltipContent side="top" align="center">
           {tooltip}
         </TooltipContent>
       </Tooltip>

@@ -197,7 +197,7 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
               description="Payout only will apply only to sold leads."
               tooltip={
                 coverageLocked
-                  ? 'Required for Price Per Sale and Revenue Share. Payout only applies when a lead sells.'
+                  ? 'Required for Price Per Sale and Revenue Share. Payout only applies when a lead is sold.'
                   : undefined
               }
               checked={coverageLocked || scanCoverage === 'reject-no-coverage'}
