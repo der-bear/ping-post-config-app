@@ -49,6 +49,7 @@ export function CampaignEntry() {
 
     updateLeadValidation({
       useQualityControl: data.useQualityControl,
+      scanCoverage: data.scanCoverage,
       standardizeAddress: data.standardizeAddress,
       appendCityState: data.appendCityState,
       mobileCheck: data.mobileCheck,

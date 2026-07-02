@@ -49,23 +49,6 @@ export function LeadValidation() {
       <Separator className="my-0" />
 
       <SwitchField
-        label="Scan Coverage"
-        description="Verify coverage or delivery of record before sending response"
-        checked={validation.scanCoverage !== ''}
-        onCheckedChange={(v) => update({ scanCoverage: v ? 'reject-no-coverage' : '' })}
-      >
-        <Select value={validation.scanCoverage} onValueChange={(v) => update({ scanCoverage: v })}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="reject-no-coverage">Reject for no coverage</SelectItem>
-            <SelectItem value="accept-no-coverage">Accept with no coverage</SelectItem>
-          </SelectContent>
-        </Select>
-      </SwitchField>
-
-      <SwitchField
         label="Standardize Address"
         meta="$0.03 per lead"
         description="Apply industry standardization to the primary address."

@@ -27,6 +27,7 @@ export interface WizardData extends Record<string, unknown> {
   pricePerSale: string
   revenueSharePct: string
   status: string
+  scanCoverage: string
   deliveryMode: string
   targetBuyer: string
   targetMode: string
@@ -66,6 +67,7 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
   const [pricePerSale, setPricePerSale] = useState('$0.00')
   const [revenueSharePct, setRevenueSharePct] = useState('0.00%')
   const [status, setStatus] = useState('active')
+  const [scanCoverage, setScanCoverage] = useState('reject-no-coverage')
 
   // Step 2: Delivery Options
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('any-qualified')
@@ -95,7 +97,7 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
   const handleComplete = () => {
     onCreate({
       name: name.trim(), channel, leadType,
-      pricingModel, pricePerLead, pricePerSale, revenueSharePct, status,
+      pricingModel, pricePerLead, pricePerSale, revenueSharePct, status, scanCoverage,
       deliveryMode, targetBuyer, targetMode, targetGroup,
       automationMethod, maxDeliveryCount, buyers,
       useQualityControl, duplicateDays,
@@ -110,14 +112,15 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
     setLeadType('mortgage')
   }
 
+  const coverageLocked = pricingModel === 'per-sale' || pricingModel === 'revenue-share'
+
   const steps: WizardStep[] = [
     {
       id: 'general',
       label: 'General Information',
       content: (
         <div className="flex flex-col gap-4">
-          <SectionHeading title="General Information" />
-          <Separator className="my-0" />
+          <SectionHeading title="General" />
 
           <FieldGroup label="Campaign Name">
             <DebouncedInput
@@ -126,47 +129,6 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
               placeholder="Required (Example: Contact Us Form)"
             />
           </FieldGroup>
-
-          <FieldGroup label="Channel" description="The channel of capturing leads.">
-            <Select value={channel} onValueChange={setChannel}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="web-leads">Web Leads</SelectItem>
-                <SelectItem value="phone-calls">Phone Calls</SelectItem>
-                <SelectItem value="live-transfer">Live Transfer</SelectItem>
-              </SelectContent>
-            </Select>
-          </FieldGroup>
-
-          <FieldGroup label="Lead Type" description="The lead field schema for this vertical.">
-            <Select value={leadType} onValueChange={setLeadType}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="mortgage">Mortgage</SelectItem>
-                <SelectItem value="auto-insurance">Auto Insurance</SelectItem>
-                <SelectItem value="home-insurance">Home Insurance</SelectItem>
-              </SelectContent>
-            </Select>
-          </FieldGroup>
-
-          <Separator className="my-0" />
-
-          <PricingModelSelector
-            value={pricingModel}
-            onChange={setPricingModel}
-            pricePerLead={pricePerLead}
-            onPricePerLeadChange={setPricePerLead}
-            pricePerSale={pricePerSale}
-            onPricePerSaleChange={setPricePerSale}
-            revenueSharePct={revenueSharePct}
-            onRevenueSharePctChange={setRevenueSharePct}
-          />
-
-          <Separator className="my-0" />
 
           <FieldGroup label="Status" description="Select the current status of this campaign">
             <Select value={status} onValueChange={setStatus}>
@@ -183,6 +145,62 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
               <span className="font-semibold">Note:</span> Only active campaigns can successfully send in leads, all other statuses will be rejected.
             </p>
           </FieldGroup>
+
+          <FieldGroup label="Lead Type" description="The lead field schema for this vertical.">
+            <Select value={leadType} onValueChange={setLeadType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mortgage">Mortgage</SelectItem>
+                <SelectItem value="auto-insurance">Auto Insurance</SelectItem>
+                <SelectItem value="home-insurance">Home Insurance</SelectItem>
+              </SelectContent>
+            </Select>
+          </FieldGroup>
+
+          <FieldGroup label="Channel" description="The channel of capturing leads.">
+            <Select value={channel} onValueChange={setChannel}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="web-leads">Web Leads</SelectItem>
+                <SelectItem value="phone-calls">Phone Calls</SelectItem>
+                <SelectItem value="live-transfer">Live Transfer</SelectItem>
+              </SelectContent>
+            </Select>
+          </FieldGroup>
+
+          <Separator className="my-0" />
+
+          <SectionHeading title="Payout Options" />
+
+          <PricingModelSelector
+            value={pricingModel}
+            onChange={(v) => {
+              setPricingModel(v)
+              if (v !== 'per-lead') setScanCoverage('reject-no-coverage')
+            }}
+            pricePerLead={pricePerLead}
+            onPricePerLeadChange={setPricePerLead}
+            pricePerSale={pricePerSale}
+            onPricePerSaleChange={setPricePerSale}
+            revenueSharePct={revenueSharePct}
+            onRevenueSharePctChange={setRevenueSharePct}
+          />
+
+          <SwitchField
+            label="Reject if no coverage"
+            description={
+              coverageLocked
+                ? 'Required for Price Per Sale and Revenue Share — payout only applies when a lead sells.'
+                : 'Reject leads with no coverage instead of accepting them.'
+            }
+            checked={coverageLocked || scanCoverage === 'reject-no-coverage'}
+            disabled={coverageLocked}
+            onCheckedChange={(v) => setScanCoverage(v ? 'reject-no-coverage' : 'accept-no-coverage')}
+          />
         </div>
       ),
     },

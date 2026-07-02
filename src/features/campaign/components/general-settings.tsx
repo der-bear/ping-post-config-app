@@ -1,12 +1,14 @@
 import { useCampaignStore } from '../store'
 import {
   FieldGroup,
+  SectionHeading,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
   Separator,
+  SwitchField,
 } from '@/components/ui'
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import { PricingModelSelector } from './pricing-model-selector'
@@ -15,9 +17,18 @@ import type { CampaignStatus, PricingModel } from '../types'
 export function GeneralSettings() {
   const general = useCampaignStore((s) => s.config.general)
   const update = useCampaignStore((s) => s.updateGeneral)
+  const scanCoverage = useCampaignStore((s) => s.config.leadValidation.scanCoverage)
+  const updateLeadValidation = useCampaignStore((s) => s.updateLeadValidation)
+
+  // For Price Per Sale / Revenue Share, coverage must be confirmed before a
+  // sale can be credited, so "Reject if no coverage" is forced on and locked.
+  const coverageLocked =
+    general.pricingModel === 'per-sale' || general.pricingModel === 'revenue-share'
 
   return (
     <div className="flex flex-col gap-4">
+      <SectionHeading title="General" />
+
       <FieldGroup label="Campaign Name">
         <DebouncedInput
           value={general.name}
@@ -25,22 +36,6 @@ export function GeneralSettings() {
           placeholder="Enter campaign name"
         />
       </FieldGroup>
-
-      <Separator className="my-0" />
-
-      <PricingModelSelector
-        value={general.pricingModel}
-        onChange={(v: PricingModel) => update({ pricingModel: v })}
-        pricePerLead={general.pricePerLead}
-        onPricePerLeadChange={(v) => update({ pricePerLead: v })}
-        pricePerSale={general.pricePerSale}
-        onPricePerSaleChange={(v) => update({ pricePerSale: v })}
-        revenueSharePct={general.revenueSharePct}
-        onRevenueSharePctChange={(v) => update({ revenueSharePct: v })}
-        idPrefix="gs-"
-      />
-
-      <Separator className="my-0" />
 
       <FieldGroup label="Status" description="Select the current status of this campaign">
         <Select
@@ -60,6 +55,39 @@ export function GeneralSettings() {
           <span className="font-semibold">Note:</span> Only active campaigns can successfully send in leads, all other statuses will be rejected.
         </p>
       </FieldGroup>
+
+      <Separator className="my-0" />
+
+      <SectionHeading title="Payout Options" />
+
+      <PricingModelSelector
+        value={general.pricingModel}
+        onChange={(v: PricingModel) => {
+          update({ pricingModel: v })
+          if (v !== 'per-lead') updateLeadValidation({ scanCoverage: 'reject-no-coverage' })
+        }}
+        pricePerLead={general.pricePerLead}
+        onPricePerLeadChange={(v) => update({ pricePerLead: v })}
+        pricePerSale={general.pricePerSale}
+        onPricePerSaleChange={(v) => update({ pricePerSale: v })}
+        revenueSharePct={general.revenueSharePct}
+        onRevenueSharePctChange={(v) => update({ revenueSharePct: v })}
+        idPrefix="gs-"
+      />
+
+      <SwitchField
+        label="Reject if no coverage"
+        description={
+          coverageLocked
+            ? 'Required for Price Per Sale and Revenue Share — payout only applies when a lead sells.'
+            : 'Reject leads with no coverage instead of accepting them.'
+        }
+        checked={coverageLocked || scanCoverage === 'reject-no-coverage'}
+        disabled={coverageLocked}
+        onCheckedChange={(v) =>
+          updateLeadValidation({ scanCoverage: v ? 'reject-no-coverage' : 'accept-no-coverage' })
+        }
+      />
     </div>
   )
 }
