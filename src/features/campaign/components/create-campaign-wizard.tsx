@@ -271,31 +271,6 @@ export function CreateCampaignWizard({
             )}
           </FieldGroup>
 
-          <FieldGroup label="Lead Type" description="The lead field schema for this vertical." required>
-            <Select
-              value={leadType}
-              onValueChange={(value) => {
-                setLeadType(value)
-                if (errors.leadType) clearFieldError('leadType')
-              }}
-            >
-              <SelectTrigger
-                className={cn(errors.leadType && 'border-destructive')}
-                onBlur={() => validateField('leadType')}
-              >
-                <SelectValue placeholder="Select lead type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="mortgage">Mortgage</SelectItem>
-                <SelectItem value="auto-insurance">Auto Insurance</SelectItem>
-                <SelectItem value="home-insurance">Home Insurance</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.leadType && (
-              <p className="mt-1 text-xs text-destructive">{errors.leadType}</p>
-            )}
-          </FieldGroup>
-
           {needsLeadSourceSelection && (
             <FieldGroup label="Lead Source" description="The source of leads for this campaign." required>
               <Select
@@ -325,6 +300,31 @@ export function CreateCampaignWizard({
               )}
             </FieldGroup>
           )}
+
+          <FieldGroup label="Lead Type" description="The lead field schema for this vertical." required>
+            <Select
+              value={leadType}
+              onValueChange={(value) => {
+                setLeadType(value)
+                if (errors.leadType) clearFieldError('leadType')
+              }}
+            >
+              <SelectTrigger
+                className={cn(errors.leadType && 'border-destructive')}
+                onBlur={() => validateField('leadType')}
+              >
+                <SelectValue placeholder="Select lead type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mortgage">Mortgage</SelectItem>
+                <SelectItem value="auto-insurance">Auto Insurance</SelectItem>
+                <SelectItem value="home-insurance">Home Insurance</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.leadType && (
+              <p className="mt-1 text-xs text-destructive">{errors.leadType}</p>
+            )}
+          </FieldGroup>
 
           <FieldGroup label="Channel" description="The channel of capturing leads.">
             <Select value={channel} onValueChange={(value) => setChannel(value as Channel)}>
