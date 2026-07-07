@@ -174,7 +174,7 @@ export function DeliveryOptionsContent({
               </label>
               <label htmlFor="do-group" className="flex items-center gap-2 cursor-pointer">
                 <RadioGroupItem value="delivery-group" id="do-group" />
-                <span className="text-sm">Select delivery group</span>
+                <span className="text-sm">Select exclusive group</span>
               </label>
             </RadioGroup>
 
@@ -208,12 +208,12 @@ export function DeliveryOptionsContent({
                     ]}
                     value={selectedGroup}
                     onValueChange={onSelectedGroupChange}
-                    placeholder="Select a clients delivery group"
-                    emptyMessage="No delivery groups found"
+                    placeholder="Select an exclusive delivery group"
+                    emptyMessage="No exclusive delivery groups found"
                   />
                 </FieldGroup>
                 <p className="text-xs leading-4 text-text-medium">
-                  Navigate to the <a href="#" className="text-primary hover:underline">&quot;Clients Delivery Groups&quot;</a> management screen.
+                  Navigate to the <a href="#" className="text-primary hover:underline">&quot;Exclusive Delivery Groups&quot;</a> management screen.
                 </p>
               </div>
             )}

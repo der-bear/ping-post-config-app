@@ -4,30 +4,68 @@ import { cn } from '@/lib/utils'
 
 interface NavItemProps {
   label: string
+  icon?: ReactNode
   active?: boolean
   onClick?: () => void
   indented?: boolean
+  invalid?: boolean
+  disabled?: boolean
 }
 
-export function NavItem({ label, active = false, onClick, indented = false }: NavItemProps) {
+function NavLabel({
+  label,
+  icon,
+  invalid = false,
+}: {
+  label: string
+  icon?: ReactNode
+  invalid?: boolean
+}) {
+  return (
+    <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
+      <span className="flex min-w-0 items-center gap-2">
+        {icon && <span className="shrink-0 text-current">{icon}</span>}
+        <span className="truncate">{label}</span>
+      </span>
+      {invalid && (
+        <span
+          className="size-1 rounded-full bg-destructive"
+          aria-hidden="true"
+        />
+      )}
+    </span>
+  )
+}
+
+export function NavItem({
+  label,
+  icon,
+  active = false,
+  onClick,
+  indented = false,
+  invalid = false,
+  disabled = false,
+}: NavItemProps) {
+  const paddingClass = indented
+    ? active && !disabled ? 'pl-[37px]' : 'pl-10'
+    : active && !disabled ? 'pl-[13px]' : 'pl-4'
+
   return (
     <button
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
       className={cn(
         'w-full text-left pr-3 h-auto text-sm leading-5 transition-colors duration-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
         indented ? 'py-2' : 'py-3 border-t border-border',
-        active
-          ? cn(
-              'bg-sidebar-active text-sidebar-active-text border-l-[3px] border-l-sidebar-active',
-              indented ? 'pl-[45px]' : 'pl-[13px]'
-            )
-          : cn(
-              'text-muted-foreground hover:bg-sidebar-hover',
-              indented ? 'pl-12' : 'pl-4'
-            ),
+        paddingClass,
+        disabled
+          ? 'cursor-not-allowed text-muted-foreground/50'
+          : active
+            ? 'bg-sidebar-active text-sidebar-active-text border-l-[3px] border-l-sidebar-active'
+            : 'text-muted-foreground hover:bg-sidebar-hover',
       )}
     >
-      {label}
+      <NavLabel label={label} icon={icon} invalid={invalid} />
     </button>
   )
 }
@@ -38,30 +76,49 @@ interface NavGroupProps {
   onToggle: () => void
   children: ReactNode
   active?: boolean
+  invalid?: boolean
+  disabled?: boolean
 }
 
-export function NavGroup({ label, expanded, onToggle, children, active = false }: NavGroupProps) {
+export function NavGroup({
+  label,
+  expanded,
+  onToggle,
+  children,
+  active = false,
+  invalid = false,
+  disabled = false,
+}: NavGroupProps) {
   const handleClick = useCallback(() => onToggle(), [onToggle])
 
   return (
     <div>
       <button
-        onClick={handleClick}
+        onClick={disabled ? undefined : handleClick}
+        disabled={disabled}
         className={cn(
           'w-full flex items-center justify-between pl-4 pr-3 py-3 h-auto text-sm leading-5 border-t border-border transition-colors duration-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
-          active
+          disabled
+            ? 'cursor-not-allowed text-muted-foreground/50'
+            : active
             ? 'text-primary hover:bg-sidebar-hover'
             : 'text-muted-foreground hover:bg-sidebar-hover',
         )}
       >
-        <span>{label}</span>
+        <NavLabel label={label} invalid={invalid} />
         {expanded ? (
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          <ChevronDown className={cn(
+            'h-4 w-4',
+            disabled ? 'text-muted-foreground/50' : 'text-muted-foreground',
+          )} />
         ) : (
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <ChevronRight className={cn(
+            'h-4 w-4',
+            disabled ? 'text-muted-foreground/50' : 'text-muted-foreground',
+          )} />
         )}
       </button>
-      {expanded && <div className="pb-2">{children}</div>}
+      {expanded && !disabled && <div className="pb-2">{children}</div>}
     </div>
   )
 }

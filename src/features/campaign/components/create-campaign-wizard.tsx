@@ -14,19 +14,23 @@ import type { EditableListItem } from '@/components/ui'
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
+import { toast } from '@/components/ui/use-toast'
+import { cn } from '@/lib/utils'
 import { DeliveryOptionsContent, BUYER_SUGGESTIONS, getBuyerWarning } from './delivery-options-content'
 import { PricingModelSelector } from './pricing-model-selector'
-import type { PricingModel, DeliveryMode, TargetMode } from '../types'
+import { CAMPAIGN_CHANNEL_OPTIONS, CAMPAIGN_STATUS_OPTIONS, type CampaignStatus, type Channel, type PricingModel, type DeliveryMode, type TargetMode } from '../types'
 
 export interface WizardData extends Record<string, unknown> {
+  leadSourceName?: string
+  createFirstCampaign?: boolean
   name: string
-  channel: string
+  channel: Channel
   leadType: string
   pricingModel: string
   pricePerLead: string
   pricePerSale: string
   revenueSharePct: string
-  status: string
+  status: CampaignStatus
   scanCoverage: string
   deliveryMode: string
   targetBuyer: string
@@ -53,20 +57,36 @@ interface CreateCampaignWizardProps {
   open: boolean
   onClose: () => void
   onCreate: (data: WizardData) => void
+  mode?: 'campaign' | 'lead-source'
 }
 
-export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaignWizardProps) {
-  const [activeStep, setActiveStep] = useState(0)
+type WizardErrorKey = 'leadSourceName' | 'name' | 'leadType'
+type WizardErrors = Partial<Record<WizardErrorKey, string>>
 
-  // Step 1: General Information
+export function CreateCampaignWizard({
+  open,
+  onClose,
+  onCreate,
+  mode = 'campaign',
+}: CreateCampaignWizardProps) {
+  const [activeStep, setActiveStep] = useState(0)
+  const [errors, setErrors] = useState<WizardErrors>({})
+  const [isSaving, setIsSaving] = useState(false)
+  const isLeadSourceMode = mode === 'lead-source'
+
+  // Lead Source setup
+  const [leadSourceName, setLeadSourceName] = useState('')
+  const [createFirstCampaign, setCreateFirstCampaign] = useState(true)
+
+  // Campaign setup
   const [name, setName] = useState('')
-  const [channel, setChannel] = useState('web-leads')
-  const [leadType, setLeadType] = useState('mortgage')
+  const [channel, setChannel] = useState<Channel>('web')
+  const [leadType, setLeadType] = useState('')
   const [pricingModel, setPricingModel] = useState<PricingModel>('per-lead')
   const [pricePerLead, setPricePerLead] = useState('$10.00')
   const [pricePerSale, setPricePerSale] = useState('$0.00')
   const [revenueSharePct, setRevenueSharePct] = useState('0.00%')
-  const [status, setStatus] = useState('active')
+  const [status, setStatus] = useState<CampaignStatus>('active')
   const [scanCoverage, setScanCoverage] = useState('reject-no-coverage')
 
   // Step 2: Delivery Options
@@ -94,47 +114,162 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
   const [monthlyLimitEnabled, setMonthlyLimitEnabled] = useState(false)
   const [monthlyLimitValue, setMonthlyLimitValue] = useState('0')
 
-  const handleComplete = () => {
-    onCreate({
-      name: name.trim(), channel, leadType,
-      pricingModel, pricePerLead, pricePerSale, revenueSharePct, status, scanCoverage,
-      deliveryMode, targetBuyer, targetMode, targetGroup,
-      automationMethod, maxDeliveryCount, buyers,
-      useQualityControl, duplicateDays,
-      standardizeAddress, appendCityState, mobileCheck, geolocateIp,
-      hourLimitEnabled, hourLimitValue,
-      dailyLimitEnabled, dailyLimitValue,
-      monthlyLimitEnabled, monthlyLimitValue,
+  const shouldCreateCampaign = !isLeadSourceMode || createFirstCampaign
+
+  const buildValidationErrors = (fields: WizardErrorKey[]) => {
+    const newErrors: WizardErrors = {}
+
+    if (fields.includes('leadSourceName') && isLeadSourceMode && !leadSourceName.trim()) {
+      newErrors.leadSourceName = 'Lead Source Name is required.'
+    }
+
+    if (fields.includes('name') && shouldCreateCampaign && !name.trim()) {
+      newErrors.name = 'Campaign Name is required.'
+    }
+
+    if (fields.includes('leadType') && shouldCreateCampaign && !leadType) {
+      newErrors.leadType = 'Lead Type is required.'
+    }
+
+    return newErrors
+  }
+
+  const applyValidationErrors = (fields: WizardErrorKey[], validationErrors: WizardErrors) => {
+    setErrors((prev) => {
+      const next = { ...prev }
+
+      for (const field of fields) {
+        if (validationErrors[field]) {
+          next[field] = validationErrors[field]
+        } else {
+          delete next[field]
+        }
+      }
+
+      return next
     })
-    setActiveStep(0)
-    setName('')
-    setChannel('web-leads')
-    setLeadType('mortgage')
+  }
+
+  const validateFields = (fields: WizardErrorKey[]) => {
+    applyValidationErrors(fields, buildValidationErrors(fields))
+  }
+
+  const validateField = (field: WizardErrorKey) => validateFields([field])
+
+  const validateStep = (stepId?: string) => {
+    if (stepId === 'lead-source') {
+      validateFields(['leadSourceName'])
+      return
+    }
+
+    if (stepId === 'general') {
+      validateFields(['name', 'leadType'])
+    }
+  }
+
+  const clearFieldError = (field: WizardErrorKey) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev
+
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }
+
+  const handleComplete = async () => {
+    const newErrors = buildValidationErrors(['leadSourceName', 'name', 'leadType'])
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      const firstInvalidStepId = newErrors.leadSourceName ? 'lead-source' : 'general'
+      const firstInvalidStepIndex = steps.findIndex((step) => step.id === firstInvalidStepId)
+      if (firstInvalidStepIndex >= 0) setActiveStep(firstInvalidStepIndex)
+      return
+    }
+
+    setIsSaving(true)
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      toast({ variant: 'success', title: 'Changes saved successfully' })
+
+      onCreate({
+        leadSourceName: isLeadSourceMode ? leadSourceName.trim() : undefined,
+        createFirstCampaign: shouldCreateCampaign,
+        name: name.trim(), channel, leadType,
+        pricingModel, pricePerLead, pricePerSale, revenueSharePct, status, scanCoverage,
+        deliveryMode, targetBuyer, targetMode, targetGroup,
+        automationMethod, maxDeliveryCount, buyers,
+        useQualityControl, duplicateDays,
+        standardizeAddress, appendCityState, mobileCheck, geolocateIp,
+        hourLimitEnabled, hourLimitValue,
+        dailyLimitEnabled, dailyLimitValue,
+        monthlyLimitEnabled, monthlyLimitValue,
+      })
+      setErrors({})
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to save changes',
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+      })
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const coverageLocked = pricingModel === 'per-sale' || pricingModel === 'revenue-share'
+  const invalidStepIds = [
+    ...(errors.leadSourceName ? ['lead-source'] : []),
+    ...(errors.name || errors.leadType ? ['general'] : []),
+  ]
+  const generalStepLabel = isLeadSourceMode ? 'Campaign Settings' : 'General Information'
 
-  const steps: WizardStep[] = [
+  const campaignSteps: WizardStep[] = [
     {
       id: 'general',
-      label: 'General Information',
+      label: generalStepLabel,
       content: (
         <div className="flex flex-col gap-4">
-          <SectionHeading title="General Information" />
+          <SectionHeading title={generalStepLabel} />
           <Separator className="my-0" />
 
-          <FieldGroup label="Campaign Name">
+          <FieldGroup label="Campaign Name" required>
             <DebouncedInput
               value={name}
-              onValueCommit={setName}
+              onValueCommit={(value) => {
+                setName(value)
+                if (errors.name) clearFieldError('name')
+              }}
+              onChange={(event) => {
+                setName(event.target.value)
+                if (errors.name) clearFieldError('name')
+              }}
+              onBlur={() => validateField('name')}
               placeholder="Required (Example: Contact Us Form)"
+              aria-invalid={Boolean(errors.name)}
+              className={cn(errors.name && 'border-destructive')}
             />
+            {errors.name && (
+              <p className="mt-1 text-xs text-destructive">{errors.name}</p>
+            )}
           </FieldGroup>
 
-          <FieldGroup label="Lead Type" description="The lead field schema for this vertical.">
-            <Select value={leadType} onValueChange={setLeadType}>
-              <SelectTrigger>
-                <SelectValue />
+          <FieldGroup label="Lead Type" description="The lead field schema for this vertical." required>
+            <Select
+              value={leadType}
+              onValueChange={(value) => {
+                setLeadType(value)
+                if (errors.leadType) clearFieldError('leadType')
+              }}
+            >
+              <SelectTrigger
+                className={cn(errors.leadType && 'border-destructive')}
+                onBlur={() => validateField('leadType')}
+              >
+                <SelectValue placeholder="Select lead type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="mortgage">Mortgage</SelectItem>
@@ -142,30 +277,37 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
                 <SelectItem value="home-insurance">Home Insurance</SelectItem>
               </SelectContent>
             </Select>
+            {errors.leadType && (
+              <p className="mt-1 text-xs text-destructive">{errors.leadType}</p>
+            )}
           </FieldGroup>
 
           <FieldGroup label="Channel" description="The channel of capturing leads.">
-            <Select value={channel} onValueChange={setChannel}>
+            <Select value={channel} onValueChange={(value) => setChannel(value as Channel)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="web-leads">Web Leads</SelectItem>
-                <SelectItem value="phone-calls">Phone Calls</SelectItem>
-                <SelectItem value="live-transfer">Live Transfer</SelectItem>
+                {CAMPAIGN_CHANNEL_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </FieldGroup>
 
           <FieldGroup label="Status" description="Select the current status of this campaign">
-            <Select value={status} onValueChange={setStatus}>
+            <Select value={status} onValueChange={(value) => setStatus(value as CampaignStatus)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="paused">Paused</SelectItem>
-                <SelectItem value="disabled">Disabled</SelectItem>
+                {CAMPAIGN_STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <p className="text-xs leading-4 text-muted-foreground mt-2">
@@ -197,7 +339,7 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
               description="Payout only will apply only to sold leads."
               tooltip={
                 coverageLocked
-                  ? 'Required for Price Per Sale and Revenue Share. Payout only applies when a lead is sold.'
+                  ? 'Required for Revenue Share - Price Per Sale and Revenue Share - Percentage. Payout only applies when a lead is sold.'
                   : undefined
               }
               checked={coverageLocked || scanCoverage === 'reject-no-coverage'}
@@ -398,20 +540,87 @@ export function CreateCampaignWizard({ open, onClose, onCreate }: CreateCampaign
       ),
     },
   ]
+  const steps: WizardStep[] = isLeadSourceMode
+    ? [
+        {
+          id: 'lead-source',
+          label: 'Lead Source',
+          content: (
+            <div className="flex flex-col gap-4">
+              <SectionHeading title="Lead Source" />
+              <Separator className="my-0" />
+
+              <FieldGroup
+                label="Lead Source Name"
+                description="Name the source that will submit leads into your campaigns."
+                required
+              >
+                <DebouncedInput
+                  value={leadSourceName}
+                  onValueCommit={(value) => {
+                    setLeadSourceName(value)
+                    if (errors.leadSourceName) {
+                      clearFieldError('leadSourceName')
+                    }
+                  }}
+                  onChange={(event) => {
+                    setLeadSourceName(event.target.value)
+                    if (errors.leadSourceName) {
+                      clearFieldError('leadSourceName')
+                    }
+                  }}
+                  onBlur={() => validateField('leadSourceName')}
+                  placeholder="Required (Example: Acme Web Leads)"
+                  aria-invalid={Boolean(errors.leadSourceName)}
+                  className={cn(errors.leadSourceName && 'border-destructive')}
+                />
+                {errors.leadSourceName && (
+                  <p className="mt-1 text-xs text-destructive">{errors.leadSourceName}</p>
+                )}
+              </FieldGroup>
+
+              <Separator className="my-0" />
+
+              <SwitchField
+                label="Create first campaign"
+                description="Continue into campaign setup after creating this lead source."
+                checked={createFirstCampaign}
+                onCheckedChange={(checked) => {
+                  setCreateFirstCampaign(checked)
+                  if (!checked) {
+                    setActiveStep(0)
+                    setErrors((prev) => (
+                      prev.leadSourceName ? { leadSourceName: prev.leadSourceName } : {}
+                    ))
+                  }
+                }}
+              />
+            </div>
+          ),
+        },
+        ...campaignSteps.map((step) => ({
+          ...step,
+          disabled: !createFirstCampaign,
+        })),
+      ]
+    : campaignSteps
 
   return (
     <WizardDialog
       open={open}
       onOpenChange={(isOpen) => !isOpen && onClose()}
-      title="Create a Lead Source Campaign"
+      title={isLeadSourceMode ? 'Create Lead Source' : 'Create a Lead Source Campaign'}
       steps={steps}
       activeStep={activeStep}
       onStepChange={setActiveStep}
+      onNext={(fromStep) => validateStep(steps[fromStep]?.id)}
       onCancel={onClose}
       onComplete={handleComplete}
       completeLabel="Create and Open"
       completeVariant="success"
-      canAdvance={activeStep === 0 ? name.trim() !== '' : true}
+      invalidStepIds={invalidStepIds}
+      isSaving={isSaving}
+      savingMessage="Saving..."
     />
   )
 }

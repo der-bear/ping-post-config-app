@@ -19,8 +19,19 @@ export default defineConfig({
       name: 'mpa-rewrite',
       configureServer(server) {
         server.middlewares.use((req, _res, next) => {
-          const match = FEATURE_PATHS.find((f) => req.url?.includes(f.slug))
-          if (match) req.url = `/${match.html}`
+          if (!req.url) {
+            next()
+            return
+          }
+
+          const url = new URL(req.url, 'http://localhost')
+          const basePath = server.config.base.replace(/\/$/, '')
+          const pathname = url.pathname.startsWith(`${basePath}/`)
+            ? url.pathname.slice(basePath.length + 1)
+            : url.pathname.replace(/^\//, '')
+          const match = FEATURE_PATHS.find((f) => pathname === f.slug || pathname === `${f.slug}/`)
+
+          if (match) req.url = `${basePath}/${match.html}${url.search}`
           next()
         })
       },

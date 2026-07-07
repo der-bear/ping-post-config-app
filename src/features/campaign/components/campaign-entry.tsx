@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LayoutPanelTop, Rows3 } from 'lucide-react'
+import { LayoutPanelTop, Rows3, SquarePlus } from 'lucide-react'
 
 import { useCampaignStore } from '../store'
 import { CenteredListGroup } from '@/components/centered-list-group'
@@ -14,7 +14,7 @@ export function CampaignEntry() {
   const updateQuantityLimits = useCampaignStore((s) => s.updateQuantityLimits)
   const updateLeadValidation = useCampaignStore((s) => s.updateLeadValidation)
   const isPanelExpanded = useCampaignStore((s) => s.isPanelExpanded)
-  const [activeView, setActiveView] = useState<'launcher' | 'modal' | 'editor'>('launcher')
+  const [activeView, setActiveView] = useState<'launcher' | 'modal' | 'lead-source-modal' | 'editor'>('launcher')
 
   const handleBeforeCreate = (raw: Record<string, unknown>) => {
     const data = raw as unknown as WizardData
@@ -58,8 +58,7 @@ export function CampaignEntry() {
   }
 
   const handleModalCreate = (data: WizardData) => {
-    handleBeforeCreate(data)
-    setActiveView('editor')
+    if (data.createFirstCampaign !== false) handleBeforeCreate(data)
   }
 
   const handleShowFlyout = () => {
@@ -75,19 +74,27 @@ export function CampaignEntry() {
     <>
       {activeView === 'launcher' && (
         <CenteredListGroup
-          heading="Campaign Prototype"
+          heading="Campaign routing setup"
+          layout="cards"
           items={[
             {
-              id: 'show-modal',
-              label: 'Show Modal',
-              description: 'Launch the multi-step creation wizard.',
+              id: 'create-lead-source',
+              label: 'Create lead source and campaign',
+              description: 'Name a new lead source first, then continue through the campaign setup wizard.',
+              icon: <SquarePlus className="h-4 w-4 text-muted-foreground" />,
+              onAction: () => setActiveView('lead-source-modal'),
+            },
+            {
+              id: 'create-campaign',
+              label: 'Create campaign only',
+              description: 'Use the standard campaign wizard when the lead source already exists.',
               icon: <Rows3 className="h-4 w-4 text-muted-foreground" />,
               onAction: () => setActiveView('modal'),
             },
             {
-              id: 'show-flyout',
-              label: 'Show Flyout',
-              description: 'Open the campaign editor directly.',
+              id: 'open-editor',
+              label: 'Open campaign editor',
+              description: 'Skip creation and review the campaign configuration panels directly.',
               icon: <LayoutPanelTop className="h-4 w-4 text-muted-foreground" />,
               onAction: handleShowFlyout,
             },
@@ -109,6 +116,15 @@ export function CampaignEntry() {
       {activeView === 'modal' && (
         <CreateCampaignWizard
           open
+          onClose={() => setActiveView('launcher')}
+          onCreate={handleModalCreate}
+        />
+      )}
+
+      {activeView === 'lead-source-modal' && (
+        <CreateCampaignWizard
+          open
+          mode="lead-source"
           onClose={() => setActiveView('launcher')}
           onCreate={handleModalCreate}
         />

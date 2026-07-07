@@ -11,7 +11,7 @@ import { SavingOverlay } from '@/components/ui/saving-overlay'
 import { UnsavedChangesDialog } from '@/components/ui/unsaved-changes-dialog'
 import { useToast } from '@/components/ui/use-toast'
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, FileCode2 } from 'lucide-react'
 
 import { GeneralSettings } from './general-settings'
 import { DeliveryOptions } from './delivery-options'
@@ -23,6 +23,7 @@ import { ComplianceSettings } from './compliance-settings'
 import { IntegrationsManage } from './integrations-manage'
 import { IntegrationCriteria } from './integration-criteria'
 import { AgentForms } from './agent-forms'
+import { PostbackSettings } from './postback-settings'
 
 // ---- Quality Control sub-tabs ----
 const QC_TABS: { section: CampaignSection; label: string }[] = [
@@ -50,6 +51,7 @@ const PANEL_TITLES: Record<CampaignSection, string> = {
   'integrations-manage': 'Campaign Integrations',
   'integration-criteria': 'Campaign Integration Criteria',
   'agent-forms': 'Inbound Agent Forms',
+  'postback-settings': 'Postback Settings',
 }
 
 interface CampaignEditorProps {
@@ -134,6 +136,8 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
         return <IntegrationCriteria />
       case 'agent-forms':
         return <AgentForms />
+      case 'postback-settings':
+        return <PostbackSettings />
       default:
         return null
     }
@@ -182,6 +186,12 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
             </NavGroup>
 
             <NavItem label="Agent Forms" active={isActive('agent-forms')} onClick={nav('agent-forms')} />
+            <NavItem
+              label="Postback Settings"
+              icon={<FileCode2 className="size-4" />}
+              active={isActive('postback-settings')}
+              onClick={nav('postback-settings')}
+            />
 
             <button
               type="button"

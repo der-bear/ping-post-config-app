@@ -12,7 +12,7 @@ import {
 } from '@/components/ui'
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import { PricingModelSelector } from './pricing-model-selector'
-import type { CampaignStatus, PricingModel } from '../types'
+import { CAMPAIGN_STATUS_OPTIONS, type CampaignStatus, type PricingModel } from '../types'
 
 export function GeneralSettings() {
   const general = useCampaignStore((s) => s.config.general)
@@ -44,9 +44,11 @@ export function GeneralSettings() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="paused">Paused</SelectItem>
-            <SelectItem value="disabled">Disabled</SelectItem>
+            {CAMPAIGN_STATUS_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <p className="text-xs leading-4 text-muted-foreground mt-2">
@@ -78,11 +80,11 @@ export function GeneralSettings() {
       <SwitchField
         label="Reject if no coverage"
         description="Payout only will apply only to sold leads."
-        tooltip={
-          coverageLocked
-            ? 'Required for Price Per Sale and Revenue Share. Payout only applies when a lead is sold.'
+          tooltip={
+            coverageLocked
+            ? 'Required for Revenue Share - Price Per Sale and Revenue Share - Percentage. Payout only applies when a lead is sold.'
             : undefined
-        }
+          }
         checked={coverageLocked || scanCoverage === 'reject-no-coverage'}
         disabled={coverageLocked}
         onCheckedChange={(v) =>

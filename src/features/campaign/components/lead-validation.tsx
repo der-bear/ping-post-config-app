@@ -12,6 +12,7 @@ import {
 } from '@/components/ui'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
+import { DEFAULT_REJECT_ACTION_OPTIONS, type DefaultRejectAction } from '../types'
 
 export function LeadValidation() {
   const validation = useCampaignStore((s) => s.config.leadValidation)
@@ -34,14 +35,19 @@ export function LeadValidation() {
       <Separator className="my-0" />
 
       <FieldGroup label="Default Reject Action" description="Specify the action to take when a lead is rejected.">
-        <Select value={validation.defaultRejectAction} onValueChange={(v) => update({ defaultRejectAction: v })}>
+        <Select
+          value={validation.defaultRejectAction}
+          onValueChange={(v) => update({ defaultRejectAction: v as DefaultRejectAction })}
+        >
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="reject-to-source">Reject back to Lead Source</SelectItem>
-            <SelectItem value="reject-archive">Archive</SelectItem>
-            <SelectItem value="reject-delete">Delete</SelectItem>
+            {DEFAULT_REJECT_ACTION_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </FieldGroup>

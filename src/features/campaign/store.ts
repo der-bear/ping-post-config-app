@@ -10,7 +10,7 @@ import type {
 const defaultConfig: CampaignConfig = {
   general: {
     name: '',
-    channel: 'web-leads',
+    channel: 'web',
     leadType: 'mortgage',
     pricingModel: 'per-lead',
     pricePerLead: '$10.00',
@@ -130,7 +130,7 @@ export const useCampaignStore = create<CampaignStore>()((set) => ({
   activePanel: { section: 'general' } as ActivePanel,
   isQualityControlExpanded: true,
   isIntegrationsExpanded: true,
-  isPanelExpanded: false,
+  isPanelExpanded: true,
 
   // ---- Navigation ----
   setActivePanel: (panel) => set({ activePanel: panel }),
@@ -269,6 +269,6 @@ export const useCampaignStore = create<CampaignStore>()((set) => ({
       activePanel: { section: 'general' },
       isQualityControlExpanded: true,
       isIntegrationsExpanded: true,
-      isPanelExpanded: false,
+      isPanelExpanded: true,
     }),
 }))

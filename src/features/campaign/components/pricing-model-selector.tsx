@@ -54,8 +54,8 @@ export function PricingModelSelector({
         <RadioGroupItem value="per-sale" id={id('per-sale')} className="" />
         <div className="flex flex-col gap-2 flex-1">
           <div className="flex flex-col gap-0.5">
-            <p className="text-sm font-normal leading-5 text-foreground">Price Per Sale</p>
-            <p className="text-xs leading-4 text-muted-foreground">Specify the dollar amount for each sale that should be applied.</p>
+            <p className="text-sm font-normal leading-5 text-foreground">Revenue Share - Price Per Sale</p>
+            <p className="text-xs leading-4 text-muted-foreground">Specify the fixed dollar amount to be paid for each sale.</p>
           </div>
           {value === 'per-sale' && onPricePerSaleChange && (
             <Input
@@ -70,8 +70,8 @@ export function PricingModelSelector({
         <RadioGroupItem value="revenue-share" id={id('revenue-share')} className="" />
         <div className="flex flex-col gap-2 flex-1">
           <div className="flex flex-col gap-0.5">
-            <p className="text-sm font-normal leading-5 text-foreground">Revenue Share, %</p>
-            <p className="text-xs leading-4 text-muted-foreground">Specify the percentage of the sale amount that should be applied as revenue share.</p>
+            <p className="text-sm font-normal leading-5 text-foreground">Revenue Share - Percentage</p>
+            <p className="text-xs leading-4 text-muted-foreground">Specify the percentage of each sale amount to be paid.</p>
           </div>
           {value === 'revenue-share' && onRevenueSharePctChange && (
             <Input

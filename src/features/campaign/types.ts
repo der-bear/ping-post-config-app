@@ -11,14 +11,29 @@ export type CampaignSection =
   | 'integrations-manage'
   | 'integration-criteria'
   | 'agent-forms'
+  | 'postback-settings'
 
 export type ActivePanel = { section: CampaignSection }
 
 // ---- General ----
 
 export type PricingModel = 'per-lead' | 'per-sale' | 'revenue-share'
-export type CampaignStatus = 'active' | 'paused' | 'disabled'
-export type Channel = 'web-leads' | 'phone-calls' | 'live-transfer'
+export type CampaignStatus = 'active' | 'closed' | 'inactive' | 'on-hold' | 'late' | 'suspended'
+export const CAMPAIGN_STATUS_OPTIONS: { value: CampaignStatus; label: string }[] = [
+  { value: 'active', label: 'Active' },
+  { value: 'closed', label: 'Closed' },
+  { value: 'inactive', label: 'Inactive' },
+  { value: 'on-hold', label: 'OnHold' },
+  { value: 'late', label: 'Late' },
+  { value: 'suspended', label: 'Suspended' },
+]
+export type Channel = 'web' | 'ping-post' | 'phone' | 'chat'
+export const CAMPAIGN_CHANNEL_OPTIONS: { value: Channel; label: string }[] = [
+  { value: 'web', label: 'Web' },
+  { value: 'ping-post', label: 'Ping Post' },
+  { value: 'phone', label: 'Phone' },
+  { value: 'chat', label: 'Chat' },
+]
 
 export interface GeneralSettings {
   name: string
@@ -88,9 +103,16 @@ export interface QuantityLimitsConfig {
 
 // ---- Lead Validation ----
 
+export type DefaultRejectAction = 'reject-to-source' | 'quality-control' | 'forward-to-delivery'
+export const DEFAULT_REJECT_ACTION_OPTIONS: { value: DefaultRejectAction; label: string }[] = [
+  { value: 'reject-to-source', label: 'Reject back to Lead Source' },
+  { value: 'quality-control', label: 'Move to Quality Control' },
+  { value: 'forward-to-delivery', label: 'Forward to Delivery' },
+]
+
 export interface LeadValidationConfig {
   useQualityControl: boolean
-  defaultRejectAction: string
+  defaultRejectAction: DefaultRejectAction
   scanCoverage: string
   standardizeAddress: boolean
   appendCityState: boolean
