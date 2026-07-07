@@ -50,22 +50,6 @@ export function PricingModelSelector({
           )}
         </div>
       </label>
-      <label htmlFor={id('per-sale')} className="flex items-start gap-3 cursor-pointer">
-        <RadioGroupItem value="per-sale" id={id('per-sale')} className="" />
-        <div className="flex flex-col gap-2 flex-1">
-          <div className="flex flex-col gap-0.5">
-            <p className="text-sm font-normal leading-5 text-foreground">Revenue Share - Price Per Sale</p>
-            <p className="text-xs leading-4 text-muted-foreground">Specify the fixed dollar amount to be paid for each sale.</p>
-          </div>
-          {value === 'per-sale' && onPricePerSaleChange && (
-            <Input
-              value={pricePerSale}
-              onChange={(e) => onPricePerSaleChange(e.target.value)}
-              onClick={(e) => e.preventDefault()}
-            />
-          )}
-        </div>
-      </label>
       <label htmlFor={id('revenue-share')} className="flex items-start gap-3 cursor-pointer">
         <RadioGroupItem value="revenue-share" id={id('revenue-share')} className="" />
         <div className="flex flex-col gap-2 flex-1">
@@ -77,6 +61,22 @@ export function PricingModelSelector({
             <Input
               value={revenueSharePct}
               onChange={(e) => onRevenueSharePctChange(e.target.value)}
+              onClick={(e) => e.preventDefault()}
+            />
+          )}
+        </div>
+      </label>
+      <label htmlFor={id('per-sale')} className="flex items-start gap-3 cursor-pointer">
+        <RadioGroupItem value="per-sale" id={id('per-sale')} className="" />
+        <div className="flex flex-col gap-2 flex-1">
+          <div className="flex flex-col gap-0.5">
+            <p className="text-sm font-normal leading-5 text-foreground">Revenue Share - Price Per Sale</p>
+            <p className="text-xs leading-4 text-muted-foreground">Specify the fixed dollar amount to be paid for each sale.</p>
+          </div>
+          {value === 'per-sale' && onPricePerSaleChange && (
+            <Input
+              value={pricePerSale}
+              onChange={(e) => onPricePerSaleChange(e.target.value)}
               onClick={(e) => e.preventDefault()}
             />
           )}
