@@ -339,7 +339,7 @@ export function CreateCampaignWizard({
               description="Payout only will apply only to sold leads."
               tooltip={
                 coverageLocked
-                  ? 'Required for revenue share payout options. Payout only applies when a lead is sold.'
+                  ? 'Required for Revenue Share payout models. Payout only applies when a lead is sold.'
                   : undefined
               }
               checked={coverageLocked || scanCoverage === 'reject-no-coverage'}
@@ -540,70 +540,71 @@ export function CreateCampaignWizard({
       ),
     },
   ]
+  const leadSourceStep: WizardStep = {
+    id: 'lead-source',
+    label: 'Lead Source',
+    content: (
+      <div className="flex flex-col gap-4">
+        {createFirstCampaign && (
+          <>
+            <SectionHeading title="Lead Source Details" />
+            <Separator className="my-0" />
+          </>
+        )}
+
+        <FieldGroup
+          label="Lead Source Name"
+          description="Name the source that will submit leads into your campaigns."
+          required
+        >
+          <DebouncedInput
+            value={leadSourceName}
+            onValueCommit={(value) => {
+              setLeadSourceName(value)
+              if (errors.leadSourceName) {
+                clearFieldError('leadSourceName')
+              }
+            }}
+            onChange={(event) => {
+              setLeadSourceName(event.target.value)
+              if (errors.leadSourceName) {
+                clearFieldError('leadSourceName')
+              }
+            }}
+            onBlur={() => validateField('leadSourceName')}
+            placeholder="Required (Example: Acme Web Leads)"
+            aria-invalid={Boolean(errors.leadSourceName)}
+            className={cn(errors.leadSourceName && 'border-destructive')}
+          />
+          {errors.leadSourceName && (
+            <p className="mt-1 text-xs text-destructive">{errors.leadSourceName}</p>
+          )}
+        </FieldGroup>
+
+        <Separator className="my-0" />
+
+        <SwitchField
+          label="Create first campaign"
+          description="Continue into campaign setup as part of creating this lead source."
+          checked={createFirstCampaign}
+          onCheckedChange={(checked) => {
+            setCreateFirstCampaign(checked)
+            if (!checked) {
+              setActiveStep(0)
+              setErrors((prev) => (
+                prev.leadSourceName ? { leadSourceName: prev.leadSourceName } : {}
+              ))
+            }
+          }}
+        />
+      </div>
+    ),
+  }
   const steps: WizardStep[] = isLeadSourceMode
-    ? [
-        {
-          id: 'lead-source',
-          label: 'Lead Source',
-          content: (
-            <div className="flex flex-col gap-4">
-              <SectionHeading title="Lead Source" />
-              <Separator className="my-0" />
-
-              <FieldGroup
-                label="Lead Source Name"
-                description="Name the source that will submit leads into your campaigns."
-                required
-              >
-                <DebouncedInput
-                  value={leadSourceName}
-                  onValueCommit={(value) => {
-                    setLeadSourceName(value)
-                    if (errors.leadSourceName) {
-                      clearFieldError('leadSourceName')
-                    }
-                  }}
-                  onChange={(event) => {
-                    setLeadSourceName(event.target.value)
-                    if (errors.leadSourceName) {
-                      clearFieldError('leadSourceName')
-                    }
-                  }}
-                  onBlur={() => validateField('leadSourceName')}
-                  placeholder="Required (Example: Acme Web Leads)"
-                  aria-invalid={Boolean(errors.leadSourceName)}
-                  className={cn(errors.leadSourceName && 'border-destructive')}
-                />
-                {errors.leadSourceName && (
-                  <p className="mt-1 text-xs text-destructive">{errors.leadSourceName}</p>
-                )}
-              </FieldGroup>
-
-              <Separator className="my-0" />
-
-              <SwitchField
-                label="Create first campaign"
-                description="Continue into campaign setup after creating this lead source."
-                checked={createFirstCampaign}
-                onCheckedChange={(checked) => {
-                  setCreateFirstCampaign(checked)
-                  if (!checked) {
-                    setActiveStep(0)
-                    setErrors((prev) => (
-                      prev.leadSourceName ? { leadSourceName: prev.leadSourceName } : {}
-                    ))
-                  }
-                }}
-              />
-            </div>
-          ),
-        },
-        ...campaignSteps.map((step) => ({
-          ...step,
-          disabled: !createFirstCampaign,
-        })),
-      ]
+    ? createFirstCampaign ? [leadSourceStep, ...campaignSteps] : [leadSourceStep]
     : campaignSteps
+  const showSidebarNav = steps.length > 1
+  const dialogWidth = isLeadSourceMode && !createFirstCampaign ? '560px' : undefined
 
   return (
     <WizardDialog
@@ -618,6 +619,8 @@ export function CreateCampaignWizard({
       onComplete={handleComplete}
       completeLabel="Create and Open"
       completeVariant="success"
+      showSidebarNav={showSidebarNav}
+      width={dialogWidth}
       invalidStepIds={invalidStepIds}
       isSaving={isSaving}
       savingMessage="Saving..."

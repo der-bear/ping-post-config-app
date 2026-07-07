@@ -103,7 +103,7 @@ export function GeneralSettings({
         description="Payout only will apply only to sold leads."
           tooltip={
             coverageLocked
-            ? 'Required for revenue share payout options. Payout only applies when a lead is sold.'
+            ? 'Required for Revenue Share payout models. Payout only applies when a lead is sold.'
             : undefined
           }
         checked={coverageLocked || scanCoverage === 'reject-no-coverage'}

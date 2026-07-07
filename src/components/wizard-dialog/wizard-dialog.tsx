@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { SavingOverlay } from '@/components/ui/saving-overlay'
 import { NavGroup, NavItem, PanelSidebar } from '@/components/panel-layout'
+import { cn } from '@/lib/utils'
 
 export interface WizardStep {
   id: string
@@ -127,7 +128,12 @@ export function WizardDialog({
           onClose={onCancel}
         />
 
-        <div className="flex flex-1 min-h-0 gap-6 px-4 pt-4 pb-8 overflow-hidden">
+        <div
+          className={cn(
+            'flex flex-1 min-h-0 gap-6 overflow-hidden',
+            showSidebarNav ? 'px-4 pt-4 pb-8' : 'px-8 pt-8 pb-10',
+          )}
+        >
           {/* Sidebar navigation — list-group style */}
           {showSidebarNav && (
             <PanelSidebar className="w-[216px] shrink-0 self-start overflow-hidden rounded-sm border border-border">
