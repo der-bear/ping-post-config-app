@@ -13,8 +13,19 @@ import {
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import { PricingModelSelector } from './pricing-model-selector'
 import { CAMPAIGN_STATUS_OPTIONS, type CampaignStatus, type PricingModel } from '../types'
+import { cn } from '@/lib/utils'
 
-export function GeneralSettings() {
+interface GeneralSettingsProps {
+  campaignNameError?: string
+  onCampaignNameBlur?: (value: string) => void
+  onCampaignNameChange?: () => void
+}
+
+export function GeneralSettings({
+  campaignNameError,
+  onCampaignNameBlur,
+  onCampaignNameChange,
+}: GeneralSettingsProps = {}) {
   const general = useCampaignStore((s) => s.config.general)
   const update = useCampaignStore((s) => s.updateGeneral)
   const scanCoverage = useCampaignStore((s) => s.config.leadValidation.scanCoverage)
@@ -27,12 +38,22 @@ export function GeneralSettings() {
 
   return (
     <div className="flex flex-col gap-4">
-      <FieldGroup label="Campaign Name">
+      <FieldGroup label="Campaign Name" required>
         <DebouncedInput
           value={general.name}
           onValueCommit={(v: string) => update({ name: v })}
+          onChange={(event) => {
+            update({ name: event.target.value })
+            onCampaignNameChange?.()
+          }}
+          onBlur={(event) => onCampaignNameBlur?.(event.target.value)}
           placeholder="Enter campaign name"
+          aria-invalid={Boolean(campaignNameError)}
+          className={cn(campaignNameError && 'border-destructive')}
         />
+        {campaignNameError && (
+          <p className="mt-1 text-xs text-destructive">{campaignNameError}</p>
+        )}
       </FieldGroup>
 
       <FieldGroup label="Status" description="Select the current status of this campaign">

@@ -85,12 +85,14 @@ export interface CampaignStore {
   activePanel: ActivePanel
   isQualityControlExpanded: boolean
   isIntegrationsExpanded: boolean
+  isPostbackExpanded: boolean
   isPanelExpanded: boolean
 
   // Navigation
   setActivePanel: (panel: ActivePanel) => void
   toggleQualityControlExpanded: () => void
   toggleIntegrationsExpanded: () => void
+  togglePostbackExpanded: () => void
   togglePanelExpanded: () => void
 
   // General
@@ -130,6 +132,7 @@ export const useCampaignStore = create<CampaignStore>()((set) => ({
   activePanel: { section: 'general' } as ActivePanel,
   isQualityControlExpanded: true,
   isIntegrationsExpanded: true,
+  isPostbackExpanded: true,
   isPanelExpanded: true,
 
   // ---- Navigation ----
@@ -138,6 +141,8 @@ export const useCampaignStore = create<CampaignStore>()((set) => ({
     set((s) => ({ isQualityControlExpanded: !s.isQualityControlExpanded })),
   toggleIntegrationsExpanded: () =>
     set((s) => ({ isIntegrationsExpanded: !s.isIntegrationsExpanded })),
+  togglePostbackExpanded: () =>
+    set((s) => ({ isPostbackExpanded: !s.isPostbackExpanded })),
   togglePanelExpanded: () =>
     set((s) => ({ isPanelExpanded: !s.isPanelExpanded })),
 
@@ -269,6 +274,7 @@ export const useCampaignStore = create<CampaignStore>()((set) => ({
       activePanel: { section: 'general' },
       isQualityControlExpanded: true,
       isIntegrationsExpanded: true,
+      isPostbackExpanded: true,
       isPanelExpanded: true,
     }),
 }))

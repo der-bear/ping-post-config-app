@@ -11,7 +11,7 @@ import { SavingOverlay } from '@/components/ui/saving-overlay'
 import { UnsavedChangesDialog } from '@/components/ui/unsaved-changes-dialog'
 import { useToast } from '@/components/ui/use-toast'
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes'
-import { ExternalLink, FileCode2 } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 
 import { GeneralSettings } from './general-settings'
 import { DeliveryOptions } from './delivery-options'
@@ -39,6 +39,11 @@ const INTEGRATIONS_TABS: { section: CampaignSection; label: string }[] = [
   { section: 'integration-criteria', label: 'Integration Criteria' },
 ]
 
+const POSTBACK_TABS: { section: CampaignSection; label: string }[] = [
+  { section: 'postback-configuration', label: 'Configuration' },
+  { section: 'postback-history', label: 'History' },
+]
+
 // ---- Title Map ----
 const PANEL_TITLES: Record<CampaignSection, string> = {
   'general': 'General Settings',
@@ -51,7 +56,12 @@ const PANEL_TITLES: Record<CampaignSection, string> = {
   'integrations-manage': 'Campaign Integrations',
   'integration-criteria': 'Campaign Integration Criteria',
   'agent-forms': 'Inbound Agent Forms',
-  'postback-settings': 'Postback Settings',
+  'postback-configuration': 'Postback Configuration',
+  'postback-history': 'Postback History',
+}
+
+type CampaignEditorErrors = {
+  campaignName?: string
 }
 
 interface CampaignEditorProps {
@@ -66,27 +76,63 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
   const setActivePanel = useCampaignStore((s) => s.setActivePanel)
   const isQualityControlExpanded = useCampaignStore((s) => s.isQualityControlExpanded)
   const isIntegrationsExpanded = useCampaignStore((s) => s.isIntegrationsExpanded)
+  const isPostbackExpanded = useCampaignStore((s) => s.isPostbackExpanded)
   const isPanelExpanded = useCampaignStore((s) => s.isPanelExpanded)
   const toggleQualityControlExpanded = useCampaignStore((s) => s.toggleQualityControlExpanded)
   const toggleIntegrationsExpanded = useCampaignStore((s) => s.toggleIntegrationsExpanded)
+  const togglePostbackExpanded = useCampaignStore((s) => s.togglePostbackExpanded)
   const togglePanelExpanded = useCampaignStore((s) => s.togglePanelExpanded)
   const config = useCampaignStore((s) => s.config)
 
   // UI state
   const [isSaving, setIsSaving] = useState(false)
   const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
+  const [errors, setErrors] = useState<CampaignEditorErrors>({})
   const { hasUnsavedChanges, markSaved } = useUnsavedChanges(config)
 
   // Navigation helpers
   const isActive = (section: CampaignSection) => activePanel.section === section
   const isQcActive = QC_TABS.some((t) => activePanel.section === t.section)
   const isIntActive = INTEGRATIONS_TABS.some((t) => activePanel.section === t.section)
+  const isPostbackActive = POSTBACK_TABS.some((t) => activePanel.section === t.section)
 
   const nav = (section: CampaignSection) => () =>
     setActivePanel({ section } as ActivePanel)
 
+  const validateCampaignName = useCallback((value = config.general.name) => {
+    const error = value.trim() ? undefined : 'Campaign Name is required.'
+
+    setErrors((current) => {
+      const next = { ...current }
+      if (error) {
+        next.campaignName = error
+      } else {
+        delete next.campaignName
+      }
+      return next
+    })
+
+    return !error
+  }, [config.general.name])
+
+  const clearCampaignNameError = useCallback(() => {
+    setErrors((current) => {
+      if (!current.campaignName) return current
+
+      const next = { ...current }
+      delete next.campaignName
+      return next
+    })
+  }, [])
+
   // Save handler
   const handleSave = useCallback(async (closeAfterSave = false) => {
+    if (!validateCampaignName()) {
+      setActivePanel({ section: 'general' })
+      setUnsavedDialogOpen(false)
+      return
+    }
+
     setIsSaving(true)
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500))
@@ -103,7 +149,7 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
     } finally {
       setIsSaving(false)
     }
-  }, [config, onClose, toast, markSaved])
+  }, [markSaved, onClose, setActivePanel, toast, validateCampaignName])
 
   const handleClose = () => {
     if (hasUnsavedChanges) {
@@ -117,7 +163,13 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
   const renderContent = () => {
     switch (activePanel.section) {
       case 'general':
-        return <GeneralSettings />
+        return (
+          <GeneralSettings
+            campaignNameError={errors.campaignName}
+            onCampaignNameBlur={validateCampaignName}
+            onCampaignNameChange={clearCampaignNameError}
+          />
+        )
       case 'delivery-options':
         return <DeliveryOptions />
       case 'duplicate-checks':
@@ -136,7 +188,8 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
         return <IntegrationCriteria />
       case 'agent-forms':
         return <AgentForms />
-      case 'postback-settings':
+      case 'postback-configuration':
+      case 'postback-history':
         return <PostbackSettings />
       default:
         return null
@@ -148,7 +201,12 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
       <PanelLayout
         sidebar={
           <PanelSidebar>
-            <NavItem label="General" active={isActive('general')} onClick={nav('general')} />
+            <NavItem
+              label="General"
+              active={isActive('general')}
+              invalid={Boolean(errors.campaignName)}
+              onClick={nav('general')}
+            />
             <NavItem label="Delivery Options" active={isActive('delivery-options')} onClick={nav('delivery-options')} />
 
             <NavGroup
@@ -185,13 +243,24 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
               ))}
             </NavGroup>
 
+            <NavGroup
+              label="Postback"
+              expanded={isPostbackExpanded}
+              onToggle={togglePostbackExpanded}
+              active={isPostbackActive}
+            >
+              {POSTBACK_TABS.map(({ section, label }) => (
+                <NavItem
+                  key={section}
+                  label={label}
+                  active={isActive(section)}
+                  onClick={nav(section)}
+                  indented
+                />
+              ))}
+            </NavGroup>
+
             <NavItem label="Agent Forms" active={isActive('agent-forms')} onClick={nav('agent-forms')} />
-            <NavItem
-              label="Postback Settings"
-              icon={<FileCode2 className="size-4" />}
-              active={isActive('postback-settings')}
-              onClick={nav('postback-settings')}
-            />
 
             <button
               type="button"

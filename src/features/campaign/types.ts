@@ -11,7 +11,8 @@ export type CampaignSection =
   | 'integrations-manage'
   | 'integration-criteria'
   | 'agent-forms'
-  | 'postback-settings'
+  | 'postback-configuration'
+  | 'postback-history'
 
 export type ActivePanel = { section: CampaignSection }
 
