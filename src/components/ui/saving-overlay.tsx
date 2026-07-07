@@ -18,7 +18,7 @@ export function SavingOverlay({ open, message = 'Saving...', className }: Saving
     <div
       data-slot="saving-overlay"
       className={cn(
-        'absolute inset-0 z-50 bg-background/80 backdrop-blur-sm',
+        'absolute inset-0 z-50 bg-background',
         'flex items-center justify-center',
         className,
       )}
