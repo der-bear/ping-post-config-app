@@ -131,7 +131,7 @@ export function WizardDialog({
         <div
           className={cn(
             'flex flex-1 min-h-0 gap-6 overflow-hidden',
-            showSidebarNav ? 'px-4 pt-4 pb-8' : 'px-8 pt-8 pb-10',
+            showSidebarNav ? 'px-4 pt-4 pb-8' : 'px-6 pt-6 pb-8',
           )}
         >
           {/* Sidebar navigation — list-group style */}

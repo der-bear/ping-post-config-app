@@ -82,7 +82,7 @@ interface DeliveryOptionsContentProps {
   onMaxDeliveryCountChange: (value: string) => void
   compact?: boolean
   stacked?: boolean
-  /** When true, wrap sub-sections (Select Target Client / Distribution Settings) in bordered cards.
+  /** When true, wrap sub-sections (Select Target Clients / Distribution Settings) in bordered cards.
    *  When false (flyout default), separate sub-sections with horizontal dividers. */
   framed?: boolean
 }
@@ -146,7 +146,7 @@ export function DeliveryOptionsContent({
         <>
           {!framed && <Separator className="my-0" />}
           <Section framed={framed}>
-            <FieldGroup label="Select Target Client">
+            <FieldGroup label="Select Target Clients">
               <SelectBox
                 searchable
                 options={BUYER_SUGGESTIONS}
@@ -165,7 +165,7 @@ export function DeliveryOptionsContent({
         <>
           {!framed && <Separator className="my-0" />}
           <Section framed={framed}>
-            <SectionHeading title="Select Target Client" />
+            <SectionHeading title="Select Target Clients" />
 
             <RadioGroup value={targetMode} onValueChange={onTargetModeChange} className="flex gap-4">
               <label htmlFor="do-specific" className="flex items-center gap-2 cursor-pointer">

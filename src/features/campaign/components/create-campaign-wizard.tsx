@@ -22,6 +22,7 @@ import { CAMPAIGN_CHANNEL_OPTIONS, CAMPAIGN_STATUS_OPTIONS, type CampaignStatus,
 
 export interface WizardData extends Record<string, unknown> {
   leadSourceName?: string
+  leadSource?: string
   createFirstCampaign?: boolean
   name: string
   channel: Channel
@@ -60,8 +61,14 @@ interface CreateCampaignWizardProps {
   mode?: 'campaign' | 'lead-source'
 }
 
-type WizardErrorKey = 'leadSourceName' | 'name' | 'leadType'
+type WizardErrorKey = 'leadSourceName' | 'leadSource' | 'name' | 'leadType'
 type WizardErrors = Partial<Record<WizardErrorKey, string>>
+
+const LEAD_SOURCE_OPTIONS = [
+  { value: 'acme-web-leads', label: 'Acme Web Leads' },
+  { value: 'mortgage-partner-network', label: 'Mortgage Partner Network' },
+  { value: 'contact-us-form', label: 'Contact Us Form' },
+]
 
 export function CreateCampaignWizard({
   open,
@@ -80,6 +87,7 @@ export function CreateCampaignWizard({
 
   // Campaign setup
   const [name, setName] = useState('')
+  const [leadSource, setLeadSource] = useState('')
   const [channel, setChannel] = useState<Channel>('web')
   const [leadType, setLeadType] = useState('')
   const [pricingModel, setPricingModel] = useState<PricingModel>('per-lead')
@@ -115,6 +123,7 @@ export function CreateCampaignWizard({
   const [monthlyLimitValue, setMonthlyLimitValue] = useState('0')
 
   const shouldCreateCampaign = !isLeadSourceMode || createFirstCampaign
+  const needsLeadSourceSelection = !isLeadSourceMode
 
   const buildValidationErrors = (fields: WizardErrorKey[]) => {
     const newErrors: WizardErrors = {}
@@ -129,6 +138,10 @@ export function CreateCampaignWizard({
 
     if (fields.includes('leadType') && shouldCreateCampaign && !leadType) {
       newErrors.leadType = 'Lead Type is required.'
+    }
+
+    if (fields.includes('leadSource') && needsLeadSourceSelection && !leadSource) {
+      newErrors.leadSource = 'Lead Source is required.'
     }
 
     return newErrors
@@ -163,7 +176,7 @@ export function CreateCampaignWizard({
     }
 
     if (stepId === 'general') {
-      validateFields(['name', 'leadType'])
+      validateFields(['name', 'leadType', 'leadSource'])
     }
   }
 
@@ -178,7 +191,7 @@ export function CreateCampaignWizard({
   }
 
   const handleComplete = async () => {
-    const newErrors = buildValidationErrors(['leadSourceName', 'name', 'leadType'])
+    const newErrors = buildValidationErrors(['leadSourceName', 'name', 'leadType', 'leadSource'])
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -197,6 +210,7 @@ export function CreateCampaignWizard({
 
       onCreate({
         leadSourceName: isLeadSourceMode ? leadSourceName.trim() : undefined,
+        leadSource: needsLeadSourceSelection ? leadSource : undefined,
         createFirstCampaign: shouldCreateCampaign,
         name: name.trim(), channel, leadType,
         pricingModel, pricePerLead, pricePerSale, revenueSharePct, status, scanCoverage,
@@ -223,7 +237,7 @@ export function CreateCampaignWizard({
   const coverageLocked = pricingModel === 'per-sale' || pricingModel === 'revenue-share'
   const invalidStepIds = [
     ...(errors.leadSourceName ? ['lead-source'] : []),
-    ...(errors.name || errors.leadType ? ['general'] : []),
+    ...(errors.name || errors.leadType || errors.leadSource ? ['general'] : []),
   ]
   const generalStepLabel = isLeadSourceMode ? 'Campaign Settings' : 'General Information'
 
@@ -281,6 +295,36 @@ export function CreateCampaignWizard({
               <p className="mt-1 text-xs text-destructive">{errors.leadType}</p>
             )}
           </FieldGroup>
+
+          {needsLeadSourceSelection && (
+            <FieldGroup label="Lead Source" description="The source of leads for this campaign." required>
+              <Select
+                value={leadSource}
+                onValueChange={(value) => {
+                  setLeadSource(value)
+                  if (errors.leadSource) clearFieldError('leadSource')
+                }}
+              >
+                <SelectTrigger
+                  className={cn(errors.leadSource && 'border-destructive')}
+                  onBlur={() => validateField('leadSource')}
+                  aria-invalid={Boolean(errors.leadSource)}
+                >
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {LEAD_SOURCE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.leadSource && (
+                <p className="mt-1 text-xs text-destructive">{errors.leadSource}</p>
+              )}
+            </FieldGroup>
+          )}
 
           <FieldGroup label="Channel" description="The channel of capturing leads.">
             <Select value={channel} onValueChange={(value) => setChannel(value as Channel)}>

@@ -32,28 +32,51 @@ const DialogContent = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     showClose?: boolean
+    closeOnInteractOutside?: boolean
   }
->(({ className, children, showClose = true, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 bg-background p-6 shadow-lg rounded-[4px]',
-        className
-      )}
-      {...props}
-    >
-      {children}
-      {showClose && (
-        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </DialogPrimitive.Close>
-      )}
-    </DialogPrimitive.Content>
-  </DialogPortal>
-))
+>(({
+  className,
+  children,
+  showClose = true,
+  closeOnInteractOutside = false,
+  onPointerDownOutside,
+  onInteractOutside,
+  ...props
+}, ref) => {
+  const handlePointerDownOutside: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>['onPointerDownOutside'] = (event) => {
+    onPointerDownOutside?.(event)
+    if (!closeOnInteractOutside) event.preventDefault()
+  }
+
+  const handleInteractOutside: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>['onInteractOutside'] = (event) => {
+    onInteractOutside?.(event)
+    if (!closeOnInteractOutside) event.preventDefault()
+  }
+
+  return (
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        ref={ref}
+        className={cn(
+          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 bg-background p-6 shadow-lg rounded-[4px]',
+          className
+        )}
+        onPointerDownOutside={handlePointerDownOutside}
+        onInteractOutside={handleInteractOutside}
+        {...props}
+      >
+        {children}
+        {showClose && (
+          <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+        )}
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  )
+})
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 const DialogHeader = ({
