@@ -19,6 +19,9 @@ interface SwitchFieldProps {
   /** When set, an info icon appears next to the label. Hovering anywhere on the
    *  field opens the tooltip, which is anchored to (and points at) the icon. */
   tooltip?: ReactNode
+  /** Explains why the toggle is locked. Shown on hover over the toggle itself while
+   *  `disabled`, with no info icon — the control being explained is the anchor. */
+  lockedTooltip?: ReactNode
   children?: ReactNode
   className?: string
 }
@@ -31,20 +34,43 @@ export function SwitchField({
   onCheckedChange,
   disabled,
   tooltip,
+  lockedTooltip,
   children,
   className,
 }: SwitchFieldProps) {
   const id = useId()
   const [tipOpen, setTipOpen] = useState(false)
+  const showLockedTooltip = Boolean(disabled && lockedTooltip)
+
+  // `disabled` dims only the toggle itself. The label stays legible and `children` stay
+  // usable, so a locked switch can still expose an editable control (e.g. a policy
+  // dropdown that remains the user's to choose).
+  const switchEl = (
+    <Switch
+      id={id}
+      checked={checked}
+      onCheckedChange={onCheckedChange}
+      disabled={disabled}
+      className={cn(disabled && 'opacity-60')}
+    />
+  )
 
   const field = (
     <div
       data-slot="switch-field"
-      className={cn('flex gap-4', disabled && 'opacity-60', className)}
+      className={cn('flex gap-4', className)}
       onMouseEnter={tooltip ? () => setTipOpen(true) : undefined}
       onMouseLeave={tooltip ? () => setTipOpen(false) : undefined}
     >
-      <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} />
+      {showLockedTooltip ? (
+        // A disabled <button> fires no pointer events, so the hover target has to be a
+        // wrapper around it rather than the Switch itself.
+        <TooltipTrigger asChild>
+          <span className="inline-flex shrink-0 self-start">{switchEl}</span>
+        </TooltipTrigger>
+      ) : (
+        switchEl
+      )}
       <div className="flex-1 min-w-0 space-y-2">
         <label
           htmlFor={id}
@@ -80,6 +106,21 @@ export function SwitchField({
       </div>
     </div>
   )
+
+  // Locked state wins: the toggle is the thing being explained, so it anchors the
+  // tooltip and Radix drives the hover off it directly.
+  if (showLockedTooltip) {
+    return (
+      <TooltipProvider delayDuration={100}>
+        <Tooltip>
+          {field}
+          <TooltipContent side="top" align="start" className="max-w-[280px]">
+            {lockedTooltip}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
 
   if (!tooltip) return field
 

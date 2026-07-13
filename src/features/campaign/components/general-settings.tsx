@@ -8,11 +8,10 @@ import {
   SelectTrigger,
   SelectValue,
   Separator,
-  SwitchField,
 } from '@/components/ui'
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import { PricingModelSelector } from './pricing-model-selector'
-import { CAMPAIGN_STATUS_OPTIONS, type CampaignStatus, type PricingModel } from '../types'
+import { CAMPAIGN_STATUS_OPTIONS, type CampaignStatus } from '../types'
 import { cn } from '@/lib/utils'
 
 interface GeneralSettingsProps {
@@ -28,13 +27,10 @@ export function GeneralSettings({
 }: GeneralSettingsProps = {}) {
   const general = useCampaignStore((s) => s.config.general)
   const update = useCampaignStore((s) => s.updateGeneral)
-  const scanCoverage = useCampaignStore((s) => s.config.leadValidation.scanCoverage)
-  const updateLeadValidation = useCampaignStore((s) => s.updateLeadValidation)
-
-  // For Price Per Sale / Revenue Share, coverage must be confirmed before a
-  // sale can be credited, so "Reject if no coverage" is forced on and locked.
-  const coverageLocked =
-    general.pricingModel === 'per-sale' || general.pricingModel === 'revenue-share'
+  // Selecting a Revenue Share model also locks Sale & Coverage Verification over in
+  // Lead Validation, so the pricing change goes through the store rather than a plain
+  // field merge.
+  const setPricingModel = useCampaignStore((s) => s.setPricingModel)
 
   return (
     <div className="flex flex-col gap-4">
@@ -83,10 +79,7 @@ export function GeneralSettings({
 
       <PricingModelSelector
         value={general.pricingModel}
-        onChange={(v: PricingModel) => {
-          update({ pricingModel: v })
-          if (v !== 'per-lead') updateLeadValidation({ scanCoverage: 'reject-no-coverage' })
-        }}
+        onChange={setPricingModel}
         pricePerLead={general.pricePerLead}
         onPricePerLeadChange={(v) => update({ pricePerLead: v })}
         pricePerSale={general.pricePerSale}
@@ -94,23 +87,6 @@ export function GeneralSettings({
         revenueSharePct={general.revenueSharePct}
         onRevenueSharePctChange={(v) => update({ revenueSharePct: v })}
         idPrefix="gs-"
-      />
-
-      <Separator className="my-0" />
-
-      <SwitchField
-        label="Reject if no coverage"
-        description="Payout only will apply only to sold leads."
-          tooltip={
-            coverageLocked
-            ? 'Required for Revenue Share payout models. Payout only applies when a lead is sold.'
-            : undefined
-          }
-        checked={coverageLocked || scanCoverage === 'reject-no-coverage'}
-        disabled={coverageLocked}
-        onCheckedChange={(v) =>
-          updateLeadValidation({ scanCoverage: v ? 'reject-no-coverage' : 'accept-no-coverage' })
-        }
       />
     </div>
   )

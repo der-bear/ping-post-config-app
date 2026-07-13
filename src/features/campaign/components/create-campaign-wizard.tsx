@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { WizardDialog, type WizardStep } from '@/components/wizard-dialog'
 import {
   FieldGroup,
@@ -18,7 +18,18 @@ import { toast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
 import { DeliveryOptionsContent, BUYER_SUGGESTIONS, getBuyerWarning } from './delivery-options-content'
 import { PricingModelSelector } from './pricing-model-selector'
-import { CAMPAIGN_CHANNEL_OPTIONS, CAMPAIGN_STATUS_OPTIONS, type CampaignStatus, type Channel, type PricingModel, type DeliveryMode, type TargetMode } from '../types'
+import {
+  CAMPAIGN_CHANNEL_OPTIONS,
+  CAMPAIGN_STATUS_OPTIONS,
+  DEFAULT_SCAN_COVERAGE,
+  pricingLocksVerification,
+  type CampaignStatus,
+  type Channel,
+  type PricingModel,
+  type DeliveryMode,
+  type ScanCoverageOption,
+  type TargetMode,
+} from '../types'
 
 export interface WizardData extends Record<string, unknown> {
   leadSourceName?: string
@@ -32,7 +43,8 @@ export interface WizardData extends Record<string, unknown> {
   pricePerSale: string
   revenueSharePct: string
   status: CampaignStatus
-  scanCoverage: string
+  scanCoverageEnabled: boolean
+  scanCoverage: ScanCoverageOption
   deliveryMode: string
   targetBuyer: string
   targetMode: string
@@ -95,7 +107,27 @@ export function CreateCampaignWizard({
   const [pricePerSale, setPricePerSale] = useState('$0.00')
   const [revenueSharePct, setRevenueSharePct] = useState('0.00%')
   const [status, setStatus] = useState<CampaignStatus>('active')
-  const [scanCoverage, setScanCoverage] = useState('reject-no-coverage')
+  // Sale & Coverage Verification has no control in the wizard; it lives in Lead
+  // Validation in the editor. The wizard only carries the values so that picking a
+  // Revenue Share model here creates the campaign already correctly configured.
+  const [scanCoverageEnabled, setScanCoverageEnabled] = useState(false)
+  const [scanCoverage] = useState<ScanCoverageOption>(DEFAULT_SCAN_COVERAGE)
+  const scanCoverageEnabledBeforeLock = useRef<boolean | null>(null)
+
+  const handlePricingModelChange = (next: PricingModel) => {
+    const wasLocked = pricingLocksVerification(pricingModel)
+    const isLocked = pricingLocksVerification(next)
+
+    if (isLocked && !wasLocked) {
+      scanCoverageEnabledBeforeLock.current = scanCoverageEnabled
+      setScanCoverageEnabled(true)
+    } else if (!isLocked && wasLocked) {
+      setScanCoverageEnabled(scanCoverageEnabledBeforeLock.current ?? false)
+      scanCoverageEnabledBeforeLock.current = null
+    }
+
+    setPricingModel(next)
+  }
 
   // Step 2: Delivery Options
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('any-qualified')
@@ -213,7 +245,8 @@ export function CreateCampaignWizard({
         leadSource: needsLeadSourceSelection ? leadSource : undefined,
         createFirstCampaign: shouldCreateCampaign,
         name: name.trim(), channel, leadType,
-        pricingModel, pricePerLead, pricePerSale, revenueSharePct, status, scanCoverage,
+        pricingModel, pricePerLead, pricePerSale, revenueSharePct, status,
+        scanCoverageEnabled, scanCoverage,
         deliveryMode, targetBuyer, targetMode, targetGroup,
         automationMethod, maxDeliveryCount, buyers,
         useQualityControl, duplicateDays,
@@ -234,7 +267,6 @@ export function CreateCampaignWizard({
     }
   }
 
-  const coverageLocked = pricingModel === 'per-sale' || pricingModel === 'revenue-share'
   const invalidStepIds = [
     ...(errors.leadSourceName ? ['lead-source'] : []),
     ...(errors.name || errors.leadType || errors.leadSource ? ['general'] : []),
@@ -364,31 +396,13 @@ export function CreateCampaignWizard({
 
             <PricingModelSelector
               value={pricingModel}
-              onChange={(v) => {
-                setPricingModel(v)
-                if (v !== 'per-lead') setScanCoverage('reject-no-coverage')
-              }}
+              onChange={handlePricingModelChange}
               pricePerLead={pricePerLead}
               onPricePerLeadChange={setPricePerLead}
               pricePerSale={pricePerSale}
               onPricePerSaleChange={setPricePerSale}
               revenueSharePct={revenueSharePct}
               onRevenueSharePctChange={setRevenueSharePct}
-            />
-
-            <Separator className="my-0" />
-
-            <SwitchField
-              label="Reject if no coverage"
-              description="Payout only will apply only to sold leads."
-              tooltip={
-                coverageLocked
-                  ? 'Required for Revenue Share payout models. Payout only applies when a lead is sold.'
-                  : undefined
-              }
-              checked={coverageLocked || scanCoverage === 'reject-no-coverage'}
-              disabled={coverageLocked}
-              onCheckedChange={(v) => setScanCoverage(v ? 'reject-no-coverage' : 'accept-no-coverage')}
             />
           </div>
         </div>
@@ -596,11 +610,7 @@ export function CreateCampaignWizard({
           </>
         )}
 
-        <FieldGroup
-          label="Lead Source Name"
-          description="Name the source that will submit leads into your campaigns."
-          required
-        >
+        <FieldGroup label="Lead Source Name" required>
           <DebouncedInput
             value={leadSourceName}
             onValueCommit={(value) => {

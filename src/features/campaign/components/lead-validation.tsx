@@ -12,11 +12,21 @@ import {
 } from '@/components/ui'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
-import { DEFAULT_REJECT_ACTION_OPTIONS, type DefaultRejectAction } from '../types'
+import {
+  DEFAULT_REJECT_ACTION_OPTIONS,
+  SCAN_COVERAGE_OPTIONS,
+  type DefaultRejectAction,
+  type ScanCoverageOption,
+} from '../types'
 
 export function LeadValidation() {
   const validation = useCampaignStore((s) => s.config.leadValidation)
   const update = useCampaignStore((s) => s.updateLeadValidation)
+  const pricingModel = useCampaignStore((s) => s.config.general.pricingModel)
+
+  // Revenue Share models only pay out on a sale, so verification is forced on and the
+  // toggle is locked. The policy dropdown stays editable.
+  const verificationLocked = pricingModel === 'per-sale' || pricingModel === 'revenue-share'
 
   return (
     <div className="flex flex-col gap-4">
@@ -51,6 +61,33 @@ export function LeadValidation() {
           </SelectContent>
         </Select>
       </FieldGroup>
+
+      <Separator className="my-0" />
+
+      <SwitchField
+        label="Sale & Coverage Verification"
+        description="Verify coverage or sale of record before sending response to lead source."
+        lockedTooltip="Automatically enabled and required for Revenue Share payout models, which can only calculate the payout once delivery is complete."
+        checked={verificationLocked || validation.scanCoverageEnabled}
+        disabled={verificationLocked}
+        onCheckedChange={(v) => update({ scanCoverageEnabled: v })}
+      >
+        <Select
+          value={validation.scanCoverage}
+          onValueChange={(v) => update({ scanCoverage: v as ScanCoverageOption })}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {SCAN_COVERAGE_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </SwitchField>
 
       <Separator className="my-0" />
 

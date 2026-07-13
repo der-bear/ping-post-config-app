@@ -1,8 +1,10 @@
 import { create } from 'zustand'
+import { DEFAULT_SCAN_COVERAGE, pricingLocksVerification } from './types'
 import type {
   ActivePanel,
   Buyer,
   CampaignConfig,
+  PricingModel,
 } from './types'
 
 // ---- Default Config ----
@@ -44,7 +46,8 @@ const defaultConfig: CampaignConfig = {
   leadValidation: {
     useQualityControl: false,
     defaultRejectAction: 'reject-to-source',
-    scanCoverage: 'reject-no-coverage',
+    scanCoverageEnabled: false,
+    scanCoverage: DEFAULT_SCAN_COVERAGE,
     standardizeAddress: false,
     appendCityState: false,
     mobileCheck: false,
@@ -87,6 +90,9 @@ export interface CampaignStore {
   isIntegrationsExpanded: boolean
   isPostbackExpanded: boolean
   isPanelExpanded: boolean
+  /** The verification toggle as it stood before a pricing model forced it on, so that
+   *  returning to Price Per Lead undoes the force rather than leaving it on. */
+  scanCoverageEnabledBeforeLock: boolean | null
 
   // Navigation
   setActivePanel: (panel: ActivePanel) => void
@@ -97,6 +103,7 @@ export interface CampaignStore {
 
   // General
   updateGeneral: (partial: Partial<CampaignConfig['general']>) => void
+  setPricingModel: (model: PricingModel) => void
 
   // Delivery Options
   updateDeliveryOptions: (partial: Partial<CampaignConfig['deliveryOptions']>) => void
@@ -134,6 +141,7 @@ export const useCampaignStore = create<CampaignStore>()((set) => ({
   isIntegrationsExpanded: true,
   isPostbackExpanded: true,
   isPanelExpanded: true,
+  scanCoverageEnabledBeforeLock: null,
 
   // ---- Navigation ----
   setActivePanel: (panel) => set({ activePanel: panel }),
@@ -151,6 +159,34 @@ export const useCampaignStore = create<CampaignStore>()((set) => ({
     set((s) => ({
       config: { ...s.config, general: { ...s.config.general, ...partial } },
     })),
+
+  setPricingModel: (model) =>
+    set((s) => {
+      const wasLocked = pricingLocksVerification(s.config.general.pricingModel)
+      const isLocked = pricingLocksVerification(model)
+      const { scanCoverageEnabled } = s.config.leadValidation
+
+      // Only the toggle is ever touched. The rule is the user's and is left alone.
+      let nextEnabled = scanCoverageEnabled
+      let nextBeforeLock = s.scanCoverageEnabledBeforeLock
+
+      if (isLocked && !wasLocked) {
+        nextBeforeLock = scanCoverageEnabled
+        nextEnabled = true
+      } else if (!isLocked && wasLocked) {
+        nextEnabled = nextBeforeLock ?? false
+        nextBeforeLock = null
+      }
+
+      return {
+        scanCoverageEnabledBeforeLock: nextBeforeLock,
+        config: {
+          ...s.config,
+          general: { ...s.config.general, pricingModel: model },
+          leadValidation: { ...s.config.leadValidation, scanCoverageEnabled: nextEnabled },
+        },
+      }
+    }),
 
   // ---- Delivery Options ----
   updateDeliveryOptions: (partial) =>
@@ -276,5 +312,6 @@ export const useCampaignStore = create<CampaignStore>()((set) => ({
       isIntegrationsExpanded: true,
       isPostbackExpanded: true,
       isPanelExpanded: true,
+      scanCoverageEnabledBeforeLock: null,
     }),
 }))

@@ -111,10 +111,37 @@ export const DEFAULT_REJECT_ACTION_OPTIONS: { value: DefaultRejectAction; label:
   { value: 'forward-to-delivery', label: 'Forward to Delivery' },
 ]
 
+export type ScanCoverageOption =
+  | 'reject-no-sale'
+  | 'return-no-sale'
+  | 'reject-no-coverage'
+  | 'return-no-coverage'
+export const SCAN_COVERAGE_OPTIONS: { value: ScanCoverageOption; label: string }[] = [
+  { value: 'reject-no-sale', label: 'Reject for No Sale' },
+  { value: 'return-no-sale', label: 'Return for No Sale' },
+  { value: 'reject-no-coverage', label: 'Reject for No Coverage' },
+  { value: 'return-no-coverage', label: 'Return for No Coverage' },
+]
+export const DEFAULT_SCAN_COVERAGE: ScanCoverageOption = 'reject-no-sale'
+
+/** Price Per Sale and Revenue Share only pay out on a sale, so the system must wait for
+ *  delivery to finish before it can calculate the amount. Both models therefore force
+ *  Sale & Coverage Verification on and lock the toggle.
+ *
+ *  Pricing owns the toggle only, never the rule: every rule is valid under Revenue Share,
+ *  so the user's chosen rule survives locking, unlocking, and being switched off. */
+export function pricingLocksVerification(model: PricingModel): boolean {
+  return model === 'per-sale' || model === 'revenue-share'
+}
+
 export interface LeadValidationConfig {
   useQualityControl: boolean
   defaultRejectAction: DefaultRejectAction
-  scanCoverage: string
+  /** Whether Sale & Coverage Verification runs. Pricing can force this on. */
+  scanCoverageEnabled: boolean
+  /** Which rule applies when it runs. Always holds a valid option, and is remembered
+   *  while switched off so re-enabling restores the user's last choice. */
+  scanCoverage: ScanCoverageOption
   standardizeAddress: boolean
   appendCityState: boolean
   mobileCheck: boolean
