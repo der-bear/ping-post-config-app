@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { interactiveCardStateClasses } from './card-states'
 
 interface SelectableCardProps {
   icon: ReactNode
@@ -49,12 +50,8 @@ export function SelectableCard({
         disabled={disabled}
         onClick={onClick}
         className={cn(
-          'flex gap-3 items-start p-4 rounded border transition-all text-left',
-          selected && !disabled
-            ? 'border-primary/50 bg-primary-light'
-            : disabled
-              ? 'border-border bg-muted/30 cursor-not-allowed'
-              : 'border-border bg-background cursor-pointer hover:border-primary/20 hover:bg-accent/5',
+          'flex gap-3 items-start p-4 rounded border text-left',
+          interactiveCardStateClasses(selected, disabled),
           className,
         )}
       >
@@ -79,13 +76,9 @@ export function SelectableCard({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        'flex h-full gap-3 items-start p-4 rounded border transition-all text-left',
+        'flex h-full gap-3 items-start p-4 rounded border text-left',
         'lg:flex-col lg:gap-4',
-        selected && !disabled
-          ? 'border-primary/50 bg-primary-light'
-          : disabled
-            ? 'border-border bg-muted/30 cursor-not-allowed'
-            : 'border-border bg-background cursor-pointer hover:border-primary/20 hover:bg-accent/5',
+        interactiveCardStateClasses(selected, disabled),
         className,
       )}
     >

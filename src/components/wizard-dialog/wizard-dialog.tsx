@@ -17,6 +17,11 @@ export interface WizardStep {
   groupId?: string
   groupLabel?: string
   disabled?: boolean
+  /** Reachable via Next/Previous but not listed as a sidebar tab (e.g. a routing step). */
+  hidden?: boolean
+  /** Hide the Next/Complete button on this step — for steps advanced by clicking a card
+   *  rather than a footer button (the choice itself is the action). */
+  hidePrimaryAction?: boolean
 }
 
 interface WizardDialogProps {
@@ -92,6 +97,8 @@ export function WizardDialog({
     > = []
 
     for (const [index, step] of steps.entries()) {
+      if (step.hidden) continue
+
       if (!step.groupId || !step.groupLabel) {
         items.push({ type: 'step', step, index })
         continue
@@ -207,7 +214,7 @@ export function WizardDialog({
               Previous
             </Button>
           )}
-          {isLastStep ? (
+          {currentStep?.hidePrimaryAction ? null : isLastStep ? (
             <Button
               variant={completeVariant === 'success' ? 'success' : 'default'}
               onClick={onComplete}

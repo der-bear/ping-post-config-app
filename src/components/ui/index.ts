@@ -46,6 +46,8 @@ export { UnsavedChangesDialog } from './unsaved-changes-dialog'
 
 export { SelectableCard } from './selectable-card'
 
+export { ChoiceCard } from './choice-card'
+
 export { FieldGroup, SectionHeading } from './field-group'
 
 export { DebouncedInput } from './debounced-input'

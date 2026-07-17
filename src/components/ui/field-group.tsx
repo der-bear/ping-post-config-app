@@ -52,14 +52,16 @@ interface SectionHeadingProps {
   description?: string
   icon?: ReactNode
   className?: string
+  /** 'base' for step/panel titles; 'sm' for sub-section headings inside containers. */
+  size?: 'base' | 'sm'
 }
 
-export function SectionHeading({ title, description, icon, className }: SectionHeadingProps) {
+export function SectionHeading({ title, description, icon, className, size = 'base' }: SectionHeadingProps) {
   return (
     <div data-slot="section-heading" className={cn('space-y-1', className)}>
       <h3 className={cn(
         'font-semibold text-foreground',
-        'text-base leading-6',
+        size === 'sm' ? 'text-sm leading-5' : 'text-base leading-6',
         icon && 'flex items-center gap-3',
       )}>
         {icon && <span className="shrink-0 size-5 text-text-medium">{icon}</span>}
