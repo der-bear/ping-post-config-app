@@ -8,9 +8,15 @@ export interface CloneSourceCampaign {
 }
 
 export const LEAD_SOURCE_OPTIONS = [
-  { value: 'acme-web-leads', label: 'Acme Web Leads' },
-  { value: 'mortgage-partner-network', label: 'Mortgage Partner Network' },
-  { value: 'contact-us-form', label: 'Contact Us Form' },
+  { value: 'acme-web-leads', label: '10234 - Acme Web Leads' },
+  { value: 'mortgage-partner-network', label: '10235 - Mortgage Partner Network' },
+  { value: 'contact-us-form', label: '10236 - Contact Us Form' },
+]
+
+export const LEAD_TYPE_OPTIONS = [
+  { value: 'mortgage', label: '40011 - Mortgage' },
+  { value: 'auto-insurance', label: '40012 - Auto Insurance' },
+  { value: 'home-insurance', label: '40013 - Home Insurance' },
 ]
 
 export const CLONE_SOURCE_CAMPAIGNS: CloneSourceCampaign[] = [

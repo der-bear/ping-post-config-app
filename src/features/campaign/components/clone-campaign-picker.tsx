@@ -75,12 +75,14 @@ export function CloneCampaignPicker({
         </FieldGroup>
 
         {showTarget && (
-          <FieldGroup label="Target Lead Source" description="The source of leads for this campaign." required>
+          <FieldGroup label="Lead Source" description="The lead source the new campaign will belong to." required>
             <SelectBox
+              searchable
               options={LEAD_SOURCE_OPTIONS}
               value={targetLeadSource}
               onValueChange={onTargetLeadSourceChange}
               placeholder="Select lead source"
+              emptyMessage="No lead sources found"
               className={cn(errors.target && 'border-destructive')}
             />
             {errors.target && <p className="mt-1 text-xs text-destructive">{errors.target}</p>}

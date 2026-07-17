@@ -6,6 +6,7 @@ import {
   FieldGroup,
   SectionHeading,
   SelectableCard,
+  SelectBox,
   Select,
   SelectContent,
   SelectItem,
@@ -22,7 +23,7 @@ import { cn } from '@/lib/utils'
 import { DeliveryOptionsContent, BUYER_SUGGESTIONS, getBuyerWarning } from './delivery-options-content'
 import { PricingModelSelector } from './pricing-model-selector'
 import { CloneCampaignPicker } from './clone-campaign-picker'
-import { LEAD_SOURCE_OPTIONS, findCloneCampaign } from '../data/mock-campaigns'
+import { LEAD_SOURCE_OPTIONS, LEAD_TYPE_OPTIONS, findCloneCampaign } from '../data/mock-campaigns'
 import {
   CAMPAIGN_CHANNEL_OPTIONS,
   CAMPAIGN_STATUS_OPTIONS,
@@ -457,28 +458,18 @@ export function CreateCampaignWizard({
 
           {needsLeadSourceSelection && (
             <FieldGroup label="Lead Source" description="The source of leads for this campaign." required>
-              <Select
+              <SelectBox
+                searchable
+                options={LEAD_SOURCE_OPTIONS}
                 value={leadSource}
                 onValueChange={(value) => {
                   setLeadSource(value)
                   if (errors.leadSource) clearFieldError('leadSource')
                 }}
-              >
-                <SelectTrigger
-                  className={cn(errors.leadSource && 'border-destructive')}
-                  onBlur={() => validateField('leadSource')}
-                  aria-invalid={Boolean(errors.leadSource)}
-                >
-                  <SelectValue placeholder="Select lead source" />
-                </SelectTrigger>
-                <SelectContent>
-                  {LEAD_SOURCE_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="Select lead source"
+                emptyMessage="No lead sources found"
+                className={cn(errors.leadSource && 'border-destructive')}
+              />
               {errors.leadSource && (
                 <p className="mt-1 text-xs text-destructive">{errors.leadSource}</p>
               )}
@@ -486,25 +477,16 @@ export function CreateCampaignWizard({
           )}
 
           <FieldGroup label="Lead Type" description="The lead field schema for this vertical." required>
-            <Select
+            <SelectBox
+              options={LEAD_TYPE_OPTIONS}
               value={leadType}
               onValueChange={(value) => {
                 setLeadType(value)
                 if (errors.leadType) clearFieldError('leadType')
               }}
-            >
-              <SelectTrigger
-                className={cn(errors.leadType && 'border-destructive')}
-                onBlur={() => validateField('leadType')}
-              >
-                <SelectValue placeholder="Select lead type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="mortgage">Mortgage</SelectItem>
-                <SelectItem value="auto-insurance">Auto Insurance</SelectItem>
-                <SelectItem value="home-insurance">Home Insurance</SelectItem>
-              </SelectContent>
-            </Select>
+              placeholder="Select lead type"
+              className={cn(errors.leadType && 'border-destructive')}
+            />
             {errors.leadType && (
               <p className="mt-1 text-xs text-destructive">{errors.leadType}</p>
             )}
