@@ -1,6 +1,6 @@
-import { ArrowDown } from 'lucide-react'
 import { FieldGroup, SectionHeading, SelectBox } from '@/components/ui'
 import { DebouncedInput } from '@/components/ui/debounced-input'
+import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { CAMPAIGN_STATUS_OPTIONS, type CampaignStatus } from '../types'
 import { LEAD_SOURCE_OPTIONS, CLONE_SOURCE_CAMPAIGNS } from '../data/mock-campaigns'
@@ -37,8 +37,8 @@ export function CloneCampaignPicker({
   const options = CLONE_SOURCE_CAMPAIGNS.map((c) => ({ value: c.id, label: `${c.id} - ${c.name}` }))
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-col gap-3 rounded-[4px] border border-border bg-background p-5">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         <SectionHeading
           title="Campaign to Copy"
           description="The existing campaign to copy settings from."
@@ -55,12 +55,9 @@ export function CloneCampaignPicker({
         {errors.campaign && <p className="text-xs text-destructive">{errors.campaign}</p>}
       </div>
 
-      {/* Copy direction: source above → new campaign below. */}
-      <div className="flex justify-center py-0.5 text-muted-foreground/50">
-        <ArrowDown className="size-5" />
-      </div>
+      <Separator className="my-0" />
 
-      <div className="flex flex-col gap-4 rounded-[4px] border border-border bg-background p-5">
+      <div className="flex flex-col gap-4">
         <SectionHeading
           title="New Campaign"
           description="Details for the new campaign."
@@ -77,14 +74,6 @@ export function CloneCampaignPicker({
           {errors.name && <p className="mt-1 text-xs text-destructive">{errors.name}</p>}
         </FieldGroup>
 
-        <FieldGroup label="Status" description="Select the current status of this campaign">
-          <SelectBox
-            options={CAMPAIGN_STATUS_OPTIONS}
-            value={status}
-            onValueChange={(value) => onStatusChange(value as CampaignStatus)}
-          />
-        </FieldGroup>
-
         {showTarget && (
           <FieldGroup label="Target Lead Source" description="The source of leads for this campaign." required>
             <SelectBox
@@ -97,6 +86,14 @@ export function CloneCampaignPicker({
             {errors.target && <p className="mt-1 text-xs text-destructive">{errors.target}</p>}
           </FieldGroup>
         )}
+
+        <FieldGroup label="Status" description="Select the current status of this campaign">
+          <SelectBox
+            options={CAMPAIGN_STATUS_OPTIONS}
+            value={status}
+            onValueChange={(value) => onStatusChange(value as CampaignStatus)}
+          />
+        </FieldGroup>
       </div>
     </div>
   )
