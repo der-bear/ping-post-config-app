@@ -59,7 +59,26 @@ export function CampaignEntry() {
   }
 
   const handleModalCreate = (data: WizardData) => {
-    if (data.createFirstCampaign !== false) handleBeforeCreate(data)
+    if (data.campaignPlan === 'none') {
+      // No campaign to open; the lead source is "created" and we return to the launcher.
+      setActiveView('launcher')
+      return
+    }
+
+    if (data.campaignPlan === 'clone') {
+      // The config steps are skipped when cloning, so seed the editor from the user's new
+      // name. A real clone would copy the full source campaign config here.
+      resetStore()
+      updateGeneral({
+        name: data.cloneCampaignName ?? '',
+        status: data.cloneCampaignStatus ?? 'active',
+      })
+    } else {
+      handleBeforeCreate(data)
+    }
+
+    // "Create and Open" — drop the user into the editor on the freshly seeded campaign.
+    setActiveView('editor')
   }
 
   const handleShowFlyout = () => {
@@ -75,7 +94,6 @@ export function CampaignEntry() {
     <>
       {activeView === 'launcher' && (
         <CenteredListGroup
-          heading="Campaign routing setup"
           layout="cards"
           items={[
             {

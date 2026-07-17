@@ -102,7 +102,7 @@ export function IntegrationsManage() {
     <div className="flex flex-col gap-4">
       {/* Added integrations */}
       <div className="flex flex-col gap-2">
-        <SectionHeading title="Added" />
+        <SectionHeading title="Added" size="sm" />
         <Separator className="my-0" />
       </div>
       {integrations.added.length === 0 ? (
@@ -128,7 +128,7 @@ export function IntegrationsManage() {
 
       {/* Available integrations */}
       <div className="flex flex-col gap-2">
-        <SectionHeading title="Other Available" />
+        <SectionHeading title="Other Available" size="sm" />
         <Separator className="my-0" />
       </div>
       {integrations.available.length === 0 ? (

@@ -165,7 +165,7 @@ export function DeliveryOptionsContent({
         <>
           {!framed && <Separator className="my-0" />}
           <Section framed={framed}>
-            <SectionHeading title="Select Target Clients" />
+            <SectionHeading title="Select Target Clients" size="sm" />
 
             <RadioGroup value={targetMode} onValueChange={onTargetModeChange} className="flex gap-4">
               <label htmlFor="do-specific" className="flex items-center gap-2 cursor-pointer">
@@ -262,7 +262,7 @@ function DistributionSettings({
 }) {
   return (
     <>
-      <SectionHeading title="Distribution Settings" />
+      <SectionHeading title="Distribution Settings" size="sm" />
       <FieldGroup label="Automation Method" description="Supply which automation preference should take place when delivering leads.">
         <Select value={automationMethod} onValueChange={onAutomationMethodChange}>
           <SelectTrigger><SelectValue /></SelectTrigger>

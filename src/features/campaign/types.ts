@@ -19,6 +19,10 @@ export type ActivePanel = { section: CampaignSection }
 // ---- General ----
 
 export type PricingModel = 'per-lead' | 'per-sale' | 'revenue-share'
+
+// How campaign creation proceeds: build a fresh campaign, clone an existing one, or
+// (lead-source flow only) create no campaign at all.
+export type CampaignPlan = 'none' | 'new' | 'clone'
 export type CampaignStatus = 'active' | 'closed' | 'inactive' | 'on-hold' | 'late' | 'suspended'
 export const CAMPAIGN_STATUS_OPTIONS: { value: CampaignStatus; label: string }[] = [
   { value: 'active', label: 'Active' },

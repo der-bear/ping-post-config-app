@@ -1,8 +1,11 @@
 import { useRef, useState } from 'react'
+import { Copy, FilePlus2 } from 'lucide-react'
 import { WizardDialog, type WizardStep } from '@/components/wizard-dialog'
 import {
+  ChoiceCard,
   FieldGroup,
   SectionHeading,
+  SelectableCard,
   Select,
   SelectContent,
   SelectItem,
@@ -18,6 +21,8 @@ import { toast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
 import { DeliveryOptionsContent, BUYER_SUGGESTIONS, getBuyerWarning } from './delivery-options-content'
 import { PricingModelSelector } from './pricing-model-selector'
+import { CloneCampaignPicker } from './clone-campaign-picker'
+import { LEAD_SOURCE_OPTIONS, findCloneCampaign } from '../data/mock-campaigns'
 import {
   CAMPAIGN_CHANNEL_OPTIONS,
   CAMPAIGN_STATUS_OPTIONS,
@@ -26,6 +31,7 @@ import {
   type CampaignStatus,
   type Channel,
   type PricingModel,
+  type CampaignPlan,
   type DeliveryMode,
   type ScanCoverageOption,
   type TargetMode,
@@ -34,7 +40,11 @@ import {
 export interface WizardData extends Record<string, unknown> {
   leadSourceName?: string
   leadSource?: string
-  createFirstCampaign?: boolean
+  campaignPlan: CampaignPlan
+  cloneCampaignId?: string
+  cloneCampaignName?: string
+  cloneCampaignStatus?: CampaignStatus
+  cloneTargetLeadSource?: string
   name: string
   channel: Channel
   leadType: string
@@ -73,14 +83,15 @@ interface CreateCampaignWizardProps {
   mode?: 'campaign' | 'lead-source'
 }
 
-type WizardErrorKey = 'leadSourceName' | 'leadSource' | 'name' | 'leadType'
+type WizardErrorKey =
+  | 'leadSourceName'
+  | 'leadSource'
+  | 'name'
+  | 'leadType'
+  | 'cloneTarget'
+  | 'cloneCampaign'
+  | 'cloneName'
 type WizardErrors = Partial<Record<WizardErrorKey, string>>
-
-const LEAD_SOURCE_OPTIONS = [
-  { value: 'acme-web-leads', label: 'Acme Web Leads' },
-  { value: 'mortgage-partner-network', label: 'Mortgage Partner Network' },
-  { value: 'contact-us-form', label: 'Contact Us Form' },
-]
 
 export function CreateCampaignWizard({
   open,
@@ -95,7 +106,14 @@ export function CreateCampaignWizard({
 
   // Lead Source setup
   const [leadSourceName, setLeadSourceName] = useState('')
-  const [createFirstCampaign, setCreateFirstCampaign] = useState(true)
+
+  // How the campaign is created. Campaign-only mode chooses new vs clone; lead-source
+  // mode adds a "no campaign" option. Default 'new' either way.
+  const [campaignPlan, setCampaignPlan] = useState<CampaignPlan>('new')
+  const [cloneTargetLeadSource, setCloneTargetLeadSource] = useState('')
+  const [cloneCampaignId, setCloneCampaignId] = useState('')
+  const [cloneCampaignName, setCloneCampaignName] = useState('')
+  const [cloneStatus, setCloneStatus] = useState<CampaignStatus>('active')
 
   // Campaign setup
   const [name, setName] = useState('')
@@ -154,8 +172,26 @@ export function CreateCampaignWizard({
   const [monthlyLimitEnabled, setMonthlyLimitEnabled] = useState(false)
   const [monthlyLimitValue, setMonthlyLimitValue] = useState('0')
 
-  const shouldCreateCampaign = !isLeadSourceMode || createFirstCampaign
-  const needsLeadSourceSelection = !isLeadSourceMode
+  const isCloning = campaignPlan === 'clone'
+  const buildsNewCampaign = campaignPlan === 'new'
+  // The Lead Source dropdown in General only exists in campaign-only mode building fresh.
+  const needsLeadSourceSelection = !isLeadSourceMode && buildsNewCampaign
+
+  const showCloneTarget = !isLeadSourceMode
+
+  const selectPlan = (plan: CampaignPlan) => {
+    setCampaignPlan(plan)
+    setActiveStep(0)
+    if (plan !== 'clone') clearFieldErrors(['cloneTarget', 'cloneCampaign', 'cloneName'])
+  }
+
+  // Routing screen: picking a card is the action — set the plan and advance to step 1
+  // (the config steps for "new", or the clone picker for "clone").
+  const chooseAndAdvance = (plan: CampaignPlan) => {
+    setCampaignPlan(plan)
+    if (plan !== 'clone') clearFieldErrors(['cloneTarget', 'cloneCampaign', 'cloneName'])
+    setActiveStep(1)
+  }
 
   const buildValidationErrors = (fields: WizardErrorKey[]) => {
     const newErrors: WizardErrors = {}
@@ -164,16 +200,28 @@ export function CreateCampaignWizard({
       newErrors.leadSourceName = 'Lead Source Name is required.'
     }
 
-    if (fields.includes('name') && shouldCreateCampaign && !name.trim()) {
+    if (fields.includes('name') && buildsNewCampaign && !name.trim()) {
       newErrors.name = 'Campaign Name is required.'
     }
 
-    if (fields.includes('leadType') && shouldCreateCampaign && !leadType) {
+    if (fields.includes('leadType') && buildsNewCampaign && !leadType) {
       newErrors.leadType = 'Lead Type is required.'
     }
 
     if (fields.includes('leadSource') && needsLeadSourceSelection && !leadSource) {
       newErrors.leadSource = 'Lead Source is required.'
+    }
+
+    if (fields.includes('cloneTarget') && isCloning && showCloneTarget && !cloneTargetLeadSource) {
+      newErrors.cloneTarget = 'Select a target lead source.'
+    }
+
+    if (fields.includes('cloneCampaign') && isCloning && !cloneCampaignId) {
+      newErrors.cloneCampaign = 'Select a campaign to clone.'
+    }
+
+    if (fields.includes('cloneName') && isCloning && !cloneCampaignName.trim()) {
+      newErrors.cloneName = 'Campaign Name is required.'
     }
 
     return newErrors
@@ -207,27 +255,41 @@ export function CreateCampaignWizard({
       return
     }
 
+    if (stepId === 'clone-select') {
+      validateFields(['cloneTarget', 'cloneCampaign', 'cloneName'])
+      return
+    }
+
     if (stepId === 'general') {
       validateFields(['name', 'leadType', 'leadSource'])
     }
   }
 
-  const clearFieldError = (field: WizardErrorKey) => {
+  const clearFieldError = (field: WizardErrorKey) => clearFieldErrors([field])
+
+  const clearFieldErrors = (fields: WizardErrorKey[]) => {
     setErrors((prev) => {
-      if (!prev[field]) return prev
+      if (!fields.some((field) => prev[field])) return prev
 
       const next = { ...prev }
-      delete next[field]
+      for (const field of fields) delete next[field]
       return next
     })
   }
 
   const handleComplete = async () => {
-    const newErrors = buildValidationErrors(['leadSourceName', 'name', 'leadType', 'leadSource'])
+    const newErrors = buildValidationErrors([
+      'leadSourceName', 'name', 'leadType', 'leadSource',
+      'cloneTarget', 'cloneCampaign', 'cloneName',
+    ])
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
-      const firstInvalidStepId = newErrors.leadSourceName ? 'lead-source' : 'general'
+      const firstInvalidStepId = newErrors.leadSourceName
+        ? 'lead-source'
+        : newErrors.cloneTarget || newErrors.cloneCampaign || newErrors.cloneName
+          ? 'clone-select'
+          : 'general'
       const firstInvalidStepIndex = steps.findIndex((step) => step.id === firstInvalidStepId)
       if (firstInvalidStepIndex >= 0) setActiveStep(firstInvalidStepIndex)
       return
@@ -243,7 +305,11 @@ export function CreateCampaignWizard({
       onCreate({
         leadSourceName: isLeadSourceMode ? leadSourceName.trim() : undefined,
         leadSource: needsLeadSourceSelection ? leadSource : undefined,
-        createFirstCampaign: shouldCreateCampaign,
+        campaignPlan,
+        cloneCampaignId: isCloning ? cloneCampaignId : undefined,
+        cloneCampaignName: isCloning ? cloneCampaignName.trim() : undefined,
+        cloneCampaignStatus: isCloning ? cloneStatus : undefined,
+        cloneTargetLeadSource: isCloning && showCloneTarget ? cloneTargetLeadSource : undefined,
         name: name.trim(), channel, leadType,
         pricingModel, pricePerLead, pricePerSale, revenueSharePct, status,
         scanCoverageEnabled, scanCoverage,
@@ -269,9 +335,95 @@ export function CreateCampaignWizard({
 
   const invalidStepIds = [
     ...(errors.leadSourceName ? ['lead-source'] : []),
+    ...(errors.cloneTarget || errors.cloneCampaign || errors.cloneName ? ['clone-select'] : []),
     ...(errors.name || errors.leadType || errors.leadSource ? ['general'] : []),
   ]
   const generalStepLabel = isLeadSourceMode ? 'Campaign Settings' : 'General Information'
+
+  // The plan chooser (new vs clone, plus "none" in lead-source mode), rendered as cards.
+  const planSelector = (
+    <div className="grid grid-cols-2 gap-3">
+      {/* "No campaign needed" (campaignPlan 'none') is hidden for now; the plan logic
+          stays in place so it can be re-enabled. */}
+      <SelectableCard
+        icon={<FilePlus2 className="size-5" />}
+        title="Create new"
+        description="Build a fresh campaign step by step."
+        selected={campaignPlan === 'new'}
+        onClick={() => selectPlan('new')}
+      />
+      <SelectableCard
+        icon={<Copy className="size-5" />}
+        title="Copy from existing"
+        description="Copy the settings of a campaign you already have."
+        selected={campaignPlan === 'clone'}
+        onClick={() => selectPlan('clone')}
+      />
+    </div>
+  )
+
+  // Campaign-only routing screen: a card-button chooser, no sidebar, no Next (clicking a
+  // card is the action). Hidden from the tab list so the sidebar (once "new" brings it
+  // in) lists only the config steps.
+  const campaignSourceStep: WizardStep = {
+    id: 'campaign-source',
+    label: 'Campaign Source',
+    hidden: true,
+    hidePrimaryAction: true,
+    content: (
+      <div className="grid grid-cols-2 gap-4 py-2">
+        <ChoiceCard
+          className="min-h-[200px]"
+          icon={<FilePlus2 className="size-6" />}
+          title="Create new"
+          description="Build a fresh campaign step by step."
+          onClick={() => chooseAndAdvance('new')}
+        />
+        <ChoiceCard
+          className="min-h-[200px]"
+          icon={<Copy className="size-6" />}
+          title="Copy from existing"
+          description="Copy the settings of a campaign you already have."
+          onClick={() => chooseAndAdvance('clone')}
+        />
+      </div>
+    ),
+  }
+
+  const cloneStep: WizardStep = {
+    id: 'clone-select',
+    label: 'Copy Existing Campaign',
+    content: (
+      <div className="flex flex-col gap-4">
+        <CloneCampaignPicker
+          showTarget={showCloneTarget}
+          targetLeadSource={cloneTargetLeadSource}
+          onTargetLeadSourceChange={(value) => {
+            setCloneTargetLeadSource(value)
+            if (errors.cloneTarget) clearFieldError('cloneTarget')
+          }}
+          campaignId={cloneCampaignId}
+          onCampaignIdChange={(value) => {
+            setCloneCampaignId(value)
+            if (errors.cloneCampaign) clearFieldError('cloneCampaign')
+            // Prefill the new name from the source campaign, unless the user typed one.
+            const source = findCloneCampaign(value)
+            if (source && !cloneCampaignName.trim()) {
+              setCloneCampaignName(`Copy of ${source.name}`)
+            }
+          }}
+          campaignName={cloneCampaignName}
+          onCampaignNameChange={(value) => {
+            setCloneCampaignName(value)
+            if (errors.cloneName && value.trim()) clearFieldError('cloneName')
+          }}
+          status={cloneStatus}
+          onStatusChange={setCloneStatus}
+          errors={{ target: errors.cloneTarget, campaign: errors.cloneCampaign, name: errors.cloneName }}
+        />
+      </div>
+    ),
+  }
 
   const campaignSteps: WizardStep[] = [
     {
@@ -294,7 +446,7 @@ export function CreateCampaignWizard({
                 if (errors.name) clearFieldError('name')
               }}
               onBlur={() => validateField('name')}
-              placeholder="Required (Example: Contact Us Form)"
+              placeholder="Example: Contact Us Form"
               aria-invalid={Boolean(errors.name)}
               className={cn(errors.name && 'border-destructive')}
             />
@@ -317,7 +469,7 @@ export function CreateCampaignWizard({
                   onBlur={() => validateField('leadSource')}
                   aria-invalid={Boolean(errors.leadSource)}
                 >
-                  <SelectValue placeholder="Select..." />
+                  <SelectValue placeholder="Select lead source" />
                 </SelectTrigger>
                 <SelectContent>
                   {LEAD_SOURCE_OPTIONS.map((option) => (
@@ -392,7 +544,7 @@ export function CreateCampaignWizard({
           </FieldGroup>
 
           <div className="flex flex-col gap-5 rounded-[4px] border border-border bg-background p-5">
-            <SectionHeading title="Payout Options" />
+            <SectionHeading title="Payout Options" size="sm" />
 
             <PricingModelSelector
               value={pricingModel}
@@ -603,12 +755,8 @@ export function CreateCampaignWizard({
     label: 'Lead Source',
     content: (
       <div className="flex flex-col gap-4">
-        {createFirstCampaign && (
-          <>
-            <SectionHeading title="Lead Source Details" />
-            <Separator className="my-0" />
-          </>
-        )}
+        <SectionHeading title="Lead Source Details" />
+        <Separator className="my-0" />
 
         <FieldGroup label="Lead Source Name" required>
           <DebouncedInput
@@ -626,7 +774,7 @@ export function CreateCampaignWizard({
               }
             }}
             onBlur={() => validateField('leadSourceName')}
-            placeholder="Required (Example: Acme Web Leads)"
+            placeholder="Example: Acme Web Leads"
             aria-invalid={Boolean(errors.leadSourceName)}
             className={cn(errors.leadSourceName && 'border-destructive')}
           />
@@ -637,34 +785,43 @@ export function CreateCampaignWizard({
 
         <Separator className="my-0" />
 
-        <SwitchField
-          label="Create first campaign"
-          description="Continue into campaign setup as part of creating this lead source."
-          checked={createFirstCampaign}
-          onCheckedChange={(checked) => {
-            setCreateFirstCampaign(checked)
-            if (!checked) {
-              setActiveStep(0)
-              setErrors((prev) => (
-                prev.leadSourceName ? { leadSourceName: prev.leadSourceName } : {}
-              ))
-            }
-          }}
-        />
+        <FieldGroup label="Campaign" description="Add a campaign as part of creating this lead source.">
+          {planSelector}
+        </FieldGroup>
       </div>
     ),
   }
-  const steps: WizardStep[] = isLeadSourceMode
-    ? createFirstCampaign ? [leadSourceStep, ...campaignSteps] : [leadSourceStep]
-    : campaignSteps
-  const showSidebarNav = steps.length > 1
-  const dialogWidth = isLeadSourceMode && !createFirstCampaign ? '560px' : undefined
+
+  // 'new' appends the full config steps; 'clone' adds the picker step; 'none' ends here.
+  const planStep = isLeadSourceMode ? leadSourceStep : campaignSourceStep
+  const steps: WizardStep[] = buildsNewCampaign
+    ? [planStep, ...campaignSteps]
+    : isCloning
+      ? [planStep, cloneStep]
+      : [planStep]
+  // Campaign-only: no sidebar on the routing step or the clone path — the tabs appear
+  // only once "new" leads into the config steps. Lead-source keeps its normal sidebar.
+  const showSidebarNav = isLeadSourceMode
+    ? steps.length > 1
+    : buildsNewCampaign && activeStep > 0
+  // No sidebar → a narrower modal. The routing chooser gets a touch more room for its
+  // two side-by-side cards.
+  const onCampaignRoutingStep = !isLeadSourceMode && activeStep === 0
+  const dialogWidth = onCampaignRoutingStep ? '620px' : showSidebarNav ? undefined : '560px'
+
+  // Sidebar-less content steps (e.g. the copy screen) show the step name as the header,
+  // since there's no tab to surface it. Routing and sidebar steps use the base title.
+  const baseTitle = isLeadSourceMode ? 'Create Lead Source' : 'Create Campaign'
+  const dialogTitle =
+    !showSidebarNav && activeStep > 0 && steps[activeStep]?.label
+      ? steps[activeStep].label
+      : baseTitle
 
   return (
     <WizardDialog
       open={open}
       onOpenChange={(isOpen) => !isOpen && onClose()}
-      title={isLeadSourceMode ? 'Create Lead Source' : 'Create a Lead Source Campaign'}
+      title={dialogTitle}
       steps={steps}
       activeStep={activeStep}
       onStepChange={setActiveStep}

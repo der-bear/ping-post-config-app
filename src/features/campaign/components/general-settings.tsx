@@ -43,7 +43,7 @@ export function GeneralSettings({
             onCampaignNameChange?.()
           }}
           onBlur={(event) => onCampaignNameBlur?.(event.target.value)}
-          placeholder="Enter campaign name"
+          placeholder="Example: Contact Us Form"
           aria-invalid={Boolean(campaignNameError)}
           className={cn(campaignNameError && 'border-destructive')}
         />
@@ -75,7 +75,7 @@ export function GeneralSettings({
 
       <Separator className="my-0" />
 
-      <SectionHeading title="Payout Options" />
+      <SectionHeading title="Payout Options" size="sm" />
 
       <PricingModelSelector
         value={general.pricingModel}
