@@ -40,7 +40,7 @@ export function CloneCampaignPicker({
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-3 rounded-[4px] border border-border bg-background p-5">
         <SectionHeading
-          title="Source Campaign"
+          title="Campaign to Copy"
           description="The existing campaign to copy settings from."
         />
         <SelectBox
