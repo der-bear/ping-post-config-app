@@ -507,7 +507,7 @@ export function CreateCampaignWizard({
             </Select>
           </FieldGroup>
 
-          <FieldGroup label="Status" description="Select the current status of this campaign">
+          <FieldGroup label="Status" description="Select the initial status for the new campaign.">
             <Select value={status} onValueChange={(value) => setStatus(value as CampaignStatus)}>
               <SelectTrigger>
                 <SelectValue />

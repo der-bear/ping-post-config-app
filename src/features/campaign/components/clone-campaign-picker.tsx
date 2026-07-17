@@ -40,8 +40,8 @@ export function CloneCampaignPicker({
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3">
         <SectionHeading
-          title="Campaign to Copy"
-          description="The existing campaign to copy settings from."
+          title="Copy From"
+          description="Select the existing campaign to copy settings from."
         />
         <SelectBox
           searchable
@@ -59,8 +59,8 @@ export function CloneCampaignPicker({
 
       <div className="flex flex-col gap-4">
         <SectionHeading
-          title="New Campaign"
-          description="Details for the new campaign."
+          title="Copy To"
+          description="Enter a name for the new campaign and choose where it should be created."
         />
 
         <FieldGroup label="Campaign Name" required>
@@ -75,7 +75,7 @@ export function CloneCampaignPicker({
         </FieldGroup>
 
         {showTarget && (
-          <FieldGroup label="Lead Source" description="The lead source the new campaign will belong to." required>
+          <FieldGroup label="Lead Source" description="Select the lead source where this campaign will be created." required>
             <SelectBox
               searchable
               options={LEAD_SOURCE_OPTIONS}
@@ -89,7 +89,7 @@ export function CloneCampaignPicker({
           </FieldGroup>
         )}
 
-        <FieldGroup label="Status" description="Select the current status of this campaign">
+        <FieldGroup label="Status" description="Select the initial status for the new campaign.">
           <SelectBox
             options={CAMPAIGN_STATUS_OPTIONS}
             value={status}
