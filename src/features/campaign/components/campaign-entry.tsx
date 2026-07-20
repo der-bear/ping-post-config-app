@@ -5,6 +5,7 @@ import { useCampaignStore } from '../store'
 import { CenteredListGroup } from '@/components/centered-list-group'
 import { CampaignEditor } from './index'
 import { CreateCampaignWizard, type WizardData } from './create-campaign-wizard'
+import { LeadSourceNextStepsDialog } from './lead-source-next-steps-dialog'
 import type { Channel, PricingModel, CampaignStatus } from '../types'
 
 export function CampaignEntry() {
@@ -14,7 +15,10 @@ export function CampaignEntry() {
   const updateQuantityLimits = useCampaignStore((s) => s.updateQuantityLimits)
   const updateLeadValidation = useCampaignStore((s) => s.updateLeadValidation)
   const isPanelExpanded = useCampaignStore((s) => s.isPanelExpanded)
-  const [activeView, setActiveView] = useState<'launcher' | 'modal' | 'lead-source-modal' | 'editor'>('launcher')
+  const [activeView, setActiveView] = useState<
+    'launcher' | 'modal' | 'lead-source-modal' | 'lead-source-next-steps' | 'editor'
+  >('launcher')
+  const [createdCampaignName, setCreatedCampaignName] = useState('')
 
   const handleBeforeCreate = (raw: Record<string, unknown>) => {
     const data = raw as unknown as WizardData
@@ -58,7 +62,10 @@ export function CampaignEntry() {
     })
   }
 
-  const handleModalCreate = (data: WizardData) => {
+  const handleModalCreate = (
+    data: WizardData,
+    destination: 'editor' | 'lead-source-next-steps',
+  ) => {
     if (data.campaignPlan === 'none') {
       // No campaign to open; the lead source is "created" and we return to the launcher.
       setActiveView('launcher')
@@ -77,8 +84,10 @@ export function CampaignEntry() {
       handleBeforeCreate(data)
     }
 
-    // "Create and Open" — drop the user into the editor on the freshly seeded campaign.
-    setActiveView('editor')
+    setCreatedCampaignName(
+      data.campaignPlan === 'clone' ? data.cloneCampaignName ?? '' : data.name,
+    )
+    setActiveView(destination)
   }
 
   const handleShowFlyout = () => {
@@ -132,11 +141,18 @@ export function CampaignEntry() {
         </div>
       )}
 
+      {activeView === 'lead-source-next-steps' && (
+        <LeadSourceNextStepsDialog
+          campaignName={createdCampaignName}
+          onClose={() => setActiveView('launcher')}
+        />
+      )}
+
       {activeView === 'modal' && (
         <CreateCampaignWizard
           open
           onClose={() => setActiveView('launcher')}
-          onCreate={handleModalCreate}
+          onCreate={(data) => handleModalCreate(data, 'editor')}
         />
       )}
 
@@ -145,7 +161,7 @@ export function CampaignEntry() {
           open
           mode="lead-source"
           onClose={() => setActiveView('launcher')}
-          onCreate={handleModalCreate}
+          onCreate={(data) => handleModalCreate(data, 'lead-source-next-steps')}
         />
       )}
     </>

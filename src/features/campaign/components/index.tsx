@@ -284,7 +284,7 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
         footer={
           <PanelFooter
             leftActions={
-              <Button variant="outline" size="sm">Generate Posting Instructions</Button>
+              <Button variant="outline" size="sm">Posting Instructions</Button>
             }
             rightActions={
               <>

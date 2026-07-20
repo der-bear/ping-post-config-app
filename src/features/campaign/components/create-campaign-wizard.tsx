@@ -17,7 +17,6 @@ import {
 import type { EditableListItem } from '@/components/ui'
 import { DebouncedInput } from '@/components/ui/debounced-input'
 import { Separator } from '@/components/ui/separator'
-import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
 import { DeliveryOptionsContent, BUYER_SUGGESTIONS, getBuyerWarning } from './delivery-options-content'
@@ -165,14 +164,6 @@ export function CreateCampaignWizard({
   const [mobileCheck, setMobileCheck] = useState(false)
   const [geolocateIp, setGeolocateIp] = useState(false)
 
-  // Step 4: Quantity Limits
-  const [hourLimitEnabled, setHourLimitEnabled] = useState(false)
-  const [hourLimitValue, setHourLimitValue] = useState('0')
-  const [dailyLimitEnabled, setDailyLimitEnabled] = useState(false)
-  const [dailyLimitValue, setDailyLimitValue] = useState('0')
-  const [monthlyLimitEnabled, setMonthlyLimitEnabled] = useState(false)
-  const [monthlyLimitValue, setMonthlyLimitValue] = useState('0')
-
   const isCloning = campaignPlan === 'clone'
   const buildsNewCampaign = campaignPlan === 'new'
   // The Lead Source dropdown in General only exists in campaign-only mode building fresh.
@@ -301,7 +292,9 @@ export function CreateCampaignWizard({
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      toast({ variant: 'success', title: 'Changes saved successfully' })
+      if (!isLeadSourceMode) {
+        toast({ variant: 'success', title: 'Changes saved successfully' })
+      }
 
       onCreate({
         leadSourceName: isLeadSourceMode ? leadSourceName.trim() : undefined,
@@ -318,9 +311,9 @@ export function CreateCampaignWizard({
         automationMethod, maxDeliveryCount, buyers,
         useQualityControl, duplicateDays,
         standardizeAddress, appendCityState, mobileCheck, geolocateIp,
-        hourLimitEnabled, hourLimitValue,
-        dailyLimitEnabled, dailyLimitValue,
-        monthlyLimitEnabled, monthlyLimitValue,
+        hourLimitEnabled: false, hourLimitValue: '0',
+        dailyLimitEnabled: false, dailyLimitValue: '0',
+        monthlyLimitEnabled: false, monthlyLimitValue: '0',
       })
       setErrors({})
     } catch (error) {
@@ -645,57 +638,7 @@ export function CreateCampaignWizard({
         </div>
       ),
     },
-    {
-      id: 'quantity',
-      label: 'Quantity Limits',
-      content: (
-        <div className="flex flex-col gap-4">
-          <SectionHeading title="Quantity Limits" />
-          <Separator className="my-0" />
-
-          <SwitchField
-            label="Hour Limit"
-            description="The amount of leads that can be received within 60 minutes"
-            checked={hourLimitEnabled}
-            onCheckedChange={setHourLimitEnabled}
-          >
-            <Input
-              value={hourLimitValue}
-              onChange={(e) => setHourLimitValue(e.target.value)}
-            />
-          </SwitchField>
-
-          <Separator className="my-0" />
-
-          <SwitchField
-            label="Daily Limit"
-            description="The amount of leads that can be received in a single day"
-            checked={dailyLimitEnabled}
-            onCheckedChange={setDailyLimitEnabled}
-          >
-            <Input
-              value={dailyLimitValue}
-              onChange={(e) => setDailyLimitValue(e.target.value)}
-            />
-          </SwitchField>
-
-          <Separator className="my-0" />
-
-          <SwitchField
-            label="Monthly Limit"
-            description="The amount of leads that can be received in a single month"
-            checked={monthlyLimitEnabled}
-            onCheckedChange={setMonthlyLimitEnabled}
-          >
-            <Input
-              value={monthlyLimitValue}
-              onChange={(e) => setMonthlyLimitValue(e.target.value)}
-            />
-          </SwitchField>
-        </div>
-      ),
-    },
-    {
+    ...(!isLeadSourceMode ? [{
       id: 'next-steps',
       label: 'Next Steps',
       content: (
@@ -730,7 +673,7 @@ export function CreateCampaignWizard({
           </p>
         </div>
       ),
-    },
+    }] : []),
   ]
   const leadSourceStep: WizardStep = {
     id: 'lead-source',
