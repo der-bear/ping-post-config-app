@@ -43,7 +43,7 @@ export function GeneralSettings({
             onCampaignNameChange?.()
           }}
           onBlur={(event) => onCampaignNameBlur?.(event.target.value)}
-          placeholder="Example: Contact Us Form"
+          placeholder="Example: Mortgage Web Form"
           aria-invalid={Boolean(campaignNameError)}
           className={cn(campaignNameError && 'border-destructive')}
         />

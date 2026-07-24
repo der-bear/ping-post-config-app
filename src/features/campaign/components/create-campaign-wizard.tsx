@@ -369,15 +369,15 @@ export function CreateCampaignWizard({
         <ChoiceCard
           className="min-h-[200px]"
           icon={<FilePlus2 className="size-6" />}
-          title="Create new"
-          description="Build a fresh campaign step by step."
+          title="Create New"
+          description="Build a new campaign step by step."
           onClick={() => chooseAndAdvance('new')}
         />
         <ChoiceCard
           className="min-h-[200px]"
           icon={<Copy className="size-6" />}
-          title="Copy from existing"
-          description="Copy the settings of a campaign you already have."
+          title="Copy Existing Campaign"
+          description="Copy the settings from an existing campaign."
           onClick={() => chooseAndAdvance('clone')}
         />
       </div>
@@ -440,7 +440,7 @@ export function CreateCampaignWizard({
                 if (errors.name) clearFieldError('name')
               }}
               onBlur={() => validateField('name')}
-              placeholder="Example: Contact Us Form"
+              placeholder="Example: Mortgage Web Form"
               aria-invalid={Boolean(errors.name)}
               className={cn(errors.name && 'border-destructive')}
             />
@@ -450,7 +450,7 @@ export function CreateCampaignWizard({
           </FieldGroup>
 
           {needsLeadSourceSelection && (
-            <FieldGroup label="Lead Source" description="The source of leads for this campaign." required>
+            <FieldGroup label="Lead Source" description="Select the Lead Source this campaign will receive leads from." required>
               <SelectBox
                 searchable
                 options={LEAD_SOURCE_OPTIONS}
@@ -469,7 +469,7 @@ export function CreateCampaignWizard({
             </FieldGroup>
           )}
 
-          <FieldGroup label="Lead Type" description="The lead field schema for this vertical." required>
+          <FieldGroup label="Lead Type" description="Select the Lead Type that defines the fields this campaign will accept." required>
             <SelectBox
               options={LEAD_TYPE_OPTIONS}
               value={leadType}
@@ -485,7 +485,7 @@ export function CreateCampaignWizard({
             )}
           </FieldGroup>
 
-          <FieldGroup label="Channel" description="The channel of capturing leads.">
+          <FieldGroup label="Channel" description="Select how leads are received for this campaign.">
             <Select value={channel} onValueChange={(value) => setChannel(value as Channel)}>
               <SelectTrigger>
                 <SelectValue />
@@ -544,6 +544,7 @@ export function CreateCampaignWizard({
           <Separator className="my-0" />
           <DeliveryOptionsContent
             framed
+            copyVariant="creation"
             deliveryMode={deliveryMode}
             onDeliveryModeChange={setDeliveryMode}
             targetMode={targetMode}
@@ -582,14 +583,14 @@ export function CreateCampaignWizard({
 
           <SwitchField
             label="Use Quality Control"
-            description="Specify if this Campaign should move new leads into quality control."
+            description="Route new leads into Quality Control for review before processing."
             checked={useQualityControl}
             onCheckedChange={setUseQualityControl}
           />
 
           <Separator className="my-0" />
 
-          <FieldGroup label="Duplicate Day Setting" description="Specify how many days back the duplicate check should apply.">
+          <FieldGroup label="Duplicate Day Setting" description="Specify how many previous days should be checked for duplicate leads.">
             <DebouncedInput
               value={duplicateDays}
               onValueCommit={setDuplicateDays}
@@ -602,7 +603,7 @@ export function CreateCampaignWizard({
           <SwitchField
             label="Standardize Address"
             meta="$0.03 per lead"
-            description="Apply industry standardization to the primary address."
+            description="Standardize the lead's primary address using industry-standard formatting."
             checked={standardizeAddress}
             onCheckedChange={setStandardizeAddress}
           />
@@ -612,7 +613,7 @@ export function CreateCampaignWizard({
           <SwitchField
             label="Append City and State"
             meta="$0.03 per lead"
-            description="Leads received with a postal code and country will attempt to append a city and state."
+            description="Automatically append the city and state when a valid postal code and country are provided"
             checked={appendCityState}
             onCheckedChange={setAppendCityState}
           />
@@ -622,7 +623,7 @@ export function CreateCampaignWizard({
           <SwitchField
             label="Mobile Check"
             meta="$0.03 per lead"
-            description="Check if the lead's primary phone number is a mobile number."
+            description="Determine whether the lead's primary phone number is a mobile number."
             checked={mobileCheck}
             onCheckedChange={setMobileCheck}
           />
@@ -647,29 +648,26 @@ export function CreateCampaignWizard({
           <Separator className="my-0" />
 
           <p className="text-sm leading-5 text-foreground">
-            You can complete your initial setup by clicking the Create button below,
-            after our new lead source campaign is created you will be automatically directed
-            to the detail page to finish your campaign setup.
+            Your campaign is ready to be created.
           </p>
 
           <p className="text-sm leading-5 text-foreground">
-            Below are some items that you will want to review:
+            Click Create and Open to create your campaign and continue configuring it on the Campaign Settings page.
+          </p>
+
+          <p className="text-sm leading-5 text-foreground">
+            After your campaign is created, you can:
           </p>
 
           <ul className="list-disc pl-6 space-y-2 text-sm leading-5 text-foreground">
-            <li>
-              Your campaign information will auto-open, review and add any criteria,
-              revenue requirements or quantity limits needed.
-            </li>
-            <li>
-              Since you have selected the web leads method, you will want to generate
-              posting instructions and submit these to your developer or affiliate partner
-              that is submitting leads.
-            </li>
+            <li>Review and update your campaign settings.</li>
+            <li>Complete any additional configuration required for your campaign type.</li>
+            <li>Generate posting instructions when you're ready to receive leads.</li>
+            <li>Test your campaign before moving it into production.</li>
           </ul>
 
           <p className="text-sm leading-5 text-foreground">
-            Press &quot;Create&quot; to continue...
+            Click Create and Open to continue.
           </p>
         </div>
       ),
@@ -736,7 +734,13 @@ export function CreateCampaignWizard({
 
   // Sidebar-less content steps (e.g. the copy screen) show the step name as the header,
   // since there's no tab to surface it. Routing and sidebar steps use the base title.
-  const baseTitle = isLeadSourceMode ? 'Create Lead Source' : 'Create Campaign'
+  const baseTitle = isLeadSourceMode
+    ? 'Create Lead Source'
+    : onCampaignRoutingStep
+      ? 'Choose Campaign Setup'
+      : buildsNewCampaign
+        ? 'Create New Campaign'
+        : 'Create Campaign'
   const dialogTitle =
     !showSidebarNav && activeStep > 0 && steps[activeStep]?.label
       ? steps[activeStep].label

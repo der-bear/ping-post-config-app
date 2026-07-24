@@ -85,6 +85,8 @@ interface DeliveryOptionsContentProps {
   /** When true, wrap sub-sections (Select Target Clients / Distribution Settings) in bordered cards.
    *  When false (flyout default), separate sub-sections with horizontal dividers. */
   framed?: boolean
+  /** Creation uses task-specific assistive copy while the editor retains its existing language. */
+  copyVariant?: 'default' | 'creation'
 }
 
 export function DeliveryOptionsContent({
@@ -106,19 +108,40 @@ export function DeliveryOptionsContent({
   compact = false,
   stacked = false,
   framed = false,
+  copyVariant = 'default',
 }: DeliveryOptionsContentProps) {
+  const copy = copyVariant === 'creation'
+    ? {
+        introduction: 'Choose how this campaign delivers leads to Clients.',
+        anyClientTitle: 'Any Client',
+        anyClientDescription: 'Deliver leads to any qualified Client.',
+        singleClientDescription: 'Deliver leads to a single Client.',
+        multipleClientsDescription: 'Deliver leads to a selected group of Clients.',
+        automationMethodDescription: 'Select how qualified Clients are prioritized during delivery',
+        maximumDeliveryCountDescription: 'Select the maximum number of Clients each lead can be delivered to.',
+      }
+    : {
+        introduction: 'Choose how leads will be distributed: to a specific client, a group of clients, or all qualified clients.',
+        anyClientTitle: 'Any Qualified',
+        anyClientDescription: 'Distribute leads among all qualified clients.',
+        singleClientDescription: 'Deliver leads to one client only.',
+        multipleClientsDescription: 'Distribute leads among selected clients.',
+        automationMethodDescription: 'Supply which automation preference should take place when delivering leads.',
+        maximumDeliveryCountDescription: 'The amount of times a lead from this campaign can be automatically delivered out.',
+      }
+
   // When unframed, dividers separate sections; gap is uniform 16px.
   return (
     <div className="flex flex-col gap-4">
       <p className="text-xs leading-4 text-text-medium">
-        Choose how leads will be distributed: to a specific client, a group of clients, or all qualified clients.
+        {copy.introduction}
       </p>
 
       <div className={stacked ? 'flex flex-col gap-3' : 'grid grid-cols-3 gap-3'}>
         <SelectableCard
           icon={<Workflow className="size-5" />}
-          title="Any Qualified"
-          description="Distribute leads among all qualified clients."
+          title={copy.anyClientTitle}
+          description={copy.anyClientDescription}
           selected={deliveryMode === 'any-qualified'}
           onClick={() => onDeliveryModeChange('any-qualified')}
           compact={compact}
@@ -126,7 +149,7 @@ export function DeliveryOptionsContent({
         <SelectableCard
           icon={<User className="size-5" />}
           title="Single Client"
-          description="Deliver leads to one client only."
+          description={copy.singleClientDescription}
           selected={deliveryMode === 'single'}
           onClick={() => onDeliveryModeChange('single')}
           compact={compact}
@@ -134,7 +157,7 @@ export function DeliveryOptionsContent({
         <SelectableCard
           icon={<Users className="size-5" />}
           title="Multiple Clients"
-          description="Distribute leads among selected clients."
+          description={copy.multipleClientsDescription}
           selected={deliveryMode === 'multiple'}
           onClick={() => onDeliveryModeChange('multiple')}
           compact={compact}
@@ -226,6 +249,8 @@ export function DeliveryOptionsContent({
               onAutomationMethodChange={onAutomationMethodChange}
               maxDeliveryCount={maxDeliveryCount}
               onMaxDeliveryCountChange={onMaxDeliveryCountChange}
+              automationMethodDescription={copy.automationMethodDescription}
+              maximumDeliveryCountDescription={copy.maximumDeliveryCountDescription}
             />
           </Section>
         </>
@@ -241,6 +266,8 @@ export function DeliveryOptionsContent({
               onAutomationMethodChange={onAutomationMethodChange}
               maxDeliveryCount={maxDeliveryCount}
               onMaxDeliveryCountChange={onMaxDeliveryCountChange}
+              automationMethodDescription={copy.automationMethodDescription}
+              maximumDeliveryCountDescription={copy.maximumDeliveryCountDescription}
             />
           </Section>
         </>
@@ -254,16 +281,20 @@ function DistributionSettings({
   onAutomationMethodChange,
   maxDeliveryCount,
   onMaxDeliveryCountChange,
+  automationMethodDescription,
+  maximumDeliveryCountDescription,
 }: {
   automationMethod: string
   onAutomationMethodChange: (v: string) => void
   maxDeliveryCount: string
   onMaxDeliveryCountChange: (v: string) => void
+  automationMethodDescription: string
+  maximumDeliveryCountDescription: string
 }) {
   return (
     <>
       <SectionHeading title="Distribution Settings" size="sm" />
-      <FieldGroup label="Automation Method" description="Supply which automation preference should take place when delivering leads.">
+      <FieldGroup label="Automation Method" description={automationMethodDescription}>
         <Select value={automationMethod} onValueChange={onAutomationMethodChange}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -278,7 +309,7 @@ function DistributionSettings({
           </SelectContent>
         </Select>
       </FieldGroup>
-      <FieldGroup label="Maximum Delivery Count" description="The amount of times a lead from this campaign can be automatically delivered out.">
+      <FieldGroup label="Maximum Delivery Count" description={maximumDeliveryCountDescription}>
         <Select value={maxDeliveryCount} onValueChange={onMaxDeliveryCountChange}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
