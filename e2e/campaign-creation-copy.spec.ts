@@ -14,6 +14,26 @@ async function expectDialogNoHorizontalOverflow(page: Page) {
 }
 
 test.describe('Campaign creation assistive copy', () => {
+  test('stacks delivery choices at compact desktop widths', async ({ page }) => {
+    await page.setViewportSize({ width: 1012, height: 1391 })
+    await openCampaignLauncher(page)
+    await page.getByRole('button', { name: /Create campaign only/ }).click()
+    await page.getByRole('button', { name: /Create New/ }).click()
+    await page.getByRole('button', { name: 'Next', exact: true }).click()
+
+    const cards = page.locator('[data-slot="selectable-card"]')
+    await expect(cards).toHaveCount(3)
+    const boxes = await cards.evaluateAll((elements) => elements.map((element) => {
+      const rect = element.getBoundingClientRect()
+      return { x: rect.x, y: rect.y, width: rect.width }
+    }))
+
+    expect(new Set(boxes.map(({ x }) => Math.round(x))).size).toBe(1)
+    expect(boxes[1].y).toBeGreaterThan(boxes[0].y)
+    expect(boxes[2].y).toBeGreaterThan(boxes[1].y)
+    expect(Math.min(...boxes.map(({ width }) => width))).toBeGreaterThan(400)
+  })
+
   test('shows the approved chooser and new-campaign copy', async ({ page }) => {
     await openCampaignLauncher(page)
     await page.getByRole('button', { name: /Create campaign only/ }).click()
@@ -112,7 +132,7 @@ test.describe('Campaign creation assistive copy', () => {
     await expectDialogNoHorizontalOverflow(page)
 
     await page.getByRole('button', { name: 'Cancel' }).click()
-    await page.getByRole('button', { name: /Open campaign editor/ }).click()
+    await page.getByRole('button', { name: /Web campaign/ }).click()
     await expect(page.getByPlaceholder('Example: Mortgage Web Form')).toBeVisible()
     await page.getByRole('button', { name: 'Delivery Options' }).click()
 

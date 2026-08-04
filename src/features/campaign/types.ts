@@ -3,6 +3,9 @@
 export type CampaignSection =
   | 'general'
   | 'delivery-options'
+  | 'ping-options'
+  | 'phone-numbers'
+  | 'web-chats'
   | 'duplicate-checks'
   | 'criteria'
   | 'quantity-limits'
@@ -163,6 +166,45 @@ export interface ComplianceConfig {
   rejectedRetentionDays: string
 }
 
+// ---- PING Options ----
+
+export interface PingRequirementValue {
+  enabled: boolean
+  value: string
+}
+
+export interface PingFieldRequirement {
+  id: string
+  field: string
+  type: string
+}
+
+export interface PingOptionsConfig {
+  revenue: PingRequirementValue
+  profit: PingRequirementValue
+  profitPercentage: PingRequirementValue
+  minimumDeliveryCount: PingRequirementValue
+  qualifyAllCriteria: boolean
+  fieldRequirements: PingFieldRequirement[]
+}
+
+// ---- Phone Numbers ----
+
+export interface PhoneNumberConfig {
+  id: string
+  name: string
+  number: string
+  callFlow: string
+}
+
+// ---- Web Chats ----
+
+export interface WebChatConfig {
+  id: string
+  name: string
+  messageFlow: string
+}
+
 // ---- Integrations ----
 
 export interface Integration {
@@ -193,6 +235,9 @@ export interface CampaignConfig {
   quantityLimits: QuantityLimitsConfig
   leadValidation: LeadValidationConfig
   compliance: ComplianceConfig
+  pingOptions: PingOptionsConfig
+  phoneNumbers: PhoneNumberConfig[]
+  webChats: WebChatConfig[]
   integrations: IntegrationsConfig
   integrationCriteria: CriteriaRule[]
   agentForms: CriteriaRule[]

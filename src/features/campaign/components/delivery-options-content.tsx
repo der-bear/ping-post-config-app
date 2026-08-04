@@ -137,7 +137,7 @@ export function DeliveryOptionsContent({
         {copy.introduction}
       </p>
 
-      <div className={stacked ? 'flex flex-col gap-3' : 'grid grid-cols-3 gap-3'}>
+      <div className={stacked ? 'flex flex-col gap-3' : 'grid grid-cols-1 gap-3 lg:grid-cols-3'}>
         <SelectableCard
           icon={<Workflow className="size-5" />}
           title={copy.anyClientTitle}

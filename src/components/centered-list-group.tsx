@@ -16,13 +16,23 @@ interface CenteredListGroupProps {
   items: CenteredListGroupItem[]
   className?: string
   layout?: 'list' | 'cards'
+  columns?: 2 | 3 | 4
+  actionLabel?: string
 }
+
+const cardColumns = {
+  2: 'md:grid-cols-2',
+  3: 'md:grid-cols-3',
+  4: 'md:grid-cols-4',
+} as const
 
 export function CenteredListGroup({
   heading,
   items,
   className,
   layout = 'list',
+  columns = 3,
+  actionLabel = 'Start',
 }: CenteredListGroupProps) {
   const isCards = layout === 'cards'
 
@@ -42,7 +52,7 @@ export function CenteredListGroup({
             {heading}
           </p>
         )}
-        <div className={cn(isCards ? 'grid gap-3 md:grid-cols-3' : 'space-y-3')}>
+        <div className={cn(isCards ? ['grid gap-3', cardColumns[columns]] : 'space-y-3')}>
           {items.map((item) => {
             const content = isCards ? (
               <>
@@ -62,7 +72,7 @@ export function CenteredListGroup({
                   )}
                 </div>
                 <span className="mt-auto flex items-center gap-1 text-sm font-medium text-primary">
-                  Start
+                  {actionLabel}
                   <ChevronRight className="h-4 w-4 shrink-0" />
                 </span>
               </>

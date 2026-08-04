@@ -24,6 +24,7 @@ interface SelectBoxProps {
   disabled?: boolean
   className?: string
   emptyMessage?: string
+  ariaLabel?: string
   /** When true, renders a type-to-filter combobox. When false (default), renders
    *  a plain Radix Select. Use `searchable` for dynamic/long lists; keep it off
    *  for fixed enum selects. */
@@ -40,12 +41,13 @@ export function SelectBox({
   disabled,
   className,
   emptyMessage = 'Nothing found',
+  ariaLabel,
   searchable = false,
 }: SelectBoxProps) {
   if (!searchable) {
     return (
       <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-        <SelectTrigger className={className}>
+        <SelectTrigger className={className} aria-label={ariaLabel}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
@@ -67,6 +69,7 @@ export function SelectBox({
     disabled={disabled}
     className={className}
     emptyMessage={emptyMessage}
+    ariaLabel={ariaLabel}
   />
 }
 
@@ -78,6 +81,7 @@ function SearchableImpl({
   disabled,
   className,
   emptyMessage,
+  ariaLabel,
 }: Omit<SelectBoxProps, 'searchable'>) {
   const optionsByValue = React.useMemo(() => {
     const map = new Map<string, SelectBoxOption>()
@@ -121,6 +125,7 @@ function SearchableImpl({
         )}
       >
         <ComboboxPrimitive.Input
+          aria-label={ariaLabel}
           placeholder={placeholder}
           disabled={disabled}
           onFocus={(e) => {

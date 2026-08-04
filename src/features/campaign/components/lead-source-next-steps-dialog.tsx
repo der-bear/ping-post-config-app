@@ -1,125 +1,134 @@
-import { X } from 'lucide-react'
+import { useRef } from 'react'
+import { ChevronRight, CircleCheck, CircleHelp } from 'lucide-react'
 
 import {
   Button,
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogTitle,
-  Separator,
+  DialogPanelHeader,
 } from '@/components/ui'
+import type { Channel } from '../types'
+import { CampaignWalkthroughVideo } from './campaign-walkthrough-video'
 
-const POSTING_INSTRUCTIONS_PREVIEW = `${import.meta.env.BASE_URL}assets/posting-instructions-preview.mp4`
-const EDIT_CAMPAIGN_PREVIEW = `${import.meta.env.BASE_URL}assets/edit-campaign-preview.mp4`
+interface ChannelNextStep {
+  heading: string
+  paragraph: string
+}
+
+const NEXT_STEPS_BY_CHANNEL: Record<Channel, ChannelNextStep> = {
+  web: {
+    heading: 'Review General Settings',
+    paragraph: 'Continue to the Campaign Settings screen to review your configuration and customize any additional campaign options.',
+  },
+  'ping-post': {
+    heading: 'Configure PING Options',
+    paragraph: "Next, open the PING Options tab to configure your ping requirements. Before your campaign can accept ping requests, you'll need to define the Field Requirements for PING by selecting the lead fields that will be included in the ping request. You can also configure optional revenue, profit, and delivery requirements as needed.",
+  },
+  phone: {
+    heading: 'Add a Phone Number',
+    paragraph: 'Next, open the Phone Numbers tab to add your first phone number. Select an existing IVR number or purchase a new one, then assign a call flow to complete your phone campaign configuration.',
+  },
+  chat: {
+    heading: 'Configure Web Chats',
+    paragraph: 'Next, open the Web Chats tab to configure your chat settings. From there, you can customize your chat experience, including the welcome message, appearance, integrations, and other available options.',
+  },
+}
 
 interface LeadSourceNextStepsDialogProps {
   campaignName: string
+  channel: Channel
   onClose: () => void
-}
-
-interface NextStepCardProps {
-  videoSrc: string
-  title: string
-  description: string
-  actionLabel: string
-}
-
-function NextStepCard({
-  videoSrc,
-  title,
-  description,
-  actionLabel,
-}: NextStepCardProps) {
-  return (
-    <article className="flex w-full flex-col overflow-hidden rounded-[10px] border border-border bg-background md:w-[360px]">
-      <video
-        src={videoSrc}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        aria-hidden="true"
-        className="h-60 w-full border-b border-border bg-muted object-cover"
-      />
-      <div className="flex flex-1 flex-col items-start gap-4 p-6">
-        <div className="flex flex-1 flex-col gap-2">
-          <p className="text-xs font-bold leading-4 text-primary">How To</p>
-          <h3 className="text-base font-bold leading-6 text-foreground">{title}</h3>
-          <p className="text-xs leading-4 text-muted-foreground">{description}</p>
-        </div>
-        <Button className="w-full">
-          {actionLabel}
-        </Button>
-      </div>
-    </article>
-  )
+  onNext: () => void
 }
 
 /** Completion window shown after creating a lead source and its initial campaign. */
 export function LeadSourceNextStepsDialog({
   campaignName,
+  channel,
   onClose,
+  onNext,
 }: LeadSourceNextStepsDialogProps) {
+  const nextStep = NEXT_STEPS_BY_CHANNEL[channel]
+  const dialogRef = useRef<HTMLDivElement>(null)
+
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent
+        ref={dialogRef}
+        tabIndex={-1}
         showClose={false}
-        className="max-h-[90vh] max-w-[95vw] gap-0 overflow-hidden p-0 sm:max-w-[915px]"
+        onOpenAutoFocus={(event) => {
+          event.preventDefault()
+          dialogRef.current?.focus()
+        }}
+        className="max-h-[92vh] max-w-[95vw] gap-0 overflow-hidden p-0 focus:outline-none sm:max-w-[960px]"
       >
-        <header className="flex shrink-0 items-center justify-between px-4 py-2">
-          <DialogTitle className="text-base font-bold leading-6 text-foreground">
-            Next Steps
-          </DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X className="size-4" />
-          </Button>
-        </header>
-
+        <DialogPanelHeader
+          title="Lead Source Created"
+          onClose={onClose}
+          className="shrink-0 px-5 py-2.5 [&>button]:size-11"
+        />
         <DialogDescription className="sr-only">
-          Choose what to do after creating the lead source and campaign.
+          Lead source creation completed. Continue to channel-specific campaign settings.
         </DialogDescription>
 
-        <Separator className="my-0" />
+        <div className="grid min-h-0 flex-1 overflow-y-auto md:grid-cols-[1fr_2fr]">
+          <section
+            data-region="creation-confirmation"
+            className="flex min-h-[360px] flex-col px-7 py-7 md:min-h-[460px] md:px-8"
+          >
+            <div
+              data-slot="lead-source-success-icon"
+              className="flex size-9 items-center justify-center rounded-full bg-primary-light text-primary"
+            >
+              <CircleCheck className="size-5" aria-hidden="true" />
+            </div>
 
-        <div className="flex min-h-0 flex-1 flex-col items-center gap-8 overflow-y-auto px-4 py-8 sm:p-12">
-          <div className="flex w-full flex-col items-center gap-4 text-center">
-            <h2 className="text-[28px] font-bold leading-9 text-foreground">
+            <h2 className="mt-4 text-[28px] font-semibold leading-9 text-foreground">
               Your lead source has been created!
             </h2>
-            <p className="text-base leading-6 text-foreground">
-              Initial configuration of the <strong>&quot;{campaignName}&quot;</strong> campaign has been completed.
-              <br />
-              Now, you can continue...
-            </p>
-          </div>
 
-          <div className="grid w-full max-w-[752px] grid-cols-1 justify-items-center gap-8 md:grid-cols-2">
-            <NextStepCard
-              videoSrc={POSTING_INSTRUCTIONS_PREVIEW}
-              title="Generate Posting Instructions"
-              description="Quickly generate posting instructions to send to your developer or affiliate partner."
-              actionLabel="Show Instructions"
-            />
-            <NextStepCard
-              videoSrc={EDIT_CAMPAIGN_PREVIEW}
-              title="Edit Campaign Settings"
-              description="Configure additional settings such as criteria, quantity limits, and additional lead validation options."
-              actionLabel="Edit Campaign"
-            />
-          </div>
+            <p className="mt-3 text-sm leading-5 text-muted-foreground">
+              Your lead source and initial campaign configuration for{' '}
+              <strong className="font-semibold text-foreground">&quot;{campaignName}&quot;</strong>{' '}
+              have been created successfully.
+            </p>
+
+            <div className="mt-auto flex items-start gap-2 pt-8 text-sm leading-5 text-muted-foreground">
+              <CircleHelp className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+              <p>You can always return to the Campaign Settings later to make updates or adjustments.</p>
+            </div>
+          </section>
+
+          <section
+            data-region="channel-next-step"
+            className="border-t border-border px-7 py-7 md:border-l md:border-t-0 md:px-8"
+          >
+            <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-primary">
+              Next step
+            </p>
+            <h2 className="mt-1 text-xl font-semibold leading-7 text-foreground">
+              {nextStep.heading}
+            </h2>
+            <p className="mt-2 text-sm leading-5 text-muted-foreground">
+              {nextStep.paragraph}
+            </p>
+
+            <div className="mt-5 overflow-hidden rounded-md border border-border bg-muted">
+              <CampaignWalkthroughVideo
+                channel={channel}
+                title={`${nextStep.heading} walkthrough`}
+              />
+            </div>
+          </section>
         </div>
 
-        <Separator className="my-0" />
-
-        <footer className="flex shrink-0 justify-end px-4 py-3">
-          <Button variant="secondary" onClick={onClose}>Close</Button>
+        <footer className="flex shrink-0 justify-end border-t border-border px-5 py-3">
+          <Button onClick={onNext} className="min-w-[88px]">
+            Next
+            <ChevronRight className="size-4" />
+          </Button>
         </footer>
       </DialogContent>
     </Dialog>

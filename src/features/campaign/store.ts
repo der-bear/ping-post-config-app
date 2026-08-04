@@ -61,6 +61,16 @@ const defaultConfig: CampaignConfig = {
     retentionPolicyDays: '0',
     rejectedRetentionDays: '0',
   },
+  pingOptions: {
+    revenue: { enabled: false, value: '0' },
+    profit: { enabled: false, value: '0' },
+    profitPercentage: { enabled: false, value: '0.00%' },
+    minimumDeliveryCount: { enabled: false, value: '0' },
+    qualifyAllCriteria: false,
+    fieldRequirements: [],
+  },
+  phoneNumbers: [],
+  webChats: [],
   integrations: {
     added: [
       { id: 'pure-caller-id', name: 'Pure Caller ID', subtitle: 'Single Lead Load', icon: '📱', iconBg: '#ffffff' },
@@ -121,6 +131,9 @@ export interface CampaignStore {
 
   // Compliance
   updateCompliance: (partial: Partial<CampaignConfig['compliance']>) => void
+
+  // PING Options
+  updatePingOptions: (partial: Partial<CampaignConfig['pingOptions']>) => void
 
   // Integrations
   addIntegration: (id: string) => void
@@ -252,6 +265,15 @@ export const useCampaignStore = create<CampaignStore>()((set) => ({
       config: {
         ...s.config,
         compliance: { ...s.config.compliance, ...partial },
+      },
+    })),
+
+  // ---- PING Options ----
+  updatePingOptions: (partial) =>
+    set((s) => ({
+      config: {
+        ...s.config,
+        pingOptions: { ...s.config.pingOptions, ...partial },
       },
     })),
 

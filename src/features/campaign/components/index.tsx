@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useCampaignStore } from '../store'
 import type { ActivePanel, CampaignSection } from '../types'
+import { getCampaignChannelProfile, isSectionAvailableForChannel } from '../channel-profile'
 
 import { PanelLayout } from '@/components/panel-layout/panel-layout'
 import { PanelSidebar, NavItem, NavGroup } from '@/components/panel-layout/panel-sidebar'
@@ -24,6 +25,9 @@ import { IntegrationsManage } from './integrations-manage'
 import { IntegrationCriteria } from './integration-criteria'
 import { AgentForms } from './agent-forms'
 import { PostbackSettings } from './postback-settings'
+import { PingOptions } from './ping-options'
+import { PhoneNumbers } from './phone-numbers'
+import { WebChats } from './web-chats'
 
 // ---- Quality Control sub-tabs ----
 const QC_TABS: { section: CampaignSection; label: string }[] = [
@@ -48,6 +52,9 @@ const POSTBACK_TABS: { section: CampaignSection; label: string }[] = [
 const PANEL_TITLES: Record<CampaignSection, string> = {
   'general': 'General Settings',
   'delivery-options': 'Delivery Options',
+  'ping-options': 'PING Options',
+  'phone-numbers': 'Phone Numbers',
+  'web-chats': 'Web Chats',
   'duplicate-checks': 'Duplicate Check Settings',
   'criteria': 'Campaign Criteria',
   'quantity-limits': 'Quantity Limits',
@@ -83,6 +90,10 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
   const togglePostbackExpanded = useCampaignStore((s) => s.togglePostbackExpanded)
   const togglePanelExpanded = useCampaignStore((s) => s.togglePanelExpanded)
   const config = useCampaignStore((s) => s.config)
+  const channelProfile = getCampaignChannelProfile(config.general.channel)
+  const qualityTabs = QC_TABS.filter(({ section }) => (
+    channelProfile.qualitySections.includes(section)
+  ))
 
   // UI state
   const [isSaving, setIsSaving] = useState(false)
@@ -92,12 +103,18 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
 
   // Navigation helpers
   const isActive = (section: CampaignSection) => activePanel.section === section
-  const isQcActive = QC_TABS.some((t) => activePanel.section === t.section)
+  const isQcActive = qualityTabs.some((t) => activePanel.section === t.section)
   const isIntActive = INTEGRATIONS_TABS.some((t) => activePanel.section === t.section)
   const isPostbackActive = POSTBACK_TABS.some((t) => activePanel.section === t.section)
 
   const nav = (section: CampaignSection) => () =>
     setActivePanel({ section } as ActivePanel)
+
+  useEffect(() => {
+    if (!isSectionAvailableForChannel(activePanel.section, channelProfile)) {
+      setActivePanel({ section: 'general' })
+    }
+  }, [activePanel.section, channelProfile, setActivePanel])
 
   const validateCampaignName = useCallback((value = config.general.name) => {
     const error = value.trim() ? undefined : 'Campaign Name is required.'
@@ -172,6 +189,12 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
         )
       case 'delivery-options':
         return <DeliveryOptions />
+      case 'ping-options':
+        return <PingOptions />
+      case 'phone-numbers':
+        return <PhoneNumbers />
+      case 'web-chats':
+        return <WebChats />
       case 'duplicate-checks':
         return <DuplicateChecks />
       case 'criteria':
@@ -209,13 +232,21 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
             />
             <NavItem label="Delivery Options" active={isActive('delivery-options')} onClick={nav('delivery-options')} />
 
+            {channelProfile.specialSection && (
+              <NavItem
+                label={channelProfile.specialSection.label}
+                active={isActive(channelProfile.specialSection.section)}
+                onClick={nav(channelProfile.specialSection.section)}
+              />
+            )}
+
             <NavGroup
-              label="Quality Control"
+              label="Quality Options"
               expanded={isQualityControlExpanded}
               onToggle={toggleQualityControlExpanded}
               active={isQcActive}
             >
-              {QC_TABS.map(({ section, label }) => (
+              {qualityTabs.map(({ section, label }) => (
                 <NavItem
                   key={section}
                   label={label}
@@ -260,7 +291,9 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
               ))}
             </NavGroup>
 
-            <NavItem label="Agent Forms" active={isActive('agent-forms')} onClick={nav('agent-forms')} />
+            {channelProfile.showAgentForms && (
+              <NavItem label="Agent Forms" active={isActive('agent-forms')} onClick={nav('agent-forms')} />
+            )}
 
             <button
               type="button"
@@ -274,7 +307,7 @@ export function CampaignEditor({ onClose }: CampaignEditorProps) {
         }
         header={
           <PanelHeader
-            subtitle="Campaign - Web"
+            subtitle={channelProfile.subtitle}
             title={PANEL_TITLES[activePanel.section]}
             isExpanded={isPanelExpanded}
             onMaximize={togglePanelExpanded}

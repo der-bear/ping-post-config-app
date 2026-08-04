@@ -9,7 +9,7 @@ const Switch = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SwitchPrimitive.Root
     className={cn(
-      'group peer relative inline-flex h-[28px] w-[48px] shrink-0 cursor-pointer items-center rounded-[4px] border transition-colors duration-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=unchecked]:bg-white data-[state=unchecked]:border-border-strong',
+      'group peer relative inline-flex h-[28px] w-[48px] shrink-0 cursor-pointer items-center rounded-[4px] border transition-colors duration-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=unchecked]:bg-background data-[state=unchecked]:border-border-strong',
       className
     )}
     {...props}
@@ -21,7 +21,7 @@ const Switch = React.forwardRef<
     <span className="absolute right-[8px] top-1/2 -translate-y-1/2 size-[8px] rounded-full border-[1.5px] border-border-strong opacity-0 transition-opacity duration-75 group-data-[state=unchecked]:opacity-100" />
     <SwitchPrimitive.Thumb
       className={cn(
-        'pointer-events-none block h-[20px] w-[20px] rounded-[2px] ring-0 transition-transform duration-75 data-[state=checked]:translate-x-[24px] data-[state=unchecked]:translate-x-[4px] data-[state=checked]:bg-white data-[state=unchecked]:bg-white data-[state=unchecked]:border data-[state=unchecked]:border-border-strong'
+        'pointer-events-none block h-[20px] w-[20px] rounded-[2px] ring-0 transition-transform duration-75 data-[state=checked]:translate-x-[24px] data-[state=unchecked]:translate-x-[4px] data-[state=checked]:bg-primary-foreground data-[state=unchecked]:bg-background data-[state=unchecked]:border data-[state=unchecked]:border-border-strong'
       )}
     />
   </SwitchPrimitive.Root>

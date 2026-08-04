@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogPanelHeader,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -134,6 +135,9 @@ export function WizardDialog({
           title={title}
           onClose={onCancel}
         />
+        <DialogDescription className="sr-only">
+          Complete the campaign setup steps and review the configuration before creating it.
+        </DialogDescription>
 
         <div
           className={cn(

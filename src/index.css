@@ -42,6 +42,15 @@
   --color-tooltip: #333641;
   --color-tooltip-foreground: #ffffff;
 
+  /* Code syntax */
+  --color-code-string: #2563eb;
+  --color-code-number: #1d4ed8;
+  --color-code-keyword: #1e40af;
+  --color-code-null: #6366f1;
+  --color-code-property: #3c4b64;
+  --color-code-punctuation: #636f83;
+  --color-code-comment: #b1b7c1;
+
   /* Panel specific */
   --color-panel-header: #498bff;
   --color-sidebar-bg: #ffffff;
@@ -85,9 +94,14 @@
 
   /* Backgrounds - dark blue-gray from Figma */
   --color-background: #0e0e15;
+  --color-background-tertiary: #12121a;
   --color-foreground: #ffffff;
   --color-muted: #17171f;
   --color-muted-foreground: #9ea7b2;
+  --color-text-medium: #b7bec8;
+  --color-info-link: #78a7ff;
+  --color-info-link-hover: #a9c7ff;
+  --color-info-on-accent: #dbe7ff;
   --color-subtle: #636f83;
   --color-accent: #17171f;
   --color-accent-foreground: #ebedef;
@@ -99,6 +113,19 @@
   --color-secondary-foreground: #ebedef;
   --color-destructive: #e55353;
   --color-destructive-foreground: #FFFFFF;
+  --color-success: #45c878;
+  --color-warning: #f7a45e;
+  --color-tooltip: #f1f3f5;
+  --color-tooltip-foreground: #17171f;
+
+  /* Code syntax */
+  --color-code-string: #8bb6ff;
+  --color-code-number: #a7c7ff;
+  --color-code-keyword: #82aaff;
+  --color-code-null: #c4a7ff;
+  --color-code-property: #e6edf7;
+  --color-code-punctuation: #a7b0bd;
+  --color-code-comment: #7f8a99;
 
   /* Panel specific - using Figma design tokens */
   --color-panel-header: #498bff;
@@ -116,6 +143,14 @@
 }
 
 @layer base {
+  html[data-theme-switching],
+  html[data-theme-switching] *,
+  html[data-theme-switching] *::before,
+  html[data-theme-switching] *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
   *,
   *::before,
   *::after {

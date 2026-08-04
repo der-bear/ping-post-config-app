@@ -15,8 +15,11 @@ function getSystemTheme(): 'light' | 'dark' {
 
 function applyTheme(resolved: 'light' | 'dark') {
   const root = document.documentElement
+  root.dataset.themeSwitching = 'true'
   root.classList.remove('light', 'dark')
   root.classList.add(resolved)
+  void root.offsetWidth
+  delete root.dataset.themeSwitching
 }
 
 export const useThemeStore = create<ThemeStore>((set) => {

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { DeliveryMethodEntry } from '@/features/delivery-method/components/delivery-method-entry'
 import { CampaignEntry } from '@/features/campaign/components/campaign-entry'
 import { Toaster } from '@/components/ui/toaster'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { getRouteFromPath, type AppRouteId } from '@/config/routes'
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
       {activeRoute === 'ping-post' && <DeliveryMethodEntry />}
       {activeRoute === 'campaign' && <CampaignEntry />}
       <Toaster />
+      <ThemeToggle />
     </div>
   )
 }
