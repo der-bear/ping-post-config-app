@@ -1,5 +1,33 @@
 @import "tailwindcss";
 
+[data-walkthrough-capture] {
+  width: 1920px;
+  min-width: 1920px;
+  height: 1080px;
+  min-height: 1080px;
+  overflow: hidden;
+}
+
+body:has([data-walkthrough-capture]) {
+  width: 1920px;
+  min-width: 1920px;
+  height: 1080px;
+  min-height: 1080px;
+  overflow: hidden;
+}
+
+body:has([data-walkthrough-capture][data-capture-scale="2"]) {
+  transform: scale(2);
+  transform-origin: top left;
+}
+
+[data-walkthrough-capture] *,
+[data-walkthrough-capture] *::before,
+[data-walkthrough-capture] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {

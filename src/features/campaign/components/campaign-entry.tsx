@@ -17,6 +17,7 @@ const NEXT_STEPS_PREVIEW_CAMPAIGN_NAMES: Record<Channel, string> = {
 }
 
 export function CampaignEntry() {
+  const isWalkthroughCapture = new URLSearchParams(window.location.search).has('walkthrough-capture')
   const resetStore = useCampaignStore((s) => s.resetStore)
   const updateGeneral = useCampaignStore((s) => s.updateGeneral)
   const updateDeliveryOptions = useCampaignStore((s) => s.updateDeliveryOptions)
@@ -236,7 +237,10 @@ export function CampaignEntry() {
         <div className="flex min-h-0 flex-1 flex-col p-4 md:p-8">
           <div
             className="mx-auto min-h-0 w-full flex-1 transition-[max-width] duration-200"
-            style={{ maxWidth: isPanelExpanded ? 860 : 600, minWidth: 480 }}
+            style={{
+              maxWidth: isWalkthroughCapture ? 1344 : isPanelExpanded ? 860 : 600,
+              minWidth: 480,
+            }}
           >
             <CampaignEditor onClose={handleEditorClose} />
           </div>

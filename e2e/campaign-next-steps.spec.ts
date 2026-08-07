@@ -125,8 +125,8 @@ test.describe('lead-source channel next steps', () => {
         height: 1080,
         duration: expect.any(Number),
       })
-      expect(await video.evaluate((element: HTMLVideoElement) => element.duration)).toBeGreaterThanOrEqual(4.5)
-      expect(await video.evaluate((element: HTMLVideoElement) => element.duration)).toBeLessThanOrEqual(6.5)
+      expect(await video.evaluate((element: HTMLVideoElement) => element.duration)).toBeGreaterThanOrEqual(9.5)
+      expect(await video.evaluate((element: HTMLVideoElement) => element.duration)).toBeLessThanOrEqual(10.5)
 
       const closeButton = dialog.getByRole('button', { name: 'Close', exact: true })
       const closeBox = await closeButton.boundingBox()
