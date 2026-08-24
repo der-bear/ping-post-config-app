@@ -32,7 +32,7 @@ interface WizardDialogProps {
   steps: WizardStep[]
   activeStep: number
   onStepChange: (step: number) => void
-  onNext?: (fromStepIndex: number, toStepIndex: number) => void
+  onNext?: (fromStepIndex: number, toStepIndex: number) => boolean | void
   onCancel: () => void
   onComplete: () => void
   completeLabel?: string
@@ -81,7 +81,8 @@ export function WizardDialog({
     if (nextStep < 0 || nextStep >= steps.length || steps[nextStep]?.disabled) return
 
     if (options?.validate) {
-      onNext?.(activeStep, nextStep)
+      const canContinue = onNext?.(activeStep, nextStep)
+      if (canContinue === false) return
     }
 
     const nextGroupId = steps[nextStep]?.groupId

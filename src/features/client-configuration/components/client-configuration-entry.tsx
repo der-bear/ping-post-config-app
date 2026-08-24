@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { ClipboardList, ListChecks, Settings2, SquarePlus, Waypoints } from 'lucide-react'
 
 import { CenteredListGroup } from '@/components/centered-list-group'
+import { useClientConfigurationStore } from '../store'
+import { CreateClientWizard } from './create-client-wizard'
 
 type ClientConfigurationView =
   | 'launcher'
@@ -20,7 +22,39 @@ const viewHeadings: Record<Exclude<ClientConfigurationView, 'launcher'>, string>
 }
 
 export function ClientConfigurationEntry() {
+  const replaceFromWizard = useClientConfigurationStore((state) => state.replaceFromWizard)
   const [activeView, setActiveView] = useState<ClientConfigurationView>('launcher')
+
+  if (activeView === 'create-client') {
+    return (
+      <CreateClientWizard
+        open
+        onClose={() => setActiveView('launcher')}
+        onCreate={(submission) => {
+          replaceFromWizard(submission)
+          setActiveView('next-steps')
+        }}
+      />
+    )
+  }
+
+  if (activeView === 'next-steps') {
+    return (
+      <main className="flex flex-1 items-center justify-center p-8">
+        <div className="space-y-4 text-center">
+          <h1 className="text-2xl font-semibold">Your client has been created!</h1>
+          <p className="text-sm text-muted-foreground">Client Next Steps</p>
+          <button
+            type="button"
+            className="text-sm font-medium text-primary hover:underline"
+            onClick={() => setActiveView('launcher')}
+          >
+            Back to Client Configuration
+          </button>
+        </div>
+      </main>
+    )
+  }
 
   if (activeView !== 'launcher') {
     return (
