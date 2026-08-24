@@ -13,6 +13,12 @@ export const FEATURES = [
     title: 'Campaign Config',
     description: 'Compare the campaign modal and flyout-style editor.',
   },
+  {
+    id: 'client-configuration',
+    slug: 'client-configuration',
+    title: 'Client Configuration',
+    description: 'Open the outbound client, delivery account, and order prototype.',
+  },
 ] as const
 
 export type FeatureId = (typeof FEATURES)[number]['id']
