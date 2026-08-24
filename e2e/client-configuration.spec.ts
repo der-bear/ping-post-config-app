@@ -105,3 +105,52 @@ test.describe('client next steps and Delivery Account tabs', () => {
     }
   })
 })
+
+test.describe('Delivery Account Criteria', () => {
+  test('adds, edits, and removes a criterion', async ({ page }) => {
+    await page.goto(route)
+    await page.evaluate(() => window.localStorage.clear())
+    await page.reload()
+    await page.getByRole('button', { name: /Delivery Account/ }).click()
+    await page.getByRole('button', { name: 'Criteria', exact: true }).click()
+
+    await expect(page.getByText('No Criteria', { exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'New', exact: true }).click()
+
+    let dialog = page.getByRole('dialog')
+    await expect(dialog.getByRole('combobox', { name: 'Type' })).toContainText('Field Value')
+    await expect(dialog.getByRole('combobox', { name: 'Field' })).toContainText('State')
+    await expect(dialog.getByRole('combobox', { name: 'Operator' })).toContainText('Is Any Of')
+    await expect(dialog.getByLabel('Value')).toHaveValue('AZ')
+    await dialog.getByRole('button', { name: 'Save', exact: true }).click()
+
+    await expect(page.getByText('AZ', { exact: true })).toBeVisible()
+    await page.getByText('AZ', { exact: true }).click()
+    await page.getByRole('button', { name: 'Edit', exact: true }).click()
+    dialog = page.getByRole('dialog')
+    await dialog.getByLabel('Value').fill('CA')
+    await dialog.getByRole('button', { name: 'Save', exact: true }).click()
+    await expect(page.getByText('CA', { exact: true })).toBeVisible()
+
+    await page.getByText('CA', { exact: true }).click()
+    await page.getByRole('button', { name: 'Remove', exact: true }).click()
+    dialog = page.getByRole('dialog')
+    await dialog.getByRole('button', { name: 'Remove', exact: true }).click()
+    await expect(page.getByText('No Criteria', { exact: true })).toBeVisible()
+  })
+
+  test('persists criteria after reload', async ({ page }) => {
+    await page.goto(route)
+    await page.evaluate(() => window.localStorage.clear())
+    await page.reload()
+    await page.getByRole('button', { name: /Delivery Account/ }).click()
+    await page.getByRole('button', { name: 'Criteria', exact: true }).click()
+    await page.getByRole('button', { name: 'New', exact: true }).click()
+    await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click()
+
+    await page.reload()
+    await page.getByRole('button', { name: /Delivery Account/ }).click()
+    await page.getByRole('button', { name: 'Criteria', exact: true }).click()
+    await expect(page.getByText('AZ', { exact: true })).toBeVisible()
+  })
+})

@@ -5,6 +5,7 @@ import { configurationFromWizard, createDemoClientConfiguration } from './data/d
 import type {
   ClientConfiguration,
   ClientWizardSubmission,
+  CriteriaRule,
   DeliveryAccountSection,
   OrderSection,
 } from './types'
@@ -29,6 +30,9 @@ interface ClientConfigurationStore {
   updateRevenue: (partial: Partial<ClientConfiguration['deliveryAccount']['revenue']>) => void
   updateOffer: (partial: Partial<ClientConfiguration['deliveryAccount']['offer']>) => void
   updateAdvanced: (partial: Partial<ClientConfiguration['deliveryAccount']['advanced']>) => void
+  addCriterion: (rule: CriteriaRule) => void
+  updateCriterion: (id: string, partial: Partial<Omit<CriteriaRule, 'id'>>) => void
+  removeCriteria: (ids: string[]) => void
 }
 
 export const useClientConfigurationStore = create<ClientConfigurationStore>()(
@@ -119,6 +123,43 @@ export const useClientConfigurationStore = create<ClientConfigurationStore>()(
             },
           },
         })),
+      addCriterion: (rule) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            deliveryAccount: {
+              ...state.config.deliveryAccount,
+              criteria: [...state.config.deliveryAccount.criteria, rule],
+            },
+          },
+        })),
+      updateCriterion: (id, partial) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            deliveryAccount: {
+              ...state.config.deliveryAccount,
+              criteria: state.config.deliveryAccount.criteria.map((criterion) =>
+                criterion.id === id ? { ...criterion, ...partial } : criterion,
+              ),
+            },
+          },
+        })),
+      removeCriteria: (ids) =>
+        set((state) => {
+          const removedIds = new Set(ids)
+          return {
+            config: {
+              ...state.config,
+              deliveryAccount: {
+                ...state.config.deliveryAccount,
+                criteria: state.config.deliveryAccount.criteria.filter(
+                  (criterion) => !removedIds.has(criterion.id),
+                ),
+              },
+            },
+          }
+        }),
     }),
     {
       name: 'client-configuration-v1',

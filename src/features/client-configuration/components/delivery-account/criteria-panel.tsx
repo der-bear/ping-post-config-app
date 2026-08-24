@@ -1,13 +1,108 @@
+import { useMemo, useState } from 'react'
+import { FolderOpen, Plus, X } from 'lucide-react'
+
+import { DataGrid, DataGridToolbar, ToolbarAction } from '@/components/data-grid'
+import type { DataGridColumn } from '@/components/data-grid'
+import { ConfirmDialog } from '@/components/ui'
+
+import { useClientConfigurationStore } from '../../store'
+import type { CriteriaRule } from '../../types'
+import { CriterionDialog } from './criterion-dialog'
+
+const columns: DataGridColumn<CriteriaRule>[] = [
+  { key: 'type', header: 'Type', width: '24%', sortable: true },
+  { key: 'field', header: 'Field', width: '24%', sortable: true },
+  { key: 'operator', header: 'Operator', width: '26%', sortable: true },
+  { key: 'value', header: 'Value', width: '26%', sortable: true },
+]
+
 export function CriteriaPanel() {
+  const criteria = useClientConfigurationStore((state) => state.config.deliveryAccount.criteria)
+  const addCriterion = useClientConfigurationStore((state) => state.addCriterion)
+  const updateCriterion = useClientConfigurationStore((state) => state.updateCriterion)
+  const removeCriteria = useClientConfigurationStore((state) => state.removeCriteria)
+
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [dialogMode, setDialogMode] = useState<'new' | 'edit' | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+
+  const selectedCriterion = useMemo(
+    () => criteria.find((criterion) => selectedIds.has(criterion.id)),
+    [criteria, selectedIds],
+  )
+
   return (
-    <div className="rounded-[4px] border border-border">
-      <div className="flex items-center justify-between border-b border-border bg-muted/30 px-4 py-3">
-        <p className="text-sm font-semibold text-foreground">Delivery Criteria</p>
-        <p className="text-xs text-muted-foreground">Changes save automatically</p>
+    <>
+      <div className="absolute inset-0 flex flex-col">
+        <DataGrid
+          columns={columns}
+          data={criteria}
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
+          onRowDoubleClick={(criterion) => {
+            setSelectedIds(new Set([criterion.id]))
+            setDialogMode('edit')
+          }}
+          emptyMessage="No Criteria"
+          toolbar={
+            <DataGridToolbar>
+              <ToolbarAction icon={Plus} label="New" onClick={() => setDialogMode('new')} />
+              <ToolbarAction
+                icon={FolderOpen}
+                label="Edit"
+                disabled={selectedIds.size !== 1}
+                onClick={() => setDialogMode('edit')}
+              />
+              <ToolbarAction
+                icon={X}
+                label="Remove"
+                disabled={selectedIds.size === 0}
+                onClick={() => setConfirmOpen(true)}
+              />
+            </DataGridToolbar>
+          }
+          footer={
+            <p className="px-4 py-2 text-xs italic text-muted-foreground">
+              Note: Criteria changes save automatically
+            </p>
+          }
+        />
       </div>
-      <div className="flex min-h-40 items-center justify-center px-4 py-10 text-sm text-muted-foreground">
-        No Criteria
-      </div>
-    </div>
+
+      {dialogMode && (
+        <CriterionDialog
+          key={`${dialogMode}-${selectedCriterion?.id ?? 'new'}`}
+          open
+          initialValue={dialogMode === 'edit' ? selectedCriterion : undefined}
+          onClose={() => setDialogMode(null)}
+          onSave={(criterion) => {
+            if (dialogMode === 'edit' && selectedCriterion) {
+              updateCriterion(selectedCriterion.id, criterion)
+              return
+            }
+            const id = `criterion-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+            addCriterion({ id, ...criterion })
+            setSelectedIds(new Set([id]))
+          }}
+        />
+      )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Remove delivery criteria"
+        description={
+          selectedIds.size === 1
+            ? 'Remove the selected delivery criterion? This change saves automatically.'
+            : `Remove ${selectedIds.size} selected delivery criteria? This change saves automatically.`
+        }
+        confirmLabel="Remove"
+        variant="destructive"
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => {
+          removeCriteria([...selectedIds])
+          setSelectedIds(new Set())
+        }}
+      />
+    </>
   )
 }
