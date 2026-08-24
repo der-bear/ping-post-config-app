@@ -194,7 +194,7 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
   const steps: WizardStep[] = [
     {
       id: 'contact',
-      label: 'Contact',
+      label: 'Contact Information',
       content: (
         <div className="flex flex-col gap-4">
           <SectionHeading
@@ -246,7 +246,7 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
     },
     {
       id: 'delivery-method',
-      label: 'Method',
+      label: 'Delivery Method',
       content: (
         <div className="flex flex-col gap-4">
           <SectionHeading
@@ -286,7 +286,7 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
     },
     {
       id: 'portal-login',
-      label: 'Portal Login',
+      label: 'Portal Login Information',
       disabled: !isPortal,
       content: (
         <div className="flex flex-col gap-4">
@@ -324,7 +324,7 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
     },
     {
       id: 'delivery-account',
-      label: 'Account',
+      label: 'Delivery Account',
       content: (
         <div className="flex flex-col gap-4">
           <SectionHeading

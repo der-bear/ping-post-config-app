@@ -213,3 +213,41 @@ test.describe('Create Order and Items', () => {
     await expect(page.getByRole('cell', { name: '3', exact: true })).toBeVisible()
   })
 })
+
+test.describe('theme, keyboard, and accessible controls', () => {
+  test('supports dark mode on the client configuration route', async ({ page }) => {
+    await page.goto(route)
+    await page.evaluate(() => window.localStorage.setItem('theme', 'light'))
+    await page.reload()
+
+    await page.getByRole('button', { name: 'Switch to dark theme', exact: true }).click()
+    await expect(page.locator('html')).toHaveClass(/dark/)
+    await expect(page.getByRole('button', { name: 'Switch to light theme', exact: true })).toBeVisible()
+  })
+
+  test('activates launcher cards with the keyboard and exposes a dialog', async ({ page }) => {
+    await page.goto(route)
+    const createClient = page.getByRole('button', { name: /Create client and delivery account/ })
+    await createClient.focus()
+    await expect(createClient).toBeFocused()
+    await page.keyboard.press('Enter')
+
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('dialog').getByRole('button', { name: 'Next', exact: true })).toBeVisible()
+  })
+
+  test('names the main editor and automatic-save actions', async ({ page }) => {
+    await page.goto(route)
+    await page.getByRole('button', { name: /Delivery Account/ }).click()
+    await page.getByRole('button', { name: 'Criteria', exact: true }).click()
+    await expect(page.getByRole('button', { name: 'New', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Edit', exact: true })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Remove', exact: true })).toBeDisabled()
+
+    await page.getByRole('button', { name: 'Close', exact: true }).last().click()
+    await page.getByRole('button', { name: /^Order/ }).click()
+    await page.getByRole('button', { name: 'Items', exact: true }).click()
+    await expect(page.getByRole('button', { name: 'New', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible()
+  })
+})

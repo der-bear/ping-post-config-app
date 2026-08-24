@@ -1,8 +1,9 @@
-import { FieldGroup, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SwitchField } from '@/components/ui'
+import { Input, SectionHeading, Separator, SwitchField } from '@/components/ui'
 
-import type { ClientConfiguration } from '../../types'
+import type { ClientConfiguration, LimitSetting } from '../../types'
 
 type RevenueSettings = ClientConfiguration['deliveryAccount']['revenue']
+type RevenueKey = keyof RevenueSettings
 
 interface RevenuePanelProps {
   value: RevenueSettings
@@ -10,50 +11,40 @@ interface RevenuePanelProps {
 }
 
 export function RevenuePanel({ value, onChange }: RevenuePanelProps) {
-  return (
+  const update = (key: RevenueKey, partial: Partial<LimitSetting>) => {
+    onChange({ [key]: { ...value[key], ...partial } })
+  }
+
+  const setting = (key: RevenueKey, label: string, description: string) => (
     <SwitchField
-      label="Revenue Enabled"
-      description="Record revenue when a lead is delivered through this account."
-      checked={value.enabled}
-      onCheckedChange={(enabled) => onChange({ enabled })}
+      label={label}
+      description={description}
+      checked={value[key].enabled}
+      onCheckedChange={(enabled) => update(key, { enabled })}
     >
-      <div className="grid gap-4 pt-1 sm:grid-cols-2">
-        <FieldGroup label="Revenue Type">
-          <Select
-            value={value.type}
-            onValueChange={(type) => onChange({ type: type as RevenueSettings['type'] })}
-          >
-            <SelectTrigger aria-label="Revenue Type"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="fixed">Fixed Amount</SelectItem>
-              <SelectItem value="percentage">Percentage</SelectItem>
-            </SelectContent>
-          </Select>
-        </FieldGroup>
-        {value.type === 'fixed' ? (
-          <FieldGroup label="Revenue Amount">
-            <Input
-              aria-label="Revenue Amount"
-              type="number"
-              min="0"
-              step="0.01"
-              value={value.amount}
-              onChange={(event) => onChange({ amount: Number(event.target.value) || 0 })}
-            />
-          </FieldGroup>
-        ) : (
-          <FieldGroup label="Revenue Percentage">
-            <Input
-              aria-label="Revenue Percentage"
-              type="number"
-              min="0"
-              max="100"
-              value={value.percentage}
-              onChange={(event) => onChange({ percentage: Number(event.target.value) || 0 })}
-            />
-          </FieldGroup>
-        )}
-      </div>
+      <Input
+        aria-label={`${label} Value`}
+        type="number"
+        min="0"
+        step="0.01"
+        value={value[key].value}
+        onChange={(event) => update(key, { value: Number(event.target.value) || 0 })}
+      />
     </SwitchField>
+  )
+
+  return (
+    <div className="flex flex-col gap-4">
+      <SectionHeading title="Delivery Requirements" size="sm" className="rounded-[4px] bg-muted px-3 py-2" />
+      {setting('revenueRequired', 'Revenue Required', 'Minimum revenue requirement.')}
+      <Separator />
+      {setting('profitRequired', 'Profit Required', 'Minimum profit requirement.')}
+      <Separator />
+      {setting('profitPercentageRequired', 'Profit % Required', 'Minimum profit percentage requirement.')}
+      <SectionHeading title="Lead Source Revenue Share" size="sm" className="rounded-[4px] bg-muted px-3 py-2" />
+      {setting('revenueShareDollar', 'Revenue Share Dollar', 'Add this amount to the source cost of each lead.')}
+      <Separator />
+      {setting('revenueSharePercentage', 'Revenue Share Percentage', 'Add this percentage to the source cost of each lead.')}
+    </div>
   )
 }

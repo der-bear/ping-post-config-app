@@ -137,7 +137,7 @@ export function WizardDialog({
           onClose={onCancel}
         />
         <DialogDescription className="sr-only">
-          Complete the campaign setup steps and review the configuration before creating it.
+          Complete the setup steps and review the configuration before creating it.
         </DialogDescription>
 
         <div

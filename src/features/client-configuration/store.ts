@@ -237,8 +237,8 @@ export const useClientConfigurationStore = create<ClientConfigurationStore>()(
         }),
     }),
     {
-      name: 'client-configuration-v1',
-      version: 1,
+      name: 'client-configuration-v2',
+      version: 2,
     },
   ),
 )

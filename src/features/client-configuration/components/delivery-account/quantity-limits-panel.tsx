@@ -11,12 +11,10 @@ interface QuantityLimitsPanelProps {
 }
 
 const limits: Array<{ key: LimitKey; label: string; description: string }> = [
-  { key: 'total', label: 'Total Limit', description: 'Maximum leads that may be delivered for this account.' },
   { key: 'hourly', label: 'Hourly Limit', description: 'Maximum leads delivered within 60 minutes.' },
   { key: 'daily', label: 'Daily Limit', description: 'Maximum leads delivered in a single day.' },
   { key: 'weekly', label: 'Weekly Limit', description: 'Maximum leads delivered in a calendar week.' },
   { key: 'monthly', label: 'Monthly Limit', description: 'Maximum leads delivered in a calendar month.' },
-  { key: 'yearly', label: 'Yearly Limit', description: 'Maximum leads delivered in a calendar year.' },
 ]
 
 export function QuantityLimitsPanel({ value, onChange }: QuantityLimitsPanelProps) {

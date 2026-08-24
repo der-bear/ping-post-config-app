@@ -210,3 +210,47 @@ Fixes applied:
 - [x] Smooth channel-specific close-up camera that starts at navigation, settles before every interaction, and follows progressive field configuration without a full-screen pullback.
 
 final result: passed
+
+## Client Configuration — 2026-08-24
+
+### Evidence
+
+- Live LeadExec source captures: `output/client-onboarding-research-2026-08-24/`.
+- Client Configuration browser captures: `design-qa-assets/client-configuration/`.
+- Combined source/implementation evidence: `design-qa-assets/client-configuration/comparisons/`.
+- Launcher consistency comparison: `launcher-comparison.png` places the existing company Campaign Configuration launcher beside the new outbound launcher.
+- Client flow comparisons: `create-client-contact-comparison.png`, `create-client-method-comparison.png`, `create-client-portal-comparison.png`, `create-client-account-comparison.png`, and `next-steps-comparison.png`.
+- Delivery Account comparisons: `da-general-comparison.png`, `da-quantity-comparison.png`, `da-delivery-comparison.png`, `da-revenue-comparison.png`, `delivery-criteria-comparison.png`, `da-offer-comparison.png`, and `da-advanced-comparison.png`.
+- Order comparisons: `create-order-comparison.png`, `order-general-comparison.png`, and `order-items-comparison.png`.
+
+### Findings and fixes
+
+- Initial P2: the Create Client sidebar used abbreviated step names. Fixed to the LeadExec labels: Contact Information, Delivery Method, Portal Login Information, and Delivery Account.
+- Initial P2: Quantity Limits included Total and Yearly rows that were not present in the captured LeadExec panel. Removed them from the visible panel; Hourly, Daily, Weekly, and Monthly now match the source.
+- Initial P2: Delivery, Revenue, Offer, and Advanced were structurally too simplified for screen-recording fidelity. Rebuilt those panels around the captured groups and fields while retaining the project's shared inputs, selects, switches, headings, panel navigation, footer, and theme tokens.
+- Delivery now includes Primary Delivery, two Additional Delivery methods, Delivery Options, Exclusive Delivery, Use Order System, and Order Forms.
+- Revenue now includes Revenue Required, Profit Required, Profit % Required, Revenue Share Dollar, and Revenue Share Percentage.
+- Offer now includes the captured Static Offer, company, phone, name, description, URL, image, privacy, terms, duration, amount, and custom TCPA fields, populated with safe realistic demo data.
+- Advanced now includes Maximum Return Percentage, Enforce Quantity Constraints, qualified-lead percentage limiting, Delivery Delay, Delivery Group, the Delivery Parameters empty state, and Confirm Delivery.
+- Post-fix combined comparisons show the same navigation order, section hierarchy, field order, table columns, button placement, blue headers, and save/close footer pattern as the LeadExec captures, adapted to the approved company-prototype design system.
+
+### Interaction checks
+
+- Verified all four Create Client states, including conditional Lead Portal login.
+- Verified all seven Delivery Account tabs and both Order tabs.
+- Verified a Delivery Account setting survives reload, then restored the reference demo value.
+- Verified Criteria create, edit, remove, reload persistence, and restored the final `State / Is Any Of / AZ` row.
+- Verified Order Item add, edit, remove, reload persistence, and restored the final two-lead `All Delivery Accounts` item.
+- Verified the outbound Next Steps actions route to Create Order, Criteria, and Delivery Account.
+- Verified the production build and targeted ESLint checks after the fidelity fixes.
+
+### Accepted scope
+
+- The main Client detail screen is intentionally not reproduced.
+- The Order Payments tab is intentionally excluded by user direction.
+- Delivery-method-specific configuration remains in the existing PING/POST subproject; this prototype covers Delivery Account selection and outbound account settings without duplicating every method editor.
+- Export, Transaction History, and Delivery Parameter CRUD are outside the recording flow and are not implemented as core actions.
+
+No actionable P0, P1, or P2 visual mismatch remains in the compared states.
+
+final result: passed

@@ -94,33 +94,55 @@ export interface ClientConfiguration {
     delivery: {
       automatedDelivery: boolean
       primaryDeliveryMethod: string
-      additionalDeliveryMethods: string[]
+      additionalDeliveryMethod1Enabled: boolean
+      additionalDeliveryMethod1: string
+      additionalDeliveryMethod1Fallback: string
+      additionalDeliveryMethod2Enabled: boolean
+      additionalDeliveryMethod2: string
+      additionalDeliveryMethod2Fallback: string
       priority: number
-      group: string
-      assignedUser: string
+      exclusiveDelivery: boolean
+      useOrderSystem: boolean
+      orderForms: string[]
     }
     revenue: {
-      enabled: boolean
-      type: 'fixed' | 'percentage'
-      amount: number
-      percentage: number
+      revenueRequired: LimitSetting
+      profitRequired: LimitSetting
+      profitPercentageRequired: LimitSetting
+      revenueShareDollar: LimitSetting
+      revenueSharePercentage: LimitSetting
     }
     criteria: CriteriaRule[]
     offer: {
       enabled: boolean
+      type: 'static'
+      companyName: string
+      companyPhoneNumber: string
+      name: string
+      description: string
+      url: string
+      imageUrl: string
+      privacyUrl: string
+      termsUrl: string
+      duration: 'Monthly' | 'Weekly' | 'One Time'
       amount: number
-      minimum: number
-      maximum: number
+      customTcpaConsentEnabled: boolean
+      customTcpaConsentText: string
     }
     advanced: {
       exclusive: boolean
       requireOrder: boolean
       criteriaRequired: boolean
+      maximumReturnPercentageEnabled: boolean
+      maximumReturnPercentage: number
+      enforceQuantityConstraints: boolean
       limitByQualifiedLeadPercentage: boolean
+      qualifiedLeadLimitMode: 'Total' | 'Daily' | 'Weekly' | 'Monthly'
       qualifiedLeadPercentage: number
-      notifyOnRemoval: boolean
-      removalContactName: string
-      removalContactEmail: string
+      deliveryDelayEnabled: boolean
+      deliveryDelaySeconds: number
+      deliveryGroup: string
+      confirmDelivery: boolean
     }
   }
   order: {
