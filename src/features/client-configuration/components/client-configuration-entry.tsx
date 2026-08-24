@@ -3,7 +3,10 @@ import { ClipboardList, ListChecks, Settings2, SquarePlus, Waypoints } from 'luc
 
 import { CenteredListGroup } from '@/components/centered-list-group'
 import { useClientConfigurationStore } from '../store'
+import type { DeliveryAccountSection } from '../types'
+import { ClientNextStepsDialog } from './client-next-steps-dialog'
 import { CreateClientWizard } from './create-client-wizard'
+import { DeliveryAccountEditor } from './delivery-account/delivery-account-editor'
 
 type ClientConfigurationView =
   | 'launcher'
@@ -23,7 +26,20 @@ const viewHeadings: Record<Exclude<ClientConfigurationView, 'launcher'>, string>
 
 export function ClientConfigurationEntry() {
   const replaceFromWizard = useClientConfigurationStore((state) => state.replaceFromWizard)
+  const deliveryAccountName = useClientConfigurationStore((state) => state.config.deliveryAccount.name)
+  const isPanelExpanded = useClientConfigurationStore((state) => state.isPanelExpanded)
+  const setActiveDeliveryAccountSection = useClientConfigurationStore(
+    (state) => state.setActiveDeliveryAccountSection,
+  )
   const [activeView, setActiveView] = useState<ClientConfigurationView>('launcher')
+  const [deliveryAccountInitialSection, setDeliveryAccountInitialSection] =
+    useState<DeliveryAccountSection>('general')
+
+  const openDeliveryAccount = (section: DeliveryAccountSection) => {
+    setDeliveryAccountInitialSection(section)
+    setActiveDeliveryAccountSection(section)
+    setActiveView('delivery-account')
+  }
 
   if (activeView === 'create-client') {
     return (
@@ -40,19 +56,29 @@ export function ClientConfigurationEntry() {
 
   if (activeView === 'next-steps') {
     return (
-      <main className="flex flex-1 items-center justify-center p-8">
-        <div className="space-y-4 text-center">
-          <h1 className="text-2xl font-semibold">Your client has been created!</h1>
-          <p className="text-sm text-muted-foreground">Client Next Steps</p>
-          <button
-            type="button"
-            className="text-sm font-medium text-primary hover:underline"
-            onClick={() => setActiveView('launcher')}
-          >
-            Back to Client Configuration
-          </button>
+      <ClientNextStepsDialog
+        deliveryAccountName={deliveryAccountName}
+        onCreateOrder={() => setActiveView('create-order')}
+        onOpenCriteria={() => openDeliveryAccount('criteria')}
+        onEditDeliveryAccount={() => openDeliveryAccount('general')}
+        onClose={() => setActiveView('launcher')}
+      />
+    )
+  }
+
+  if (activeView === 'delivery-account') {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col p-4 md:p-8">
+        <div
+          className="mx-auto min-h-0 w-full flex-1 transition-[max-width] duration-200"
+          style={{ maxWidth: isPanelExpanded ? 1180 : 860, minWidth: 480 }}
+        >
+          <DeliveryAccountEditor
+            initialSection={deliveryAccountInitialSection}
+            onClose={() => setActiveView('launcher')}
+          />
         </div>
-      </main>
+      </div>
     )
   }
 
@@ -110,7 +136,7 @@ export function ClientConfigurationEntry() {
               label: 'Delivery Account',
               description: 'Open General and every captured outbound delivery account configuration panel.',
               icon: <Waypoints className="h-4 w-4 text-muted-foreground" />,
-              onAction: () => setActiveView('delivery-account'),
+              onAction: () => openDeliveryAccount('general'),
             },
             {
               id: 'order',

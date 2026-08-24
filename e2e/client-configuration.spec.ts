@@ -67,3 +67,41 @@ test.describe('create client wizard', () => {
     await expect(page.getByText('Your client has been created!', { exact: true })).toBeVisible()
   })
 })
+
+test.describe('client next steps and Delivery Account tabs', () => {
+  test('routes each next-step action into the outbound setup flow', async ({ page }) => {
+    await page.goto(route)
+    await page.getByRole('button', { name: /Client next steps/ }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByRole('button', { name: /Create a Lead Order/ })).toBeVisible()
+    await expect(dialog.getByRole('button', { name: /Set Up Delivery Criteria/ })).toBeVisible()
+    await expect(dialog.getByRole('button', { name: /Edit Delivery Account/ })).toBeVisible()
+
+    await dialog.getByRole('button', { name: /Set Up Delivery Criteria/ }).click()
+    await expect(page.getByText('Delivery Account', { exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Criteria', exact: true })).toBeVisible()
+  })
+
+  test('shows all Delivery Account tabs and their panels', async ({ page }) => {
+    await page.goto(route)
+    await page.getByRole('button', { name: /Delivery Account/ }).click()
+
+    const panels = [
+      ['General', 'General'],
+      ['Quantity Limits', 'Quantity Limits'],
+      ['Delivery', 'Delivery'],
+      ['Revenue', 'Revenue'],
+      ['Criteria', 'Criteria'],
+      ['Offer', 'Offer'],
+      ['Advanced', 'Advanced'],
+    ] as const
+
+    for (const [tab, heading] of panels) {
+      const tabButton = page.getByRole('button', { name: tab, exact: true })
+      await expect(tabButton).toBeVisible()
+      await tabButton.click()
+      await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible()
+    }
+  })
+})
