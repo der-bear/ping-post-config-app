@@ -39,6 +39,23 @@ export interface OrderItem {
   sent: number
 }
 
+export interface OrderCreationSubmission {
+  name: string
+  leadType: string
+  description: string
+  status: 'active' | 'on-hold' | 'closed'
+  startDate: string
+  endDate: string
+  renewOrder: boolean
+  autoCharge: boolean
+  paymentDiscount: number
+  maxReturnPercentage: number
+  deliveryAccount: string
+  orderType: OrderItem['orderType']
+  quantity: number
+  perLeadPrice: number
+}
+
 export interface LimitSetting {
   enabled: boolean
   value: number

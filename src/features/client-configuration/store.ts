@@ -7,6 +7,8 @@ import type {
   ClientWizardSubmission,
   CriteriaRule,
   DeliveryAccountSection,
+  OrderCreationSubmission,
+  OrderItem,
   OrderSection,
 } from './types'
 
@@ -33,6 +35,11 @@ interface ClientConfigurationStore {
   addCriterion: (rule: CriteriaRule) => void
   updateCriterion: (id: string, partial: Partial<Omit<CriteriaRule, 'id'>>) => void
   removeCriteria: (ids: string[]) => void
+  replaceOrder: (submission: OrderCreationSubmission) => void
+  updateOrder: (partial: Partial<Omit<ClientConfiguration['order'], 'items'>>) => void
+  addOrderItem: (item: OrderItem) => void
+  updateOrderItem: (id: string, partial: Partial<Omit<OrderItem, 'id'>>) => void
+  removeOrderItems: (ids: string[]) => void
 }
 
 export const useClientConfigurationStore = create<ClientConfigurationStore>()(
@@ -156,6 +163,74 @@ export const useClientConfigurationStore = create<ClientConfigurationStore>()(
                 criteria: state.config.deliveryAccount.criteria.filter(
                   (criterion) => !removedIds.has(criterion.id),
                 ),
+              },
+            },
+          }
+        }),
+      replaceOrder: (submission) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            order: {
+              name: submission.name,
+              leadType: submission.leadType,
+              description: submission.description,
+              status: submission.status,
+              startDate: submission.startDate,
+              endDate: submission.endDate,
+              renewOrder: submission.renewOrder,
+              autoCharge: submission.autoCharge,
+              paymentDiscount: submission.paymentDiscount,
+              maxReturnPercentage: submission.maxReturnPercentage,
+              items: [
+                {
+                  id: `order-item-${Date.now()}`,
+                  deliveryAccount: submission.deliveryAccount,
+                  orderType: submission.orderType,
+                  quantity: submission.quantity,
+                  perLeadPrice: submission.perLeadPrice,
+                  sent: 0,
+                },
+              ],
+            },
+          },
+          activeOrderSection: 'general',
+        })),
+      updateOrder: (partial) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            order: { ...state.config.order, ...partial, items: state.config.order.items },
+          },
+        })),
+      addOrderItem: (item) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            order: { ...state.config.order, items: [...state.config.order.items, item] },
+          },
+        })),
+      updateOrderItem: (id, partial) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            order: {
+              ...state.config.order,
+              items: state.config.order.items.map((item) =>
+                item.id === id ? { ...item, ...partial } : item,
+              ),
+            },
+          },
+        })),
+      removeOrderItems: (ids) =>
+        set((state) => {
+          const removedIds = new Set(ids)
+          return {
+            config: {
+              ...state.config,
+              order: {
+                ...state.config.order,
+                items: state.config.order.items.filter((item) => !removedIds.has(item.id)),
               },
             },
           }

@@ -154,3 +154,62 @@ test.describe('Delivery Account Criteria', () => {
     await expect(page.getByText('AZ', { exact: true })).toBeVisible()
   })
 })
+
+test.describe('Create Order and Items', () => {
+  test('validates quantity and creates an on-hold order', async ({ page }) => {
+    await page.goto(route)
+    await page.evaluate(() => window.localStorage.clear())
+    await page.reload()
+    await page.getByRole('button', { name: /Create order/ }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByRole('heading', { name: 'Create Order', exact: true })).toBeVisible()
+    await dialog.getByLabel('Order Name').fill('Codex Demo Mortgage Order')
+    await expect(dialog.getByRole('combobox', { name: 'Lead Type' })).toContainText(
+      'Short Mortgage Lead',
+    )
+    await expect(dialog.getByRole('combobox', { name: 'Initial Status' })).toContainText('On Hold')
+    await dialog.getByLabel('Quantity').fill('0')
+    await dialog.getByRole('button', { name: 'Create', exact: true }).click()
+    await expect(dialog.getByText('Quantity must be greater than zero.', { exact: true })).toBeVisible()
+
+    await dialog.getByLabel('Quantity').fill('1')
+    await dialog.getByRole('button', { name: 'Create', exact: true }).click()
+    await expect(page.getByText('Order', { exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'General', exact: true })).toBeVisible()
+  })
+
+  test('edits, adds, removes, and persists order items', async ({ page }) => {
+    await page.goto(route)
+    await page.evaluate(() => window.localStorage.clear())
+    await page.reload()
+    await page.getByRole('button', { name: /^Order/ }).click()
+    await page.getByRole('button', { name: 'Items', exact: true }).click()
+
+    await page.getByText('All Delivery Accounts', { exact: true }).click()
+    await page.getByRole('button', { name: 'Edit', exact: true }).click()
+    let dialog = page.getByRole('dialog')
+    await dialog.getByLabel('Quantity').fill('3')
+    await dialog.getByRole('button', { name: 'Save', exact: true }).click()
+    await expect(page.getByRole('cell', { name: '3', exact: true })).toBeVisible()
+
+    await page.getByRole('button', { name: 'New', exact: true }).click()
+    dialog = page.getByRole('dialog')
+    await dialog.getByRole('combobox', { name: 'Delivery Account' }).click()
+    await page.getByRole('option', { name: 'Codex UX Research DA', exact: true }).click()
+    await dialog.getByLabel('Quantity').fill('1')
+    await dialog.getByRole('button', { name: 'Save', exact: true }).click()
+    await expect(page.locator('[data-slot="data-grid-row"]')).toHaveCount(2)
+
+    await page.getByText('Codex UX Research DA', { exact: true }).click()
+    await page.getByRole('button', { name: 'Remove', exact: true }).click()
+    dialog = page.getByRole('dialog')
+    await dialog.getByRole('button', { name: 'Remove', exact: true }).click()
+    await expect(page.locator('[data-slot="data-grid-row"]')).toHaveCount(1)
+
+    await page.reload()
+    await page.getByRole('button', { name: /^Order/ }).click()
+    await page.getByRole('button', { name: 'Items', exact: true }).click()
+    await expect(page.getByRole('cell', { name: '3', exact: true })).toBeVisible()
+  })
+})

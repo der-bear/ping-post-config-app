@@ -3,10 +3,12 @@ import { ClipboardList, ListChecks, Settings2, SquarePlus, Waypoints } from 'luc
 
 import { CenteredListGroup } from '@/components/centered-list-group'
 import { useClientConfigurationStore } from '../store'
-import type { DeliveryAccountSection } from '../types'
+import type { DeliveryAccountSection, OrderSection } from '../types'
 import { ClientNextStepsDialog } from './client-next-steps-dialog'
 import { CreateClientWizard } from './create-client-wizard'
 import { DeliveryAccountEditor } from './delivery-account/delivery-account-editor'
+import { CreateOrderDialog } from './order/create-order-dialog'
+import { OrderEditor } from './order/order-editor'
 
 type ClientConfigurationView =
   | 'launcher'
@@ -27,18 +29,30 @@ const viewHeadings: Record<Exclude<ClientConfigurationView, 'launcher'>, string>
 export function ClientConfigurationEntry() {
   const replaceFromWizard = useClientConfigurationStore((state) => state.replaceFromWizard)
   const deliveryAccountName = useClientConfigurationStore((state) => state.config.deliveryAccount.name)
+  const defaultLeadPrice = useClientConfigurationStore(
+    (state) => state.config.deliveryAccount.defaultLeadPrice,
+  )
+  const replaceOrder = useClientConfigurationStore((state) => state.replaceOrder)
   const isPanelExpanded = useClientConfigurationStore((state) => state.isPanelExpanded)
   const setActiveDeliveryAccountSection = useClientConfigurationStore(
     (state) => state.setActiveDeliveryAccountSection,
   )
+  const setActiveOrderSection = useClientConfigurationStore((state) => state.setActiveOrderSection)
   const [activeView, setActiveView] = useState<ClientConfigurationView>('launcher')
   const [deliveryAccountInitialSection, setDeliveryAccountInitialSection] =
     useState<DeliveryAccountSection>('general')
+  const [orderInitialSection, setOrderInitialSection] = useState<OrderSection>('general')
 
   const openDeliveryAccount = (section: DeliveryAccountSection) => {
     setDeliveryAccountInitialSection(section)
     setActiveDeliveryAccountSection(section)
     setActiveView('delivery-account')
+  }
+
+  const openOrder = (section: OrderSection) => {
+    setOrderInitialSection(section)
+    setActiveOrderSection(section)
+    setActiveView('order')
   }
 
   if (activeView === 'create-client') {
@@ -75,6 +89,37 @@ export function ClientConfigurationEntry() {
         >
           <DeliveryAccountEditor
             initialSection={deliveryAccountInitialSection}
+            onClose={() => setActiveView('launcher')}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  if (activeView === 'create-order') {
+    return (
+      <CreateOrderDialog
+        open
+        deliveryAccountName={deliveryAccountName}
+        defaultLeadPrice={defaultLeadPrice}
+        onClose={() => setActiveView('launcher')}
+        onCreate={(submission) => {
+          replaceOrder(submission)
+          openOrder('general')
+        }}
+      />
+    )
+  }
+
+  if (activeView === 'order') {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col p-4 md:p-8">
+        <div
+          className="mx-auto min-h-0 w-full flex-1 transition-[max-width] duration-200"
+          style={{ maxWidth: isPanelExpanded ? 1180 : 860, minWidth: 480 }}
+        >
+          <OrderEditor
+            initialSection={orderInitialSection}
             onClose={() => setActiveView('launcher')}
           />
         </div>
@@ -143,7 +188,7 @@ export function ClientConfigurationEntry() {
               label: 'Order',
               description: 'Edit order settings and manage the delivery account items included in it.',
               icon: <ListChecks className="h-4 w-4 text-muted-foreground" />,
-              onAction: () => setActiveView('order'),
+              onAction: () => openOrder('general'),
             },
           ]}
         />
