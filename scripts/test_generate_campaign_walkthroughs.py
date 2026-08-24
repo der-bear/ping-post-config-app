@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 SCRIPT_PATH = Path(__file__).with_name('generate-campaign-walkthroughs.py')
@@ -14,194 +18,363 @@ sys.modules[SPEC.name] = walkthroughs
 SPEC.loader.exec_module(walkthroughs)
 
 
-class WalkthroughTimelineTests(unittest.TestCase):
-    def test_generates_a_ten_second_1080p_loop_for_both_themes(self):
-        self.assertEqual(walkthroughs.THEMES, ('light', 'dark'))
-        self.assertEqual(walkthroughs.DURATION_SECONDS, 10)
-        self.assertEqual(walkthroughs.FRAME_COUNT, walkthroughs.FPS * 10)
+def sample_action(**overrides):
+    action = {
+        'id': 'toggle-profit-requirement',
+        'kind': 'toggle',
+        'targetRole': 'switch',
+        'beforeScene': '000-before.jpg',
+        'afterScene': '001-after.jpg',
+        'targetRect': {'x': 100, 'y': 100, 'width': 48, 'height': 28},
+        'frameRect': {'x': 100, 'y': 100, 'width': 620, 'height': 96},
+        'clickPoint': {'x': 124, 'y': 114},
+        'stateDelta': ['ping.profit.enabled'],
+        'holdMs': 600,
+        'startedAtMs': 1000,
+    }
+    action.update(overrides)
+    return action
+
+
+def sample_trace(actions=None, theme='light'):
+    actions = actions or [sample_action()]
+    timeline_actions = []
+    cursor = 650
+    for action in actions:
+        start = cursor
+        interaction = start + 360 + 200 + 360 + 150
+        end = interaction + 120 + 140 + action['holdMs']
+        timeline_actions.append({
+            **action,
+            'startMs': start,
+            'cameraMoveMs': 360,
+            'cameraSettleMs': 200,
+            'travelMs': 360,
+            'intentMs': 150,
+            'interactionMs': interaction,
+            'feedbackMs': 120,
+            'stateMs': 140,
+            'endMs': end,
+        })
+        cursor = end
+    return {
+        'version': 1,
+        'channel': 'ping-post',
+        'theme': theme,
+        'viewport': {'width': 1920, 'height': 1080, 'deviceScaleFactor': 2},
+        'actions': actions,
+        'timeline': {'actions': timeline_actions, 'durationMs': cursor + 1100},
+    }
+
+
+class TraceValidationTests(unittest.TestCase):
+    def test_output_contract_preserves_previous_quality(self):
         self.assertEqual(walkthroughs.OUTPUT_SIZE, (1920, 1080))
         self.assertEqual(walkthroughs.SOURCE_SIZE, (3840, 2160))
+        self.assertEqual(walkthroughs.FPS, 30)
+        self.assertGreaterEqual(walkthroughs.VIDEO_BITRATE_KBPS, 8_000)
+        self.assertEqual(walkthroughs.CURSOR_SAFE_INSET, 18)
 
-    def test_first_tab_click_happens_at_one_second(self):
-        self.assertGreaterEqual(walkthroughs.TAB_CLICK_SECONDS, 0.9)
-        self.assertLessEqual(walkthroughs.TAB_CLICK_SECONDS, 1.05)
-        self.assertGreater(walkthroughs.cursor_travel(0.7), 0.95)
+    def test_rejects_click_outside_exact_target(self):
+        trace = sample_trace([sample_action(clickPoint={'x': 90, 'y': 114})])
+        with self.assertRaisesRegex(ValueError, 'outside target rectangle'):
+            walkthroughs.validate_trace(trace)
 
-    def test_each_channel_reaches_the_approved_configuration_outcome(self):
-        final_actions = {
-            item.channel: item.actions[-1].name
-            for item in walkthroughs.WALKTHROUGHS
-        }
-        self.assertEqual(final_actions, {
-            'web': 'save-general-settings',
-            'ping-post': 'save-ping-field',
-            'phone': 'save-ivr-number',
-            'chat': 'save-chat-properties',
-        })
+    def test_rejects_toggle_targeting_container_instead_of_switch(self):
+        trace = sample_trace([sample_action(targetRole='group')])
+        with self.assertRaisesRegex(ValueError, 'switch itself'):
+            walkthroughs.validate_trace(trace)
 
-    def test_theme_specific_asset_names_are_stable(self):
-        web = next(item for item in walkthroughs.WALKTHROUGHS if item.channel == 'web')
-        self.assertEqual(web.asset_stem('light'), 'web-light')
-        self.assertEqual(web.asset_stem('dark'), 'web-dark')
+    def test_rejects_multiple_semantic_deltas(self):
+        trace = sample_trace([sample_action(
+            stateDelta=['chat.companyName', 'chat.agentName'],
+        )])
+        with self.assertRaisesRegex(ValueError, 'exactly one semantic state delta'):
+            walkthroughs.validate_trace(trace)
 
-    def test_each_walkthrough_uses_ordered_realistic_actions_and_a_final_hold(self):
-        for walkthrough in walkthroughs.WALKTHROUGHS:
-            action_times = [action.at_seconds for action in walkthrough.actions]
-            self.assertEqual(action_times, sorted(action_times))
-            self.assertGreaterEqual(len(walkthrough.actions), 6)
-            self.assertTrue(all(action.pointer_target for action in walkthrough.actions))
-            self.assertTrue(all(action.dwell_seconds >= 0.3 for action in walkthrough.actions))
-            self.assertTrue(all(action.scene_delay_seconds >= 0.12 for action in walkthrough.actions))
-            self.assertGreaterEqual(walkthrough.final_hold_seconds, 1.0)
-            self.assertLessEqual(
-                walkthrough.actions[-1].at_seconds + walkthrough.final_hold_seconds,
-                walkthroughs.DURATION_SECONDS,
-            )
+    def test_load_trace_validates_and_resolves_scene_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            trace_path = Path(directory) / 'trace.json'
+            trace_path.write_text(json.dumps(sample_trace()), encoding='utf-8')
+            loaded = walkthroughs.load_trace(trace_path)
+            self.assertEqual(loaded.channel, 'ping-post')
+            self.assertEqual(loaded.theme, 'light')
+            self.assertEqual(loaded.scene_dir, trace_path.parent)
 
-    def test_camera_settles_before_every_action(self):
-        for walkthrough in walkthroughs.WALKTHROUGHS:
-            for action in walkthrough.actions:
-                before = walkthroughs.camera_state(
-                    walkthrough,
-                    action.at_seconds - (action.dwell_seconds / 2),
-                )
-                during = walkthroughs.camera_state(walkthrough, action.at_seconds)
-                after = walkthroughs.camera_state(
-                    walkthrough,
-                    action.at_seconds + (action.dwell_seconds / 2),
-                )
-                self.assertEqual(before, during)
-                self.assertEqual(during, after)
 
-    def test_camera_cues_are_ordered_and_do_not_overlap(self):
-        for walkthrough in walkthroughs.WALKTHROUGHS:
-            previous_end = 0.0
-            for cue in walkthrough.camera_cues:
-                self.assertGreaterEqual(cue.start_seconds, previous_end)
-                self.assertGreater(cue.end_seconds, cue.start_seconds)
-                previous_end = cue.end_seconds
+class EncoderCompatibilityTests(unittest.TestCase):
+    def test_encoder_accepts_lossless_rgb_frames_instead_of_lossy_jpeg_frames(self):
+        self.assertTrue(hasattr(walkthroughs, 'build_encoder_command'))
 
-    def test_every_walkthrough_uses_a_directed_adaptive_close_up(self):
-        for walkthrough in walkthroughs.WALKTHROUGHS:
-            initial_scale, focus = walkthroughs.camera_state(walkthrough, 0.5)
-            cue_scales = [
-                scale
-                for cue in walkthrough.camera_cues
-                for scale in (cue.start_scale, cue.end_scale)
-            ]
-            final_scale, _ = walkthroughs.camera_state(walkthrough, 9.5)
-
-            self.assertGreaterEqual(initial_scale, 2.05)
-            self.assertEqual(focus, (1360.0, 280.0))
-            self.assertGreaterEqual(min(cue_scales), 1.82)
-            self.assertLessEqual(max(cue_scales), 2.3)
-            self.assertTrue(any(scale >= 2.18 for scale in cue_scales[2:]))
-            self.assertGreaterEqual(final_scale, 1.82)
-
-    def test_each_configuration_action_keeps_labels_and_values_readable(self):
-        """All task shots after tab selection use a semantic-block close-up."""
-        for walkthrough in walkthroughs.WALKTHROUGHS:
-            for action in walkthrough.actions[1:-1]:
-                scale, _ = walkthroughs.camera_state(
-                    walkthrough,
-                    action.at_seconds,
-                )
-                with self.subTest(channel=walkthrough.channel, action=action.name):
-                    self.assertGreaterEqual(scale, 2.18)
-
-    def test_completion_shot_keeps_the_last_edit_and_save_action_in_frame(self):
-        for walkthrough in walkthroughs.WALKTHROUGHS:
-            final_scale, (focus_x, focus_y) = walkthroughs.camera_state(
-                walkthrough,
-                walkthrough.actions[-1].at_seconds,
-            )
-            crop_width, crop_height = walkthroughs.crop_size(
-                walkthroughs.SOURCE_SIZE,
-                final_scale,
-            )
-            safe_left = focus_x - (crop_width * 0.42)
-            safe_right = focus_x + (crop_width * 0.42)
-            safe_top = focus_y - (crop_height * 0.42)
-            safe_bottom = focus_y + (crop_height * 0.42)
-
-            for action in walkthrough.actions[-2:]:
-                with self.subTest(channel=walkthrough.channel, action=action.name):
-                    pointer_x, pointer_y = action.pointer_target
-                    self.assertGreaterEqual(pointer_x, safe_left)
-                    self.assertLessEqual(pointer_x, safe_right)
-                    self.assertGreaterEqual(pointer_y, safe_top)
-                    self.assertLessEqual(pointer_y, safe_bottom)
-
-    def test_field_actions_keep_the_label_and_value_inside_the_safe_frame(self):
-        required_anchors = {
-            'web': {
-                'set-inactive-status': ((1000, 470), (1400, 564)),
-                'select-revenue-share': ((1050, 900), (1400, 1064)),
-                'enter-payout': ((1050, 900), (1400, 1064)),
-            },
-            'ping-post': {
-                'enter-profit-value': ((1100, 320), (1600, 420)),
-                'enable-delivery-requirement': ((1100, 750), (1600, 820)),
-                'search-lead-field': ((1500, 980), (2050, 1078)),
-                'select-lead-field': ((1500, 980), (2050, 1264)),
-            },
-            'phone': {
-                'enter-number-name': ((1450, 700), (2050, 802)),
-                'select-call-flow': ((1450, 1110), (2050, 1220)),
-            },
-            'chat': {
-                'fill-chat-identity': ((1100, 390), (1700, 476)),
-                'select-message-flow': ((2200, 390), (2550, 476)),
-                'fill-company-agent': ((1200, 920), (2300, 1016)),
-                'enter-welcome-message': ((1150, 1220), (2050, 1330)),
-                'enable-chat-options': ((1150, 1710), (2300, 1894)),
-            },
-        }
-
-        for walkthrough in walkthroughs.WALKTHROUGHS:
-            actions = {action.name: action for action in walkthrough.actions}
-            for action_name, anchors in required_anchors[walkthrough.channel].items():
-                action = actions[action_name]
-                scale, (focus_x, focus_y) = walkthroughs.camera_state(
-                    walkthrough,
-                    action.at_seconds,
-                )
-                crop_width, crop_height = walkthroughs.crop_size(
-                    walkthroughs.SOURCE_SIZE,
-                    scale,
-                )
-                safe_left = focus_x - (crop_width * 0.42)
-                safe_right = focus_x + (crop_width * 0.42)
-                safe_top = focus_y - (crop_height * 0.42)
-                safe_bottom = focus_y + (crop_height * 0.42)
-
-                for anchor_name, (anchor_x, anchor_y) in zip(
-                    ('label', 'value'),
-                    anchors,
-                ):
-                    with self.subTest(
-                        channel=walkthrough.channel,
-                        action=action_name,
-                        anchor=anchor_name,
-                    ):
-                        self.assertGreaterEqual(anchor_x, safe_left)
-                        self.assertLessEqual(anchor_x, safe_right)
-                        self.assertGreaterEqual(anchor_y, safe_top)
-                        self.assertLessEqual(anchor_y, safe_bottom)
-
-    def test_crop_validation_allows_only_a_small_readability_upscale(self):
-        self.assertEqual(
-            walkthroughs.crop_size(walkthroughs.SOURCE_SIZE, 2.0),
-            walkthroughs.OUTPUT_SIZE,
+        command = walkthroughs.build_encoder_command(
+            Path('/usr/local/bin/ffmpeg'),
+            'libvpx',
+            Path('/tmp/walkthrough.webm'),
         )
-        walkthroughs.validate_crop(walkthroughs.SOURCE_SIZE, 2.0)
-        self.assertEqual(
-            walkthroughs.crop_size(walkthroughs.SOURCE_SIZE, 2.3),
-            (1670, 939),
+
+        self.assertEqual(command[command.index('-f') + 1], 'rawvideo')
+        self.assertEqual(command[command.index('-pixel_format') + 1], 'rgb24')
+        self.assertEqual(command[command.index('-video_size') + 1], '1920x1080')
+        self.assertNotIn('mjpeg', command)
+
+    def test_prefers_browser_safe_vp8_when_vp8_and_vp9_are_available(self):
+        encoders = subprocess.CompletedProcess(
+            args=['ffmpeg', '-encoders'],
+            returncode=0,
+            stdout=' V....D libvpx-vp9\n V....D libvpx\n',
+            stderr='',
         )
-        walkthroughs.validate_crop(walkthroughs.SOURCE_SIZE, 2.3)
-        with self.assertRaisesRegex(ValueError, 'upscal'):
-            walkthroughs.validate_crop(walkthroughs.SOURCE_SIZE, 2.31)
+        with mock.patch.object(walkthroughs.subprocess, 'run', return_value=encoders):
+            encoder = walkthroughs.preferred_encoder(Path('ffmpeg'))
+
+        self.assertEqual(encoder, 'libvpx')
+
+
+class CameraAndCursorTests(unittest.TestCase):
+    def test_action_can_request_a_tighter_semantic_close_up(self):
+        action = sample_action(
+            kind='save',
+            targetRole='button',
+            cameraScale=2.24,
+        )
+
+        self.assertEqual(walkthroughs.camera_scale_for_action(action), 2.24)
+
+    def test_poster_uses_the_last_completed_configuration_before_save(self):
+        trace = sample_trace([
+            sample_action(id='type-final-value', kind='type', targetRole='textbox'),
+            sample_action(
+                id='save-settings',
+                kind='save',
+                targetRole='button',
+                startedAtMs=2000,
+            ),
+        ])
+        save = trace['timeline']['actions'][-1]
+
+        self.assertAlmostEqual(
+            walkthroughs.poster_time_seconds(trace),
+            (save['startMs'] - 1) / 1000,
+        )
+
+    def test_static_poster_does_not_leave_a_pointer_over_stale_ui(self):
+        cursor = walkthroughs.Image.new('RGBA', (54, 72), (0, 0, 0, 255))
+
+        poster_cursor = walkthroughs.poster_cursor(cursor)
+
+        self.assertIsNone(poster_cursor.getchannel('A').getbbox())
+
+    def test_dialog_camera_centers_the_full_dialog_region_with_balanced_margins(self):
+        action = sample_action(
+            id='focus-number-name',
+            kind='focus',
+            targetRole='textbox',
+            cameraMode='dialog',
+            targetRect={'x': 760, 'y': 340, 'width': 560, 'height': 40},
+            frameRect={'x': 620, 'y': 190, 'width': 800, 'height': 660},
+            clickPoint={'x': 940, 'y': 360},
+        )
+
+        camera = walkthroughs.camera_for_action(action)
+        frame_left = walkthroughs.project_css_point(
+            {'x': action['frameRect']['x'], 'y': 360},
+            camera.crop_box,
+        )[0]
+        frame_right = walkthroughs.project_css_point(
+            {
+                'x': action['frameRect']['x'] + action['frameRect']['width'],
+                'y': 360,
+            },
+            camera.crop_box,
+        )[0]
+
+        self.assertAlmostEqual(
+            frame_left,
+            walkthroughs.OUTPUT_SIZE[0] - frame_right,
+            delta=1,
+        )
+
+    def test_dialog_save_uses_a_readable_close_up_when_the_final_region_fits(self):
+        action = sample_action(
+            id='save-ping-field',
+            kind='save',
+            targetRole='button',
+            cameraMode='dialog',
+            targetRect={'x': 1220, 'y': 760, 'width': 64, 'height': 40},
+            frameRect={'x': 720, 'y': 560, 'width': 600, 'height': 260},
+            clickPoint={'x': 1252, 'y': 780},
+        )
+
+        camera = walkthroughs.camera_for_action(action)
+
+        self.assertGreaterEqual(camera.scale, 1.8)
+
+    def test_work_camera_uses_a_close_up_without_reserving_navigation_for_empty_width(self):
+        action = sample_action(
+            id='open-status',
+            kind='open',
+            targetRole='combobox',
+            targetRect={'x': 600, 'y': 330, 'width': 720, 'height': 40},
+            frameRect={'x': 520, 'y': 280, 'width': 1096, 'height': 340},
+            clickPoint={'x': 720, 'y': 350},
+        )
+
+        camera = walkthroughs.camera_for_action(action)
+        frame_left = walkthroughs.project_css_point(
+            {'x': action['frameRect']['x'], 'y': 350},
+            camera.crop_box,
+        )[0]
+        self.assertGreaterEqual(frame_left, 0)
+        self.assertLessEqual(frame_left, 96)
+        self.assertGreaterEqual(camera.scale, 2.1)
+
+    def test_camera_keeps_exact_click_hotspot_and_full_cursor_inside_safe_frame(self):
+        edge_actions = [
+            sample_action(
+                id='left',
+                targetRect={'x': 0, 'y': 200, 'width': 48, 'height': 28},
+                frameRect={'x': 0, 'y': 150, 'width': 460, 'height': 160},
+                clickPoint={'x': 24, 'y': 214},
+            ),
+            sample_action(
+                id='right',
+                targetRect={'x': 1848, 'y': 820, 'width': 48, 'height': 28},
+                frameRect={'x': 1420, 'y': 720, 'width': 500, 'height': 220},
+                clickPoint={'x': 1872, 'y': 834},
+                startedAtMs=2000,
+            ),
+        ]
+        for action in edge_actions:
+            camera = walkthroughs.camera_for_action(action)
+            hotspot = walkthroughs.project_css_point(action['clickPoint'], camera.crop_box)
+            cursor_rect = walkthroughs.cursor_rect_for_hotspot(hotspot)
+            walkthroughs.validate_cursor_rect(cursor_rect)
+
+    def test_cursor_path_is_safe_for_every_rendered_frame(self):
+        trace = sample_trace([
+            sample_action(id='first'),
+            sample_action(
+                id='second',
+                targetRect={'x': 1700, 'y': 900, 'width': 120, 'height': 40},
+                frameRect={'x': 1500, 'y': 780, 'width': 380, 'height': 200},
+                clickPoint={'x': 1760, 'y': 920},
+                startedAtMs=2000,
+            ),
+        ])
+        walkthroughs.validate_trace(trace)
+        for frame_index in range(
+            int(trace['timeline']['durationMs'] / 1000 * walkthroughs.FPS),
+        ):
+            state = walkthroughs.frame_state(trace, frame_index / walkthroughs.FPS)
+            walkthroughs.validate_cursor_rect(state.cursor_rect)
+
+    def test_camera_is_stationary_during_intent_click_and_state_change(self):
+        trace = sample_trace()
+        action = trace['timeline']['actions'][0]
+        before_click = walkthroughs.frame_state(
+            trace,
+            (action['interactionMs'] - 100) / 1000,
+        ).camera
+        after_click = walkthroughs.frame_state(
+            trace,
+            (action['interactionMs'] + action['feedbackMs'] + 50) / 1000,
+        ).camera
+        self.assertEqual(before_click.crop_box, after_click.crop_box)
+
+    def test_typing_scene_advances_one_character_at_a_time(self):
+        typing = sample_action(
+            id='type-profit-value',
+            kind='type',
+            targetRole='textbox',
+            text='35',
+            typingDelayMs=60,
+            typingScenes=[
+                {'scene': '010-empty.jpg', 'value': ''},
+                {'scene': '011-3.jpg', 'value': '3'},
+                {'scene': '012-35.jpg', 'value': '35'},
+            ],
+            afterScene='012-35.jpg',
+        )
+        trace = sample_trace([typing])
+        timeline = trace['timeline']['actions'][0]
+        timeline['stateMs'] = 180
+        timeline['endMs'] = timeline['interactionMs'] + 120 + 180 + 600
+        trace['timeline']['durationMs'] = timeline['endMs'] + 1100
+
+        start_seconds = (timeline['interactionMs'] + timeline['feedbackMs']) / 1000
+        self.assertEqual(walkthroughs.scene_at_time(trace, start_seconds), '010-empty.jpg')
+        self.assertEqual(walkthroughs.scene_at_time(trace, start_seconds + .065), '011-3.jpg')
+        self.assertEqual(walkthroughs.scene_at_time(trace, start_seconds + .125), '012-35.jpg')
+
+    def test_actions_in_one_semantic_shot_keep_one_camera_state(self):
+        first = sample_action(
+            id='focus-profit',
+            cameraShot='profit',
+            targetRect={'x': 560, 'y': 380, 'width': 260, 'height': 40},
+            frameRect={'x': 500, 'y': 320, 'width': 420, 'height': 180},
+            clickPoint={'x': 640, 'y': 400},
+        )
+        second = sample_action(
+            id='type-profit',
+            cameraShot='profit',
+            targetRect={'x': 1160, 'y': 600, 'width': 260, 'height': 40},
+            frameRect={'x': 1000, 'y': 520, 'width': 520, 'height': 180},
+            clickPoint={'x': 1240, 'y': 620},
+            startedAtMs=2000,
+        )
+        trace = sample_trace([first, second])
+        first_time = (trace['timeline']['actions'][0]['interactionMs'] - 50) / 1000
+        second_time = (trace['timeline']['actions'][1]['interactionMs'] - 50) / 1000
+
+        first_camera = walkthroughs.frame_state(trace, first_time).camera
+        second_camera = walkthroughs.frame_state(trace, second_time).camera
+        self.assertEqual(first_camera.crop_box, second_camera.crop_box)
+
+    def test_scene_crossfade_finishes_quickly_instead_of_lasting_for_camera_move(self):
+        first = sample_action(id='first', cameraShot='first-shot')
+        second = sample_action(
+            id='second',
+            cameraShot='second-shot',
+            clickPoint={'x': 500, 'y': 360},
+            startedAtMs=2000,
+        )
+        trace = sample_trace([first, second])
+        second_timeline = trace['timeline']['actions'][1]
+        state = walkthroughs.frame_state(
+            trace,
+            (second_timeline['startMs'] + 100) / 1000,
+        )
+
+        self.assertEqual(state.scene_blend, 1.0)
+
+    def test_completion_shot_keeps_last_configuration_label_and_save_click_visible(self):
+        action = sample_action(
+            id='save-general-settings',
+            kind='save',
+            targetRole='button',
+            targetRect={'x': 1562, 'y': 1004, 'width': 54, 'height': 32},
+            frameRect={'x': 520, 'y': 433, 'width': 1096, 'height': 603},
+            clickPoint={'x': 1589, 'y': 1020},
+        )
+        camera = walkthroughs.camera_for_action(action)
+        label_anchor = walkthroughs.project_css_point(
+            {'x': 520, 'y': 540},
+            camera.crop_box,
+        )
+        save_anchor = walkthroughs.project_css_point(action['clickPoint'], camera.crop_box)
+
+        self.assertGreaterEqual(label_anchor[0], walkthroughs.CURSOR_SAFE_INSET)
+        self.assertLessEqual(save_anchor[0], walkthroughs.OUTPUT_SIZE[0] - walkthroughs.CURSOR_SAFE_INSET)
+
+
+class ThemeParityTests(unittest.TestCase):
+    def test_light_and_dark_require_identical_action_structure(self):
+        light = sample_trace(theme='light')
+        dark = sample_trace(theme='dark')
+        walkthroughs.validate_theme_parity(light, dark)
+        dark['actions'][0]['id'] = 'different-action'
+        with self.assertRaisesRegex(ValueError, 'structurally identical'):
+            walkthroughs.validate_theme_parity(light, dark)
 
 
 if __name__ == '__main__':
