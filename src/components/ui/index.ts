@@ -3,6 +3,17 @@ export type { ButtonProps } from './button'
 
 export { Input } from './input'
 
+export { DateInput } from './date-input'
+
+export {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+} from './input-group'
+
 export { Label } from './label'
 
 export {

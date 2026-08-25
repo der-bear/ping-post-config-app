@@ -59,9 +59,10 @@ const MAPPING_TYPE_ICONS = MAPPING_TYPE_OPTIONS.reduce(
 
 interface MappingsSettingsProps {
   phase: 'ping' | 'post'
+  standalone?: boolean
 }
 
-export function MappingsSettings({ phase }: MappingsSettingsProps) {
+export function MappingsSettings({ phase, standalone = false }: MappingsSettingsProps) {
   const isPing = phase === 'ping'
 
   const pingMappings = useDeliveryMethodStore((s) => s.config.ping.mappings.mappings)
@@ -223,7 +224,7 @@ export function MappingsSettings({ phase }: MappingsSettingsProps) {
                 <ToolbarAction icon={Plus} label="New" variant="dropdown" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
-                {!isPing && (
+                {!isPing && !standalone && (
                   <>
                     <DropdownMenuItem onSelect={handleAddReferenceId}>
                       <KeyRound className="h-4 w-4" />
@@ -266,7 +267,7 @@ export function MappingsSettings({ phase }: MappingsSettingsProps) {
         }
         emptyMessage="No field mappings configured"
         afterContent={
-          !isPing && pingMappings.length > 0 ? (
+          !isPing && !standalone && pingMappings.length > 0 ? (
             <Button
               size="sm"
               onClick={handleImportFromPing}

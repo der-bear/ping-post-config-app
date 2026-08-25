@@ -38,13 +38,13 @@ const tabs: Array<{ section: DeliveryAccountSection; label: string }> = [
 ]
 
 const panelTitles: Record<DeliveryAccountSection, string> = {
-  general: 'General',
+  general: 'Delivery Account Detail',
   'quantity-limits': 'Quantity Limits',
   delivery: 'Delivery',
   revenue: 'Revenue',
   criteria: 'Criteria',
-  offer: 'Offer',
-  advanced: 'Advanced',
+  offer: 'Offer Details',
+  advanced: 'Advanced Options',
 }
 
 function comparableAccount(account: DeliveryAccount) {
@@ -156,6 +156,7 @@ export function DeliveryAccountEditor({
   return (
     <>
       <PanelLayout
+        className="rounded-none"
         sidebar={
           <PanelSidebar>
             {tabs.map((tab) => (
@@ -170,7 +171,6 @@ export function DeliveryAccountEditor({
         }
         header={
           <PanelHeader
-            subtitle="Delivery Account"
             title={panelTitles[activeSection]}
             isExpanded={isPanelExpanded}
             onMaximize={togglePanelExpanded}
@@ -180,9 +180,7 @@ export function DeliveryAccountEditor({
         footer={
           <PanelFooter
             leftActions={
-              <p className="text-xs text-muted-foreground">
-                {activeSection === 'criteria' ? 'Criteria changes save automatically' : 'Save changes before closing'}
-              </p>
+              <Button size="sm">Export</Button>
             }
             rightActions={
               <>

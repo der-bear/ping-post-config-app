@@ -43,6 +43,8 @@ interface WizardDialogProps {
   isSaving?: boolean
   savingMessage?: string
   width?: string
+  showPreviousOnFirstStep?: boolean
+  dialogClassName?: string
 }
 
 export function WizardDialog({
@@ -63,6 +65,8 @@ export function WizardDialog({
   isSaving = false,
   savingMessage = 'Saving...',
   width = '791px',
+  showPreviousOnFirstStep = false,
+  dialogClassName,
 }: WizardDialogProps) {
   let previousStepIndex = -1
   for (let index = activeStep - 1; index >= 0; index -= 1) {
@@ -129,7 +133,10 @@ export function WizardDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showClose={false}
-        className="p-0 gap-0 flex flex-col max-h-[80vh] top-[10vh] translate-y-0 overflow-hidden"
+        className={cn(
+          'p-0 gap-0 flex flex-col max-h-[80vh] top-[10vh] translate-y-0 overflow-hidden',
+          dialogClassName,
+        )}
         style={{ maxWidth: width }}
       >
         <DialogPanelHeader
@@ -198,7 +205,7 @@ export function WizardDialog({
           )}
 
           {/* Step content — vertical scroll when content exceeds modal height */}
-          <div className="relative flex-1 min-w-0 overflow-y-auto pr-1">
+          <div className="relative flex-1 min-w-0 overflow-x-hidden overflow-y-auto pr-1">
             {currentStep?.content}
             <SavingOverlay open={isSaving} message={savingMessage} />
           </div>
@@ -209,11 +216,11 @@ export function WizardDialog({
           <Button variant="outline" onClick={onCancel} disabled={isSaving}>
             Cancel
           </Button>
-          {!isFirstStep && (
+          {(!isFirstStep || showPreviousOnFirstStep) && (
             <Button
               variant="outline"
               onClick={() => handleStepChange(previousStepIndex)}
-              disabled={isSaving}
+              disabled={isSaving || isFirstStep}
             >
               <ChevronLeft className="size-4" />
               Previous

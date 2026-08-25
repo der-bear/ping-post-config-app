@@ -1,7 +1,11 @@
 import { useState } from 'react'
-import { ClipboardList, ListChecks, Settings2, SquarePlus, Waypoints } from 'lucide-react'
+import { ClipboardList, ListChecks, Settings2, SquarePlus, Waypoints, Webhook } from 'lucide-react'
 
 import { CenteredListGroup } from '@/components/centered-list-group'
+import { CreateDeliveryMethodModal } from '@/features/delivery-method/components/create-delivery-method-modal'
+import { DeliveryMethodEditor } from '@/features/delivery-method/components'
+import { initializeDeliveryMethod } from '@/features/delivery-method/initialize-delivery-method'
+import { useDeliveryMethodStore } from '@/features/delivery-method/store'
 import { useClientConfigurationStore } from '../store'
 import type { DeliveryAccountSection, OrderSection } from '../types'
 import { ClientNextStepsDialog } from './client-next-steps-dialog'
@@ -17,6 +21,8 @@ type ClientConfigurationView =
   | 'delivery-account'
   | 'create-order'
   | 'order'
+  | 'create-delivery-method'
+  | 'delivery-method'
 
 const viewHeadings: Record<Exclude<ClientConfigurationView, 'launcher'>, string> = {
   'create-client': 'Create a Client',
@@ -24,6 +30,8 @@ const viewHeadings: Record<Exclude<ClientConfigurationView, 'launcher'>, string>
   'delivery-account': 'Delivery Account',
   'create-order': 'Create Order',
   order: 'Order',
+  'create-delivery-method': 'Create Delivery Method',
+  'delivery-method': 'Delivery Method',
 }
 
 export function ClientConfigurationEntry() {
@@ -34,6 +42,7 @@ export function ClientConfigurationEntry() {
   )
   const replaceOrder = useClientConfigurationStore((state) => state.replaceOrder)
   const isPanelExpanded = useClientConfigurationStore((state) => state.isPanelExpanded)
+  const isDeliveryMethodPanelExpanded = useDeliveryMethodStore((state) => state.isPanelExpanded)
   const setActiveDeliveryAccountSection = useClientConfigurationStore(
     (state) => state.setActiveDeliveryAccountSection,
   )
@@ -42,6 +51,8 @@ export function ClientConfigurationEntry() {
   const [deliveryAccountInitialSection, setDeliveryAccountInitialSection] =
     useState<DeliveryAccountSection>('general')
   const [orderInitialSection, setOrderInitialSection] = useState<OrderSection>('general')
+  const [deliveryMethodReturnView, setDeliveryMethodReturnView] =
+    useState<'launcher' | 'next-steps'>('launcher')
 
   const openDeliveryAccount = (section: DeliveryAccountSection) => {
     setDeliveryAccountInitialSection(section)
@@ -53,6 +64,11 @@ export function ClientConfigurationEntry() {
     setOrderInitialSection(section)
     setActiveOrderSection(section)
     setActiveView('order')
+  }
+
+  const openCreateDeliveryMethod = (returnView: 'launcher' | 'next-steps') => {
+    setDeliveryMethodReturnView(returnView)
+    setActiveView('create-delivery-method')
   }
 
   if (activeView === 'create-client') {
@@ -74,7 +90,7 @@ export function ClientConfigurationEntry() {
         deliveryAccountName={deliveryAccountName}
         onCreateOrder={() => setActiveView('create-order')}
         onOpenCriteria={() => openDeliveryAccount('criteria')}
-        onEditDeliveryAccount={() => openDeliveryAccount('general')}
+        onCreateDeliveryMethod={() => openCreateDeliveryMethod('next-steps')}
         onClose={() => setActiveView('launcher')}
       />
     )
@@ -82,9 +98,9 @@ export function ClientConfigurationEntry() {
 
   if (activeView === 'delivery-account') {
     return (
-      <div className="flex min-h-0 flex-1 flex-col p-4 md:p-8">
+      <div className="fixed inset-0 z-40 flex justify-end bg-black/20">
         <div
-          className="mx-auto min-h-0 w-full flex-1 transition-[max-width] duration-200"
+          className="h-full min-h-0 w-full transition-[max-width] duration-200"
           style={{ maxWidth: isPanelExpanded ? 1180 : 860, minWidth: 480 }}
         >
           <DeliveryAccountEditor
@@ -127,6 +143,32 @@ export function ClientConfigurationEntry() {
     )
   }
 
+  if (activeView === 'create-delivery-method') {
+    return (
+      <CreateDeliveryMethodModal
+        open
+        onClose={() => setActiveView(deliveryMethodReturnView)}
+        onCreate={(submission) => {
+          initializeDeliveryMethod(submission)
+          setActiveView('delivery-method')
+        }}
+      />
+    )
+  }
+
+  if (activeView === 'delivery-method') {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col p-4 md:p-8">
+        <div
+          className="mx-auto min-h-0 w-full flex-1 transition-[max-width] duration-200"
+          style={{ maxWidth: isDeliveryMethodPanelExpanded ? 1180 : 860, minWidth: 480 }}
+        >
+          <DeliveryMethodEditor onClose={() => setActiveView('launcher')} />
+        </div>
+      </div>
+    )
+  }
+
   if (activeView !== 'launcher') {
     return (
       <main className="flex flex-1 items-center justify-center p-8">
@@ -150,7 +192,7 @@ export function ClientConfigurationEntry() {
         <CenteredListGroup
           heading="Creation flows"
           layout="cards"
-          columns={2}
+          columns={3}
           className="flex-none"
           items={[
             {
@@ -166,6 +208,13 @@ export function ClientConfigurationEntry() {
               description: 'Build the first safe, on-hold lead order for the current client.',
               icon: <ClipboardList className="h-4 w-4 text-muted-foreground" />,
               onAction: () => setActiveView('create-order'),
+            },
+            {
+              id: 'create-delivery-method',
+              label: 'Create HTTP Webhook',
+              description: 'Create an additional delivery method and configure its endpoint, authentication, and field mappings.',
+              icon: <Webhook className="h-4 w-4 text-muted-foreground" />,
+              onAction: () => openCreateDeliveryMethod('launcher'),
             },
           ]}
         />

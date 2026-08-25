@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import {
   Button,
+  DateInput,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -18,8 +19,6 @@ import {
   Separator,
   SwitchField,
 } from '@/components/ui'
-import { Textarea } from '@/components/ui/textarea'
-
 import type { OrderCreationSubmission, OrderItem } from '../../types'
 
 interface CreateOrderDialogProps {
@@ -33,30 +32,28 @@ interface CreateOrderDialogProps {
 export function CreateOrderDialog({
   open,
   deliveryAccountName,
-  defaultLeadPrice,
   onClose,
   onCreate,
 }: CreateOrderDialogProps) {
   const [name, setName] = useState('')
-  const [leadType, setLeadType] = useState('Short Mortgage Lead')
+  const [leadType, setLeadType] = useState('Any Lead Type')
   const [description, setDescription] = useState('')
-  const [startDate, setStartDate] = useState('2026-08-24')
+  const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
-  const [status, setStatus] = useState<OrderCreationSubmission['status']>('on-hold')
+  const [status, setStatus] = useState<OrderCreationSubmission['status']>('open')
   const [renewOrder, setRenewOrder] = useState(false)
-  const [autoCharge, setAutoCharge] = useState(false)
-  const [deliveryAccount, setDeliveryAccount] = useState('All Delivery Accounts')
+  const [hasEndDate, setHasEndDate] = useState(false)
+  const [deliveryAccount, setDeliveryAccount] = useState('')
   const [orderType, setOrderType] = useState<OrderItem['orderType']>('Lead Quantity')
-  const [quantity, setQuantity] = useState('1')
-  const [perLeadPrice, setPerLeadPrice] = useState(String(defaultLeadPrice.toFixed(2)))
-  const [paymentDiscount, setPaymentDiscount] = useState('0')
-  const [maxReturnPercentage, setMaxReturnPercentage] = useState('0')
+  const [quantity, setQuantity] = useState('0')
+  const [perLeadPrice, setPerLeadPrice] = useState('')
+  const [paymentDiscount, setPaymentDiscount] = useState('$0.00')
   const [nameError, setNameError] = useState('')
   const [quantityError, setQuantityError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
 
   const handleCreate = async () => {
-    const nextNameError = name.trim() ? '' : 'Order Name is required.'
+    const nextNameError = name.trim() ? '' : 'Name is required.'
     const numericQuantity = Number(quantity)
     const nextQuantityError = numericQuantity > 0 ? '' : 'Quantity must be greater than zero.'
     setNameError(nextNameError)
@@ -71,12 +68,12 @@ export function CreateOrderDialog({
       description: description.trim(),
       status,
       startDate,
-      endDate,
+      endDate: hasEndDate ? endDate : '',
       renewOrder,
-      autoCharge,
-      paymentDiscount: Number(paymentDiscount) || 0,
-      maxReturnPercentage: Number(maxReturnPercentage) || 0,
-      deliveryAccount,
+      autoCharge: false,
+      paymentDiscount: Number(paymentDiscount.replace(/[^0-9.-]/g, '')) || 0,
+      maxReturnPercentage: 0,
+      deliveryAccount: deliveryAccount || 'All Delivery Accounts',
       orderType,
       quantity: numericQuantity,
       perLeadPrice: Number(perLeadPrice) || 0,
@@ -88,21 +85,21 @@ export function CreateOrderDialog({
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent
         showClose={false}
-        className="max-h-[88vh] max-w-[880px] gap-0 overflow-hidden p-0 shadow-panel"
+        className="top-6 flex max-h-[calc(100vh-32px)] max-w-[560px] translate-y-0 flex-col gap-0 overflow-hidden p-0 shadow-panel"
       >
         <DialogPanelHeader title="Create Order" onClose={onClose} />
         <DialogDescription className="sr-only">
           Create a safe outbound lead order and its first Delivery Account item.
         </DialogDescription>
 
-        <div className="relative min-h-0 flex-1 overflow-y-auto px-5 py-5">
-          <div className="grid gap-5 md:grid-cols-2">
-            <FieldGroup label="Order Name" required className="md:col-span-2">
+        <div className="relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-5 py-4">
+          <div className="grid gap-3.5 sm:grid-cols-2">
+            <FieldGroup label="Name" className="sm:col-span-2">
               <Input
-                aria-label="Order Name"
+                aria-label="Name"
                 value={name}
                 aria-invalid={Boolean(nameError)}
-                placeholder="Example: Codex Demo Mortgage Order"
+                placeholder="Required"
                 onChange={(event) => {
                   setName(event.target.value)
                   setNameError('')
@@ -111,16 +108,55 @@ export function CreateOrderDialog({
               {nameError && <p className="mt-1 text-xs text-destructive">{nameError}</p>}
             </FieldGroup>
 
-            <FieldGroup label="Lead Type">
+            <FieldGroup
+              label="Lead Type"
+              description="Select the vertical this order is for"
+              className="sm:col-span-2"
+            >
               <Select value={leadType} onValueChange={setLeadType}>
                 <SelectTrigger aria-label="Lead Type"><SelectValue /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="Any Lead Type">Any Lead Type</SelectItem>
                   <SelectItem value="Short Mortgage Lead">Short Mortgage Lead</SelectItem>
                   <SelectItem value="Auto Insurance Lead">Auto Insurance Lead</SelectItem>
                   <SelectItem value="Home Services Lead">Home Services Lead</SelectItem>
                 </SelectContent>
               </Select>
             </FieldGroup>
+
+            <FieldGroup
+              label="Description"
+              description="Brief description of what this order is for."
+              className="sm:col-span-2"
+            >
+              <Input
+                aria-label="Description"
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+              />
+            </FieldGroup>
+
+            <FieldGroup label="Start Date" description="What date should this order begin?">
+              <DateInput
+                aria-label="Start Date"
+                value={startDate}
+                pickerLabel="Choose Start Date"
+                onValueChange={setStartDate}
+              />
+            </FieldGroup>
+            <SwitchField
+              label="End Date"
+              description="Should this order end on a specific date?"
+              checked={hasEndDate}
+              onCheckedChange={setHasEndDate}
+            >
+              <DateInput
+                aria-label="End Date"
+                value={endDate}
+                pickerLabel="Choose End Date"
+                onValueChange={setEndDate}
+              />
+            </SwitchField>
 
             <FieldGroup label="Initial Status">
               <Select
@@ -129,66 +165,36 @@ export function CreateOrderDialog({
               >
                 <SelectTrigger aria-label="Initial Status"><SelectValue /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="open">Open</SelectItem>
                   <SelectItem value="on-hold">On Hold</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="closed">Closed</SelectItem>
                 </SelectContent>
               </Select>
             </FieldGroup>
 
-            <FieldGroup label="Description" className="md:col-span-2">
-              <Textarea
-                aria-label="Description"
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                placeholder="Describe the purpose of this order"
-              />
-            </FieldGroup>
-
-            <FieldGroup label="Start Date">
-              <Input
-                aria-label="Start Date"
-                type="date"
-                value={startDate}
-                onChange={(event) => setStartDate(event.target.value)}
-              />
-            </FieldGroup>
-            <FieldGroup label="End Date" description="Optional">
-              <Input
-                aria-label="End Date"
-                type="date"
-                value={endDate}
-                onChange={(event) => setEndDate(event.target.value)}
-              />
-            </FieldGroup>
-
-            <div className="md:col-span-2"><Separator /></div>
-
             <SwitchField
               label="Renew Order"
-              description="Automatically create a replacement when this order is completed."
+              description="Automatically renew this order when complete."
               checked={renewOrder}
               onCheckedChange={setRenewOrder}
             />
-            <SwitchField
-              label="Auto Charge"
-              description="Configuration preview only; no payment workflow is triggered."
-              checked={autoCharge}
-              onCheckedChange={setAutoCharge}
-            />
 
-            <div className="md:col-span-2"><Separator /></div>
+            <div className="sm:col-span-2"><Separator className="my-0" /></div>
 
-            <FieldGroup label="Delivery Account">
+            <FieldGroup label="Delivery Account" className="sm:col-span-2">
               <Select value={deliveryAccount} onValueChange={setDeliveryAccount}>
-                <SelectTrigger aria-label="Delivery Account"><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-label="Delivery Account">
+                  <SelectValue placeholder="Select delivery accounts or leave empty for all" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All Delivery Accounts">All Delivery Accounts</SelectItem>
-                  <SelectItem value={deliveryAccountName}>{deliveryAccountName}</SelectItem>
+                  {deliveryAccountName.trim() && (
+                    <SelectItem value={deliveryAccountName}>{deliveryAccountName}</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </FieldGroup>
-            <FieldGroup label="Order Type">
+            <FieldGroup label="Order Type" className="sm:col-span-2">
               <Select
                 value={orderType}
                 onValueChange={(value) => setOrderType(value as OrderItem['orderType'])}
@@ -200,7 +206,7 @@ export function CreateOrderDialog({
                 </SelectContent>
               </Select>
             </FieldGroup>
-            <FieldGroup label="Quantity" required>
+            <FieldGroup label="Quantity" description="The quantity of leads being ordered.">
               <Input
                 aria-label="Quantity"
                 type="number"
@@ -214,33 +220,27 @@ export function CreateOrderDialog({
               />
               {quantityError && <p className="mt-1 text-xs text-destructive">{quantityError}</p>}
             </FieldGroup>
-            <FieldGroup label="Per Lead Price">
+            <FieldGroup label="Per Lead Price" description="Set a per lead price including discounts.">
               <Input
                 aria-label="Per Lead Price"
-                type="number"
-                min="0"
-                step="0.01"
+                inputMode="decimal"
                 value={perLeadPrice}
+                placeholder="Use Price on Delivery Account"
                 onChange={(event) => setPerLeadPrice(event.target.value)}
               />
             </FieldGroup>
-            <FieldGroup label="Payment Discount" description="Configuration only">
+            <div className="sm:col-span-2"><Separator className="my-0" /></div>
+
+            <FieldGroup
+              label="Payment Discount"
+              description="This amount will be deducted from the total amount due when a payment is processed."
+              className="sm:col-span-2"
+            >
               <Input
                 aria-label="Payment Discount"
-                type="number"
-                min="0"
+                inputMode="decimal"
                 value={paymentDiscount}
                 onChange={(event) => setPaymentDiscount(event.target.value)}
-              />
-            </FieldGroup>
-            <FieldGroup label="Max Return Percentage">
-              <Input
-                aria-label="Max Return Percentage"
-                type="number"
-                min="0"
-                max="100"
-                value={maxReturnPercentage}
-                onChange={(event) => setMaxReturnPercentage(event.target.value)}
               />
             </FieldGroup>
           </div>
@@ -248,7 +248,7 @@ export function CreateOrderDialog({
         </div>
 
         <DialogFooter className="border-t border-border px-5 py-3">
-          <Button variant="secondary" onClick={onClose} disabled={isSaving}>Cancel</Button>
+          <Button variant="secondary" onClick={onClose} disabled={isSaving}>Close</Button>
           <Button variant="success" onClick={handleCreate} disabled={isSaving}>Create</Button>
         </DialogFooter>
       </DialogContent>

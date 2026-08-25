@@ -10,12 +10,26 @@ interface RevenuePanelProps {
   onChange: (partial: Partial<RevenueSettings>) => void
 }
 
+const currency = (value: number) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  }).format(value)
+
+const parseNumber = (value: string) => Number(value.replace(/[^0-9.-]/g, '')) || 0
+
 export function RevenuePanel({ value, onChange }: RevenuePanelProps) {
   const update = (key: RevenueKey, partial: Partial<LimitSetting>) => {
     onChange({ [key]: { ...value[key], ...partial } })
   }
 
-  const setting = (key: RevenueKey, label: string, description: string) => (
+  const setting = (
+    key: RevenueKey,
+    label: string,
+    description: string,
+    format: 'currency' | 'percentage',
+  ) => (
     <SwitchField
       label={label}
       description={description}
@@ -24,11 +38,9 @@ export function RevenuePanel({ value, onChange }: RevenuePanelProps) {
     >
       <Input
         aria-label={`${label} Value`}
-        type="number"
-        min="0"
-        step="0.01"
-        value={value[key].value}
-        onChange={(event) => update(key, { value: Number(event.target.value) || 0 })}
+        inputMode="decimal"
+        value={format === 'currency' ? currency(value[key].value) : `${value[key].value}%`}
+        onChange={(event) => update(key, { value: parseNumber(event.target.value) })}
       />
     </SwitchField>
   )
@@ -36,15 +48,25 @@ export function RevenuePanel({ value, onChange }: RevenuePanelProps) {
   return (
     <div className="flex flex-col gap-4">
       <SectionHeading title="Delivery Requirements" size="sm" className="rounded-[4px] bg-muted px-3 py-2" />
-      {setting('revenueRequired', 'Revenue Required', 'Minimum revenue requirement.')}
-      <Separator />
-      {setting('profitRequired', 'Profit Required', 'Minimum profit requirement.')}
-      <Separator />
-      {setting('profitPercentageRequired', 'Profit % Required', 'Minimum profit percentage requirement.')}
+      {setting('revenueRequired', 'Revenue Required', 'Minimum revenue requirement', 'currency')}
+      <Separator className="my-0" />
+      {setting('profitRequired', 'Profit Required', 'Minimum profit requirement', 'currency')}
+      <Separator className="my-0" />
+      {setting('profitPercentageRequired', 'Profit % Required', 'Minimum profit percentage requirement', 'percentage')}
       <SectionHeading title="Lead Source Revenue Share" size="sm" className="rounded-[4px] bg-muted px-3 py-2" />
-      {setting('revenueShareDollar', 'Revenue Share Dollar', 'Add this amount to the source cost of each lead.')}
-      <Separator />
-      {setting('revenueSharePercentage', 'Revenue Share Percentage', 'Add this percentage to the source cost of each lead.')}
+      {setting(
+        'revenueShareDollar',
+        'Revenue Share Dollar',
+        'This amount will be added on to the cost of the lead back to the source.',
+        'currency',
+      )}
+      <Separator className="my-0" />
+      {setting(
+        'revenueSharePercentage',
+        'Revenue Share Percentage',
+        'The percentage of the sale specified will be added to the cost of the lead.',
+        'percentage',
+      )}
     </div>
   )
 }

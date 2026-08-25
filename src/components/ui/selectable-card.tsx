@@ -47,6 +47,8 @@ export function SelectableCard({
       <button
         type="button"
         data-slot="selectable-card"
+        data-selected={selected ? 'true' : 'false'}
+        aria-pressed={selected}
         disabled={disabled}
         onClick={onClick}
         className={cn(
@@ -73,6 +75,8 @@ export function SelectableCard({
     <button
       type="button"
       data-slot="selectable-card"
+      data-selected={selected ? 'true' : 'false'}
+      aria-pressed={selected}
       disabled={disabled}
       onClick={onClick}
       className={cn(

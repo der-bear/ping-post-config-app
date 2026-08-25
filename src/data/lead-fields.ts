@@ -79,7 +79,7 @@ export const LEAD_FIELD_CATEGORIES: {
 
 // ---- US state enum values (used by multiple fields) ----------------------
 
-const US_STATE_ENUM_VALUES: { value: string; label: string }[] = [
+export const US_STATE_ENUM_VALUES: { value: string; label: string }[] = [
   { value: 'AL', label: 'Alabama' },
   { value: 'AK', label: 'Alaska' },
   { value: 'AZ', label: 'Arizona' },

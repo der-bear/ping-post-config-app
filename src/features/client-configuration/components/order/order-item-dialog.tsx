@@ -71,7 +71,9 @@ export function OrderItemDialog({
               <SelectTrigger aria-label="Delivery Account"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="All Delivery Accounts">All Delivery Accounts</SelectItem>
-                <SelectItem value={deliveryAccountName}>{deliveryAccountName}</SelectItem>
+                {deliveryAccountName.trim() && (
+                  <SelectItem value={deliveryAccountName}>{deliveryAccountName}</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </FieldGroup>

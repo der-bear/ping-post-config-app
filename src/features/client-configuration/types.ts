@@ -20,11 +20,17 @@ export type DeliveryAccountSection =
   | 'offer'
   | 'advanced'
 
-export type OrderSection = 'general' | 'items'
+export type OrderSection = 'general' | 'items' | 'payments'
 
 export interface CriteriaRule {
   id: string
-  type: 'Field Value' | 'Client Field' | 'Regular Expression' | 'Calculated Expression'
+  type:
+    | 'Lead Field'
+    | 'Field Value'
+    | 'Client Field'
+    | 'Regular Expression'
+    | 'Calculated Expression'
+    | 'Evaluate Function'
   field: string
   operator: string
   value: string
@@ -43,7 +49,7 @@ export interface OrderCreationSubmission {
   name: string
   leadType: string
   description: string
-  status: 'active' | 'on-hold' | 'closed'
+  status: 'open' | 'on-hold' | 'closed'
   startDate: string
   endDate: string
   renewOrder: boolean
@@ -81,7 +87,7 @@ export interface ClientConfiguration {
     name: string
     leadType: string
     channel: string
-    status: 'open' | 'closed' | 'inactive'
+    status: 'open' | 'closed' | 'suspended' | 'on-hold'
     defaultLeadPrice: number
     quantityLimits: {
       total: LimitSetting
@@ -115,7 +121,7 @@ export interface ClientConfiguration {
     criteria: CriteriaRule[]
     offer: {
       enabled: boolean
-      type: 'static'
+      type: 'static' | 'dynamic'
       companyName: string
       companyPhoneNumber: string
       name: string
@@ -124,10 +130,15 @@ export interface ClientConfiguration {
       imageUrl: string
       privacyUrl: string
       termsUrl: string
-      duration: 'Monthly' | 'Weekly' | 'One Time'
+      duration: 'Monthly' | 'Yearly'
       amount: number
       customTcpaConsentEnabled: boolean
       customTcpaConsentText: string
+      timeZone: string
+      hasStartDate: boolean
+      startDate: string
+      hasEndDate: boolean
+      endDate: string
     }
     advanced: {
       exclusive: boolean
@@ -137,7 +148,7 @@ export interface ClientConfiguration {
       maximumReturnPercentage: number
       enforceQuantityConstraints: boolean
       limitByQualifiedLeadPercentage: boolean
-      qualifiedLeadLimitMode: 'Total' | 'Daily' | 'Weekly' | 'Monthly'
+      qualifiedLeadLimitMode: 'Total' | 'Hour' | 'Day' | 'Week' | 'Month' | 'Year'
       qualifiedLeadPercentage: number
       deliveryDelayEnabled: boolean
       deliveryDelaySeconds: number
@@ -149,12 +160,14 @@ export interface ClientConfiguration {
     name: string
     leadType: string
     description: string
-    status: 'active' | 'on-hold' | 'closed'
+    status: 'open' | 'on-hold' | 'closed'
     startDate: string
     endDate: string
     renewOrder: boolean
     autoCharge: boolean
+    autoChargeTiming: 'Charge before order starts' | 'Charge when order is complete'
     paymentDiscount: number
+    maxReturnPercentageEnabled: boolean
     maxReturnPercentage: number
     items: OrderItem[]
   }

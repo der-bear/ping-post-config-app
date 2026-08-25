@@ -1,11 +1,14 @@
 import { useState } from 'react'
-import { KeyRound } from 'lucide-react'
+import { Circle, LockKeyhole, Mail, UserRound } from 'lucide-react'
 
 import { WizardDialog, type WizardStep } from '@/components/wizard-dialog'
 import {
-  Button,
   FieldGroup,
   Input,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
   SectionHeading,
   Select,
   SelectContent,
@@ -64,22 +67,40 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
   const [status, setStatus] = useState<ClientStatus>('new')
   const [clientGroup, setClientGroup] = useState('No Group')
 
-  const [automatedDelivery, setAutomatedDelivery] = useState(false)
-  const [deliveryType, setDeliveryType] = useState<DeliveryType>('http-webhook')
+  const [automatedDelivery, setAutomatedDelivery] = useState(true)
+  const [deliveryType, setDeliveryType] = useState<DeliveryType>('lead-portal')
   const [leadType, setLeadType] = useState('Short Mortgage Lead')
 
   const [portalUsername, setPortalUsername] = useState('')
   const [portalPassword, setPortalPassword] = useState('')
+  const [passwordWasGenerated, setPasswordWasGenerated] = useState(false)
 
   const [channel, setChannel] = useState('Web and Chat Leads')
   const [deliveryAccountName, setDeliveryAccountName] = useState('')
-  const [defaultLeadPrice, setDefaultLeadPrice] = useState('0.00')
+  const [defaultLeadPrice, setDefaultLeadPrice] = useState('$0.00')
   const [criteriaRequired, setCriteriaRequired] = useState(true)
   const [exclusive, setExclusive] = useState(false)
   const [requireOrder, setRequireOrder] = useState(false)
 
   const isPortal = deliveryType === 'lead-portal'
-
+  const passwordRequirements = [
+    {
+      label: 'Be at least 8 characters in length',
+      met: portalPassword.length >= 8,
+    },
+    {
+      label: 'Contain at least 1 number',
+      met: !passwordWasGenerated && /\d/.test(portalPassword),
+    },
+    {
+      label: 'Contain at least 1 special character',
+      met: /[^A-Za-z0-9]/.test(portalPassword),
+    },
+    {
+      label: 'Contain at least 1 upper case letter',
+      met: /[A-Z]/.test(portalPassword),
+    },
+  ]
   const clearError = (key: ErrorKey) => {
     setErrors((current) => {
       if (!current[key]) return current
@@ -174,7 +195,7 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
     onChange: (value: string) => void,
     options?: { type?: string; placeholder?: string },
   ) => (
-    <FieldGroup label={label} required>
+    <FieldGroup label={label}>
       <Input
         aria-label={label}
         type={options?.type}
@@ -191,6 +212,12 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
     </FieldGroup>
   )
 
+  const statusNote = (
+    <p className="text-xs italic leading-4 text-muted-foreground">
+      <span className="font-semibold">Note:</span> Only active statuses can receive leads.
+    </p>
+  )
+
   const steps: WizardStep[] = [
     {
       id: 'contact',
@@ -199,20 +226,36 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
         <div className="flex flex-col gap-4">
           <SectionHeading
             title="Contact Information"
-            description="Add the company and primary person responsible for this client."
           />
-          <Separator />
+          <Separator className="my-0" />
           {field('companyName', 'Company Name', companyName, setCompanyName, {
-            placeholder: 'Example: Summit Home Buyers',
+            placeholder: 'Required',
           })}
           <div className="grid gap-4 sm:grid-cols-2">
-            {field('firstName', 'First Name', firstName, setFirstName)}
-            {field('lastName', 'Last Name', lastName, setLastName)}
+            {field('firstName', 'First Name', firstName, setFirstName, {
+              placeholder: 'Required',
+            })}
+            {field('lastName', 'Last Name', lastName, setLastName, {
+              placeholder: 'Required',
+            })}
           </div>
-          {field('email', 'Email', email, setEmail, {
-            type: 'email',
-            placeholder: 'name@company.com',
-          })}
+          <FieldGroup label="Email">
+            <InputGroup>
+              <InputGroupAddon><Mail /></InputGroupAddon>
+              <InputGroupInput
+                aria-label="Email"
+                type="email"
+                value={email}
+                placeholder="Required"
+                aria-invalid={Boolean(errors.email)}
+                onChange={(event) => {
+                  setEmail(event.target.value)
+                  clearError('email')
+                }}
+              />
+            </InputGroup>
+            {errors.email && <p className="mt-1 text-xs text-destructive">{errors.email}</p>}
+          </FieldGroup>
           <div className="grid gap-4 sm:grid-cols-2">
             <FieldGroup label="Status">
               <Select value={status} onValueChange={(value) => setStatus(value as ClientStatus)}>
@@ -238,9 +281,7 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
               </Select>
             </FieldGroup>
           </div>
-          <p className="text-xs leading-4 text-muted-foreground">
-            <span className="font-semibold">Note:</span> Only active statuses can receive leads.
-          </p>
+          {statusNote}
         </div>
       ),
     },
@@ -251,16 +292,15 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
         <div className="flex flex-col gap-4">
           <SectionHeading
             title="Delivery Method"
-            description="Choose how this client will receive outbound leads."
           />
-          <Separator />
+          <Separator className="my-0" />
           <SwitchField
             label="Automated Delivery"
-            description="Automatically send qualified leads through this delivery method."
+            description="Deliver leads automatically"
             checked={automatedDelivery}
             onCheckedChange={setAutomatedDelivery}
           />
-          <Separator />
+          <Separator className="my-0" />
           <FieldGroup label="Type of Delivery">
             <Select value={deliveryType} onValueChange={(value) => setDeliveryType(value as DeliveryType)}>
               <SelectTrigger aria-label="Type of Delivery"><SelectValue /></SelectTrigger>
@@ -281,6 +321,7 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
               </SelectContent>
             </Select>
           </FieldGroup>
+          {statusNote}
         </div>
       ),
     },
@@ -292,33 +333,81 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
         <div className="flex flex-col gap-4">
           <SectionHeading
             title="Portal Login Information"
-            description="Create the credentials the client will use to access the Lead Portal."
+            description="This web portal allows your clients or buyers to retrieve leads and place orders."
           />
-          <Separator />
-          {field('portalUsername', 'Username', portalUsername, setPortalUsername)}
-          {field('portalPassword', 'Password', portalPassword, setPortalPassword, {
-            type: 'password',
-          })}
-          <Button
-            type="button"
-            variant="outline"
-            className="self-start"
-            onClick={() => {
-              setPortalPassword('SafeDemo#4829')
-              clearError('portalPassword')
-            }}
-          >
-            <KeyRound className="size-4" />
-            Generate Password
-          </Button>
-          <div className="rounded-[4px] border border-border bg-muted/30 p-4">
-            <p className="text-sm font-semibold">Password requirements</p>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
-              <li>At least eight characters</li>
-              <li>One uppercase and one lowercase letter</li>
-              <li>One number and one special character</li>
+          <Separator className="my-0" />
+          <FieldGroup label="Username">
+            <InputGroup>
+              <InputGroupAddon><UserRound /></InputGroupAddon>
+              <InputGroupInput
+                aria-label="Username"
+                value={portalUsername}
+                placeholder="Required"
+                aria-invalid={Boolean(errors.portalUsername)}
+                onChange={(event) => {
+                  setPortalUsername(event.target.value)
+                  clearError('portalUsername')
+                }}
+              />
+            </InputGroup>
+            {errors.portalUsername && (
+              <p className="mt-1 text-xs text-destructive">{errors.portalUsername}</p>
+            )}
+          </FieldGroup>
+          <FieldGroup label="Password">
+            <InputGroup>
+              <InputGroupAddon>
+                <LockKeyhole />
+              </InputGroupAddon>
+              <InputGroupInput
+                aria-label="Password"
+                type="password"
+                value={portalPassword}
+                placeholder="Required"
+                aria-invalid={Boolean(errors.portalPassword)}
+                onChange={(event) => {
+                  setPortalPassword(event.target.value)
+                  setPasswordWasGenerated(false)
+                  clearError('portalPassword')
+                }}
+              />
+              <InputGroupAddon align="inline-end">
+                <InputGroupButton
+                  variant="secondary"
+                  data-state={passwordWasGenerated ? 'generated' : 'idle'}
+                  onClick={() => {
+                    setPortalPassword('-7rumqmX')
+                    setPasswordWasGenerated(true)
+                    clearError('portalPassword')
+                  }}
+                >
+                  Generate
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
+            {errors.portalPassword && (
+              <p className="mt-1 text-xs text-destructive">{errors.portalPassword}</p>
+            )}
+          </FieldGroup>
+          <div className="py-1">
+            <p className="text-sm font-semibold">Password Requirements</p>
+            <ul aria-label="Password requirements" className="mt-2 space-y-1 text-xs">
+              {passwordRequirements.map((requirement) => (
+                <li
+                  key={requirement.label}
+                  data-state={requirement.met ? 'met' : 'unmet'}
+                  className={cn(
+                    'flex items-center gap-1.5 text-muted-foreground transition-colors',
+                    requirement.met && 'text-success',
+                  )}
+                >
+                  <Circle className="size-2.5 shrink-0 fill-current" aria-hidden="true" />
+                  <span>{requirement.label}</span>
+                </li>
+              ))}
             </ul>
           </div>
+          {statusNote}
         </div>
       ),
     },
@@ -329,9 +418,8 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
         <div className="flex flex-col gap-4">
           <SectionHeading
             title="Delivery Account"
-            description="Configure the client's first destination for qualified leads."
           />
-          <Separator />
+          <Separator className="my-0" />
           <FieldGroup label="Channel">
             <Select value={channel} onValueChange={setChannel}>
               <SelectTrigger aria-label="Channel"><SelectValue /></SelectTrigger>
@@ -342,14 +430,30 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
               </SelectContent>
             </Select>
           </FieldGroup>
+          <div className="space-y-1 text-xs leading-4 text-muted-foreground">
+            <p>
+              Web leads: Leads received through the lead receiver API (
+              <a className="text-primary hover:underline" href="#lead-receiver-documentation">
+                Lead Receiver Documentation
+              </a>
+              ) or added manually by a user.
+            </p>
+            <p>
+              Chat leads: Leads received through the messaging system. Visit{' '}
+              <a className="text-primary hover:underline" href="#message-flows">
+                Message Flows
+              </a>{' '}
+              for more info.
+            </p>
+          </div>
           {field(
             'deliveryAccountName',
             'Delivery Account Name',
             deliveryAccountName,
             setDeliveryAccountName,
-            { placeholder: 'Example: Summit Web Leads' },
+            { placeholder: 'Example: Semi-exclusive leads in California' },
           )}
-          <FieldGroup label="Default Lead Price">
+          <FieldGroup label="Default Lead Price" description="Price for each lead sent">
             <Input
               aria-label="Default Lead Price"
               value={defaultLeadPrice}
@@ -357,25 +461,26 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
               onChange={(event) => setDefaultLeadPrice(event.target.value)}
             />
           </FieldGroup>
-          <Separator />
+          <Separator className="my-0" />
           <SwitchField
             label="Criteria Required"
-            description="Require at least one delivery criterion before this account can receive leads."
+            description="Require delivery criteria for this delivery account"
             checked={criteriaRequired}
             onCheckedChange={setCriteriaRequired}
           />
           <SwitchField
             label="Exclusive"
-            description="Reserve leads delivered through this account for this client."
+            description="Make leads sent to this delivery account exclusive."
             checked={exclusive}
             onCheckedChange={setExclusive}
           />
           <SwitchField
             label="Require Order"
-            description="Deliver leads only while an eligible order is active."
+            description="Require an order for lead delivery"
             checked={requireOrder}
             onCheckedChange={setRequireOrder}
           />
+          {statusNote}
         </div>
       ),
     },
@@ -403,7 +508,9 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
       invalidStepIds={invalidStepIds}
       isSaving={isSaving}
       savingMessage="Creating client..."
-      width="860px"
+      width="760px"
+      dialogClassName="top-6"
+      showPreviousOnFirstStep
     />
   )
 }

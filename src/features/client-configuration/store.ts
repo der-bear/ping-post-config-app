@@ -180,7 +180,9 @@ export const useClientConfigurationStore = create<ClientConfigurationStore>()(
               endDate: submission.endDate,
               renewOrder: submission.renewOrder,
               autoCharge: submission.autoCharge,
+              autoChargeTiming: 'Charge before order starts',
               paymentDiscount: submission.paymentDiscount,
+              maxReturnPercentageEnabled: false,
               maxReturnPercentage: submission.maxReturnPercentage,
               items: [
                 {
@@ -237,8 +239,8 @@ export const useClientConfigurationStore = create<ClientConfigurationStore>()(
         }),
     }),
     {
-      name: 'client-configuration-v2',
-      version: 2,
+      name: 'client-configuration-v5',
+      version: 5,
     },
   ),
 )

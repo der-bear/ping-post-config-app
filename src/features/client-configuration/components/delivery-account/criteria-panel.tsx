@@ -3,7 +3,13 @@ import { FolderOpen, Plus, X } from 'lucide-react'
 
 import { DataGrid, DataGridToolbar, ToolbarAction } from '@/components/data-grid'
 import type { DataGridColumn } from '@/components/data-grid'
-import { ConfirmDialog } from '@/components/ui'
+import {
+  ConfirmDialog,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui'
 
 import { useClientConfigurationStore } from '../../store'
 import type { CriteriaRule } from '../../types'
@@ -24,6 +30,7 @@ export function CriteriaPanel() {
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [dialogMode, setDialogMode] = useState<'new' | 'edit' | null>(null)
+  const [criterionType, setCriterionType] = useState<CriteriaRule['type']>('Lead Field')
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   const selectedCriterion = useMemo(
@@ -46,7 +53,30 @@ export function CriteriaPanel() {
           emptyMessage="No Criteria"
           toolbar={
             <DataGridToolbar>
-              <ToolbarAction icon={Plus} label="New" onClick={() => setDialogMode('new')} />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <ToolbarAction icon={Plus} label="New" variant="dropdown" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="min-w-[210px]">
+                  {[
+                    'Lead Field',
+                    'Client Field',
+                    'Regular Expression',
+                    'Calculated Expression',
+                    'Evaluate Function',
+                  ].map((type) => (
+                    <DropdownMenuItem
+                      key={type}
+                      onSelect={() => {
+                        setCriterionType(type as CriteriaRule['type'])
+                        setDialogMode('new')
+                      }}
+                    >
+                      {type}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
               <ToolbarAction
                 icon={FolderOpen}
                 label="Edit"
@@ -73,6 +103,7 @@ export function CriteriaPanel() {
         <CriterionDialog
           key={`${dialogMode}-${selectedCriterion?.id ?? 'new'}`}
           open
+          criterionType={criterionType}
           initialValue={dialogMode === 'edit' ? selectedCriterion : undefined}
           onClose={() => setDialogMode(null)}
           onSave={(criterion) => {

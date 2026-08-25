@@ -14,6 +14,7 @@ import { useClientConfigurationStore } from '../../store'
 import type { ClientConfiguration, OrderSection } from '../../types'
 import { OrderGeneralPanel } from './order-general-panel'
 import { OrderItemsPanel } from './order-items-panel'
+import { OrderPaymentsPanel } from './order-payments-panel'
 
 type Order = ClientConfiguration['order']
 
@@ -66,7 +67,9 @@ export function OrderEditor({ initialSection = 'general', onClose }: OrderEditor
       endDate: draft.endDate,
       renewOrder: draft.renewOrder,
       autoCharge: draft.autoCharge,
+      autoChargeTiming: draft.autoChargeTiming,
       paymentDiscount: draft.paymentDiscount,
+      maxReturnPercentageEnabled: draft.maxReturnPercentageEnabled,
       maxReturnPercentage: draft.maxReturnPercentage,
     })
     setIsSaving(false)
@@ -98,12 +101,23 @@ export function OrderEditor({ initialSection = 'general', onClose }: OrderEditor
               active={activeSection === 'items'}
               onClick={() => setActiveSection('items')}
             />
+            <NavItem
+              label="Payments"
+              active={activeSection === 'payments'}
+              onClick={() => setActiveSection('payments')}
+            />
           </PanelSidebar>
         }
         header={
           <PanelHeader
             subtitle="Order"
-            title={activeSection === 'general' ? 'General' : 'Items'}
+            title={
+              activeSection === 'general'
+                ? 'General Options'
+                : activeSection === 'items'
+                  ? 'Items'
+                  : 'Payments'
+            }
             isExpanded={isPanelExpanded}
             onMaximize={togglePanelExpanded}
             onClose={handleClose}
@@ -112,9 +126,7 @@ export function OrderEditor({ initialSection = 'general', onClose }: OrderEditor
         footer={
           <PanelFooter
             leftActions={
-              <p className="text-xs text-muted-foreground">
-                {activeSection === 'items' ? 'Item changes save automatically' : 'Save changes before closing'}
-              </p>
+              <Button size="sm">Transaction History</Button>
             }
             rightActions={
               <>
@@ -130,8 +142,10 @@ export function OrderEditor({ initialSection = 'general', onClose }: OrderEditor
             value={draft}
             onChange={(partial) => setDraft((current) => ({ ...current, ...partial }))}
           />
-        ) : (
+        ) : activeSection === 'items' ? (
           <OrderItemsPanel />
+        ) : (
+          <OrderPaymentsPanel />
         )}
         <SavingOverlay open={isSaving} message="Saving..." />
       </PanelLayout>

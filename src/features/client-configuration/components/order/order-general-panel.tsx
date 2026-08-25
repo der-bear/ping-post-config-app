@@ -1,4 +1,5 @@
 import {
+  DateInput,
   FieldGroup,
   Input,
   Select,
@@ -20,13 +21,23 @@ interface OrderGeneralPanelProps {
   onChange: (partial: Partial<Omit<Order, 'items'>>) => void
 }
 
+const currency = (value: number) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  }).format(value)
+
+const parseNumber = (value: string) => Number(value.replace(/[^0-9.-]/g, '')) || 0
+
 export function OrderGeneralPanel({ value, onChange }: OrderGeneralPanelProps) {
   return (
     <div className="flex flex-col gap-4">
-      <FieldGroup label="Order Name" required>
+      <FieldGroup label="Name">
         <Input
-          aria-label="Order Name"
+          aria-label="Name"
           value={value.name}
+          placeholder="Required"
           onChange={(event) => onChange({ name: event.target.value })}
         />
       </FieldGroup>
@@ -45,64 +56,89 @@ export function OrderGeneralPanel({ value, onChange }: OrderGeneralPanelProps) {
           <SelectTrigger aria-label="Order Status"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="on-hold">On Hold</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="open">Open</SelectItem>
             <SelectItem value="closed">Closed</SelectItem>
           </SelectContent>
         </Select>
       </FieldGroup>
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldGroup label="Start Date">
-          <Input
+          <DateInput
             aria-label="Start Date"
-            type="date"
             value={value.startDate}
-            onChange={(event) => onChange({ startDate: event.target.value })}
+            pickerLabel="Choose Start Date"
+            onValueChange={(startDate) => onChange({ startDate })}
           />
         </FieldGroup>
-        <FieldGroup label="End Date" description="Optional">
-          <Input
+        <SwitchField
+          label="End Date"
+          description="Should this order end on a specific date?"
+          checked={Boolean(value.endDate)}
+          onCheckedChange={(enabled) => onChange({ endDate: enabled ? value.startDate : '' })}
+        >
+          <DateInput
             aria-label="End Date"
-            type="date"
             value={value.endDate}
-            onChange={(event) => onChange({ endDate: event.target.value })}
+            pickerLabel="Choose End Date"
+            onValueChange={(endDate) => onChange({ endDate })}
           />
-        </FieldGroup>
+        </SwitchField>
       </div>
-      <Separator />
+      <Separator className="my-0" />
       <SwitchField
         label="Renew Order"
-        description="Automatically create a replacement when this order completes."
+        description="Automatically renew this order when complete."
         checked={value.renewOrder}
         onCheckedChange={(renewOrder) => onChange({ renewOrder })}
       />
-      <Separator />
+      <Separator className="my-0" />
       <SwitchField
         label="Auto Charge"
-        description="Configuration preview only; no payment transaction is performed."
+        description="Automatically charge order based on initial charge or when the order is complete."
         checked={value.autoCharge}
         onCheckedChange={(autoCharge) => onChange({ autoCharge })}
-      />
-      <Separator />
+      >
+        <Select
+          value={value.autoChargeTiming}
+          onValueChange={(autoChargeTiming) => onChange({
+            autoChargeTiming: autoChargeTiming as Order['autoChargeTiming'],
+          })}
+        >
+          <SelectTrigger aria-label="Auto Charge Timing"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Charge before order starts">Charge before order starts</SelectItem>
+            <SelectItem value="Charge when order is complete">Charge when order is complete</SelectItem>
+          </SelectContent>
+        </Select>
+      </SwitchField>
+      <Separator className="my-0" />
       <div className="grid gap-4 sm:grid-cols-2">
-        <FieldGroup label="Payment Discount" description="Configuration only">
+        <FieldGroup
+          label="Payment Discount"
+          description="This amount will be deducted from the total amount due when payments are processed."
+        >
           <Input
             aria-label="Payment Discount"
-            type="number"
-            min="0"
-            value={value.paymentDiscount}
-            onChange={(event) => onChange({ paymentDiscount: Number(event.target.value) || 0 })}
+            inputMode="decimal"
+            value={currency(value.paymentDiscount)}
+            onChange={(event) => onChange({ paymentDiscount: parseNumber(event.target.value) })}
           />
         </FieldGroup>
-        <FieldGroup label="Max Return Percentage">
+        <SwitchField
+          label="Max Return Percentage"
+          description="Should returns be limited to the specified percentage?"
+          checked={value.maxReturnPercentageEnabled}
+          onCheckedChange={(maxReturnPercentageEnabled) => onChange({
+            maxReturnPercentageEnabled,
+          })}
+        >
           <Input
             aria-label="Max Return Percentage"
-            type="number"
-            min="0"
-            max="100"
-            value={value.maxReturnPercentage}
-            onChange={(event) => onChange({ maxReturnPercentage: Number(event.target.value) || 0 })}
+            inputMode="decimal"
+            value={`${value.maxReturnPercentage}%`}
+            onChange={(event) => onChange({ maxReturnPercentage: parseNumber(event.target.value) })}
           />
-        </FieldGroup>
+        </SwitchField>
       </div>
     </div>
   )

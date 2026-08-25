@@ -50,6 +50,8 @@ export function OrderItemsPanel() {
   )
   const orderedQuantity = items.reduce((sum, item) => sum + item.quantity, 0)
   const orderedTotal = items.reduce((sum, item) => sum + item.quantity * item.perLeadPrice, 0)
+  const sentQuantity = items.reduce((sum, item) => sum + item.sent, 0)
+  const sentTotal = items.reduce((sum, item) => sum + item.sent * item.perLeadPrice, 0)
 
   return (
     <>
@@ -82,10 +84,16 @@ export function OrderItemsPanel() {
             </DataGridToolbar>
           }
           footer={
-            <div className="flex items-center justify-between px-4 py-2">
-              <p className="italic">Item changes save automatically</p>
-              <p className="font-medium text-foreground">
-                {orderedQuantity} leads · {currency(orderedTotal)} total
+            <div className="w-full">
+              <div className="grid grid-cols-[34%_12%_18%_12%_18%] items-center px-3 py-2 font-medium text-foreground">
+                <span>Totals:</span>
+                <span>{orderedQuantity}</span>
+                <span>{currency(orderedTotal)}</span>
+                <span>{sentQuantity}</span>
+                <span>{currency(sentTotal)}</span>
+              </div>
+              <p className="border-t border-border px-3 py-2 italic text-muted-foreground">
+                Note: Item changes save automatically
               </p>
             </div>
           }

@@ -7,6 +7,7 @@ import path from 'path'
 const FEATURE_PATHS = [
   { slug: 'ping-post', html: 'ping-post-config-app.html' },
   { slug: 'campaign-configuration', html: 'campaign-configuration.html' },
+  { slug: 'client-configuration', html: 'client-configuration.html' },
 ]
 
 export default defineConfig({

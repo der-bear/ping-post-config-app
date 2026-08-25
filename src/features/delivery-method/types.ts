@@ -226,6 +226,7 @@ export interface PostConfiguration {
 // ---------------------------------------------------------------------------
 
 export interface GeneralSettings {
+  methodType: 'ping-post' | 'http-webhook';
   description: string;
   leadType: string;
   environment: 'testing' | 'production';

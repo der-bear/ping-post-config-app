@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils'
 
 interface UrlEndpointSettingsProps {
   phase: 'ping' | 'post'
+  standalone?: boolean
 }
 
 interface HeaderDisplay extends CustomHeader {
@@ -89,7 +90,7 @@ const HEADER_COLUMNS: DataGridColumn<HeaderDisplay>[] = [
   },
 ]
 
-export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
+export function UrlEndpointSettings({ phase, standalone = false }: UrlEndpointSettingsProps) {
   const isPing = phase === 'ping'
 
   const pingEndpoint = useDeliveryMethodStore((s) => s.config.ping.urlEndpoint)
@@ -115,13 +116,13 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
     if (isPing) {
       return endpoint.customHeaders.map((h) => ({ ...h, inherited: false, source: 'ping' as const }))
     }
-    if (postEndpoint.includeHeadersFromPing) {
+    if (!standalone && postEndpoint.includeHeadersFromPing) {
       const inherited = pingEndpoint.customHeaders.map((h) => ({ ...h, inherited: true, source: 'ping' as const }))
       const postOnly = postEndpoint.customHeaders.map((h) => ({ ...h, inherited: false, source: 'post' as const }))
       return [...inherited, ...postOnly]
     }
     return postEndpoint.customHeaders.map((h) => ({ ...h, inherited: false, source: 'post' as const }))
-  }, [isPing, endpoint.customHeaders, postEndpoint.includeHeadersFromPing, postEndpoint.customHeaders, pingEndpoint.customHeaders])
+  }, [isPing, standalone, endpoint.customHeaders, postEndpoint.includeHeadersFromPing, postEndpoint.customHeaders, pingEndpoint.customHeaders])
 
   const handleSelectionChange = useCallback((ids: Set<string>) => {
     // Filter out inherited headers - they can't be selected in POST
@@ -156,7 +157,7 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
 
   const sameAsPingMeta = 'Same as PING'
 
-  const timeoutValue = !isPing && postEndpoint.timeoutSameAsPing
+  const timeoutValue = !isPing && !standalone && postEndpoint.timeoutSameAsPing
     ? 'same-as-ping'
     : String(endpoint.timeout)
 
@@ -233,7 +234,7 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
       <FieldGroup label="Content Type">
         <Select
           value={
-            !isPing && postEndpoint.contentTypeSameAsPing
+            !isPing && !standalone && postEndpoint.contentTypeSameAsPing
               ? 'same-as-ping'
               : endpoint.contentType
           }
@@ -254,7 +255,7 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
             <SelectValue placeholder="Select content type" />
           </SelectTrigger>
           <SelectContent>
-            {!isPing && (
+            {!isPing && !standalone && (
               <>
                 <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
                   {CONTENT_TYPES_PING.find((ct) => ct.value === pingEndpoint.contentType)?.label ?? pingEndpoint.contentType}
@@ -290,7 +291,7 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
             <SelectValue placeholder="Select timeout" />
           </SelectTrigger>
           <SelectContent>
-            {!isPing && (
+            {!isPing && !standalone && (
               <>
                 <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
                   {TIMEOUT_OPTIONS_PING.find((opt) => opt.value === String(pingEndpoint.timeout))?.label ?? `${pingEndpoint.timeout} seconds`}
@@ -311,7 +312,7 @@ export function UrlEndpointSettings({ phase }: UrlEndpointSettingsProps) {
 
       <div className="flex items-center justify-between">
         <SectionHeading title="Custom Headers" />
-        {!isPing && (
+        {!isPing && !standalone && (
           <label className="flex items-center gap-2 cursor-pointer">
             <Checkbox
               checked={postEndpoint.includeHeadersFromPing}

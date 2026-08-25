@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils'
 
 interface AuthenticationSettingsProps {
   phase: 'ping' | 'post'
+  standalone?: boolean
 }
 
 const AUTH_TYPES: { value: AuthenticationType; label: string; disabled?: boolean }[] = [
@@ -46,7 +47,7 @@ function getAuthLabel(type: AuthenticationType): string {
   return AUTH_TYPES.find((t) => t.value === type)?.label ?? type
 }
 
-export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
+export function AuthenticationSettings({ phase, standalone = false }: AuthenticationSettingsProps) {
   const isPing = phase === 'ping'
 
   const pingAuth = useDeliveryMethodStore((s) => s.config.ping.authentication)
@@ -56,7 +57,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
 
   const auth = isPing ? pingAuth : postAuth
   const updateAuth = isPing ? updatePingAuth : updatePostAuth
-  const isSameAsPing = !isPing && postAuth.sameAsPing
+  const isSameAsPing = !isPing && !standalone && postAuth.sameAsPing
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -76,7 +77,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
     }
   }
 
-  const selectValue = !isPing && postAuth.sameAsPing ? 'same-as-ping' : auth.type
+  const selectValue = !isPing && !standalone && postAuth.sameAsPing ? 'same-as-ping' : auth.type
   const sameAsPingMeta = 'Same as PING'
 
   const handleAuthTypeChange = (value: string) => {
@@ -106,7 +107,7 @@ export function AuthenticationSettings({ phase }: AuthenticationSettingsProps) {
             <SelectValue placeholder="Select authentication type" />
           </SelectTrigger>
           <SelectContent>
-            {!isPing && (
+            {!isPing && !standalone && (
               <>
                 <SelectItem key="same-as-ping" value="same-as-ping" meta={sameAsPingMeta}>
                   {getAuthLabel(pingAuth.type)}

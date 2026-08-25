@@ -11,6 +11,7 @@ import {
 
 interface RetrySettingsProps {
   phase: 'ping' | 'post'
+  standalone?: boolean
 }
 
 const RETRY_COUNTS = [
@@ -30,7 +31,7 @@ const TIME_BETWEEN_RETRIES = [
   { value: '60', label: '60 seconds' },
 ]
 
-export function RetrySettings({ phase }: RetrySettingsProps) {
+export function RetrySettings({ phase, standalone = false }: RetrySettingsProps) {
   const isPing = phase === 'ping'
 
   const pingRetry = useDeliveryMethodStore((s) => s.config.ping.retrySettings)
@@ -39,7 +40,7 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
   const updatePostRetrySettings = useDeliveryMethodStore((s) => s.updatePostRetrySettings)
 
   const retry = isPing ? pingRetry : postRetry
-  const isSameAsPing = !isPing && postRetry.sameAsPing
+  const isSameAsPing = !isPing && !standalone && postRetry.sameAsPing
 
   // For POST with sameAsPing, show "Same as PING" in Retry After Failure, but show PING's actual values in other selects
   const retryValue = isSameAsPing ? 'same-as-ping' : (retry.retryAfterFailure ? 'yes' : 'no')
@@ -95,7 +96,7 @@ export function RetrySettings({ phase }: RetrySettingsProps) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {!isPing && (
+            {!isPing && !standalone && (
               <>
                 <SelectItem value="same-as-ping" meta={sameAsPingMeta}>
                   {pingRetry.retryAfterFailure ? 'Yes' : 'No'}

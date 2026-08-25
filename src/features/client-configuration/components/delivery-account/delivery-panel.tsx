@@ -21,15 +21,7 @@ interface DeliveryPanelProps {
   onChange: (partial: Partial<DeliverySettings>) => void
 }
 
-const deliveryMethods = [
-  'No Delivery',
-  'HTTP Webhook',
-  'ClickPoint Integration',
-  'Email Delivery',
-  'CSV Attachment',
-  'Lead Portal',
-  'PING/POST Delivery',
-]
+const deliveryMethods = ['No Delivery', 'Lead Portal', 'HTTP Webhook']
 
 const orderForms = [
   { value: 'Mortgage Lead Order', label: 'Mortgage Lead Order' },
@@ -41,17 +33,19 @@ function DeliveryMethodSelect({
   label,
   value,
   onValueChange,
+  allowNoDelivery = true,
 }: {
   label: string
   value: string
   onValueChange: (value: string) => void
+  allowNoDelivery?: boolean
 }) {
   return (
     <FieldGroup label={label}>
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger aria-label={label}><SelectValue /></SelectTrigger>
         <SelectContent>
-          {deliveryMethods.map((method) => (
+          {deliveryMethods.filter((method) => allowNoDelivery || method !== 'No Delivery').map((method) => (
             <SelectItem key={method} value={method}>{method}</SelectItem>
           ))}
         </SelectContent>
@@ -66,7 +60,7 @@ export function DeliveryPanel({ value, onChange }: DeliveryPanelProps) {
       <SectionHeading title="Primary Delivery" size="sm" className="rounded-[4px] bg-muted px-3 py-2" />
       <SwitchField
         label="Automated Delivery"
-        description="Deliver leads automatically."
+        description="Deliver leads automatically"
         checked={value.automatedDelivery}
         onCheckedChange={(automatedDelivery) => onChange({ automatedDelivery })}
       />
@@ -74,6 +68,7 @@ export function DeliveryPanel({ value, onChange }: DeliveryPanelProps) {
         label="Primary Delivery Method"
         value={value.primaryDeliveryMethod}
         onValueChange={(primaryDeliveryMethod) => onChange({ primaryDeliveryMethod })}
+        allowNoDelivery={false}
       />
 
       <SectionHeading title="Additional Delivery" size="sm" className="rounded-[4px] bg-muted px-3 py-2" />
@@ -89,24 +84,22 @@ export function DeliveryPanel({ value, onChange }: DeliveryPanelProps) {
             value={value.additionalDeliveryMethod1}
             onValueChange={(additionalDeliveryMethod1) => onChange({ additionalDeliveryMethod1 })}
           />
-          <FieldGroup label="When primary delivery fails">
-            <Select
-              value={value.additionalDeliveryMethod1Fallback}
-              onValueChange={(additionalDeliveryMethod1Fallback) => onChange({ additionalDeliveryMethod1Fallback })}
-            >
-              <SelectTrigger aria-label="Additional Delivery Method #1 fallback"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Do not send if primary fails">Do not send if primary fails</SelectItem>
-                <SelectItem value="Send if primary fails">Send if primary fails</SelectItem>
-              </SelectContent>
-            </Select>
-          </FieldGroup>
+          <Select
+            value={value.additionalDeliveryMethod1Fallback}
+            onValueChange={(additionalDeliveryMethod1Fallback) => onChange({ additionalDeliveryMethod1Fallback })}
+          >
+            <SelectTrigger aria-label="Additional Delivery Method #1 fallback"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Do not send if primary fails">Do not send if primary fails</SelectItem>
+              <SelectItem value="Send even if primary fails">Send even if primary fails</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </SwitchField>
-      <Separator />
+      <Separator className="my-0" />
       <SwitchField
         label="Additional Delivery Method #2"
-        description="Trigger a second additional delivery alongside the primary delivery."
+        description="Trigger an additional delivery alongside the primary delivery."
         checked={value.additionalDeliveryMethod2Enabled}
         onCheckedChange={(additionalDeliveryMethod2Enabled) => onChange({ additionalDeliveryMethod2Enabled })}
       >
@@ -116,23 +109,21 @@ export function DeliveryPanel({ value, onChange }: DeliveryPanelProps) {
             value={value.additionalDeliveryMethod2}
             onValueChange={(additionalDeliveryMethod2) => onChange({ additionalDeliveryMethod2 })}
           />
-          <FieldGroup label="When primary delivery fails">
-            <Select
-              value={value.additionalDeliveryMethod2Fallback}
-              onValueChange={(additionalDeliveryMethod2Fallback) => onChange({ additionalDeliveryMethod2Fallback })}
-            >
-              <SelectTrigger aria-label="Additional Delivery Method #2 fallback"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Do not send if primary fails">Do not send if primary fails</SelectItem>
-                <SelectItem value="Send if primary fails">Send if primary fails</SelectItem>
-              </SelectContent>
-            </Select>
-          </FieldGroup>
+          <Select
+            value={value.additionalDeliveryMethod2Fallback}
+            onValueChange={(additionalDeliveryMethod2Fallback) => onChange({ additionalDeliveryMethod2Fallback })}
+          >
+            <SelectTrigger aria-label="Additional Delivery Method #2 fallback"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Do not send if primary fails">Do not send if primary fails</SelectItem>
+              <SelectItem value="Send even if primary fails">Send even if primary fails</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </SwitchField>
 
       <SectionHeading title="Delivery Options" size="sm" className="rounded-[4px] bg-muted px-3 py-2" />
-      <FieldGroup label="Delivery Priority" description="Order of priority when automation is set to priority.">
+      <FieldGroup label="Delivery Priority" description="Order of priority when automation is set to priority">
         <Input
           aria-label="Delivery Priority"
           type="number"
@@ -143,7 +134,7 @@ export function DeliveryPanel({ value, onChange }: DeliveryPanelProps) {
       </FieldGroup>
       <SwitchField
         label="Exclusive Delivery"
-        description="Make leads sent to this Delivery Account exclusive."
+        description="Make leads sent to this delivery account exclusive."
         checked={value.exclusiveDelivery}
         onCheckedChange={(exclusiveDelivery) => onChange({ exclusiveDelivery })}
       />
@@ -157,13 +148,13 @@ export function DeliveryPanel({ value, onChange }: DeliveryPanelProps) {
       />
       <FieldGroup
         label="Order Forms"
-        description="Choose which forms are available when creating an order from the client portal."
+        description="When creating an order from the client portal, which order forms are available"
       >
         <MultiSelect
           options={orderForms}
           value={value.orderForms}
           onValueChange={(nextOrderForms) => onChange({ orderForms: nextOrderForms })}
-          placeholder="Select order forms"
+          placeholder="Select..."
         />
       </FieldGroup>
     </div>

@@ -116,7 +116,7 @@ export function CreateDeliveryMethodModal({
   onCreate,
 }: CreateDeliveryMethodModalProps) {
   const [step, setStep] = useState<'select' | 'configure'>('select')
-  const [selectedMethod, setSelectedMethod] = useState<string | null>('ping-post')
+  const [selectedMethod, setSelectedMethod] = useState<string | null>('lead-portal')
   const [searchQuery, setSearchQuery] = useState('')
   const [description, setDescription] = useState('')
   const [leadType, setLeadType] = useState('')
@@ -139,10 +139,8 @@ export function CreateDeliveryMethodModal({
       setErrors({ method: 'Select delivery method to continue' })
       return
     }
-    if (selectedMethod === 'ping-post') {
-      setErrors({})
-      setStep('configure')
-    }
+    setErrors({})
+    setStep('configure')
   }
 
   const handleBack = () => {
@@ -155,8 +153,11 @@ export function CreateDeliveryMethodModal({
   const handleCreate = () => {
     const newErrors: Record<string, string> = {}
 
+    if (!description.trim()) {
+      newErrors.description = 'Description is required.'
+    }
     if (!leadType) {
-      newErrors.leadType = 'Select lead type for field mappings'
+      newErrors.leadType = 'Lead Type is required.'
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -172,7 +173,7 @@ export function CreateDeliveryMethodModal({
       })
       // Reset state
       setStep('select')
-      setSelectedMethod('ping-post')
+      setSelectedMethod('lead-portal')
       setDescription('')
       setLeadType('')
       setSearchQuery('')
@@ -182,7 +183,7 @@ export function CreateDeliveryMethodModal({
 
   const handleClose = () => {
     setStep('select')
-    setSelectedMethod('ping-post')
+    setSelectedMethod('lead-portal')
     setDescription('')
     setLeadType('')
     setSearchQuery('')
@@ -194,16 +195,20 @@ export function CreateDeliveryMethodModal({
     <Dialog open={open} onOpenChange={(open) => !open && (step === 'select' ? handleClose() : handleBack())}>
       <DialogContent
         className={cn(
-          'p-0 gap-0 overflow-hidden shadow-panel',
-          step === 'select' ? 'max-w-[95vw] sm:max-w-[884px]' : 'max-w-[95vw] sm:max-w-[480px]'
+          'top-6 translate-y-0 p-0 gap-0 overflow-hidden shadow-panel',
+          step === 'select' ? 'max-w-[95vw] sm:max-w-[884px]' : 'max-w-[95vw] sm:max-w-[800px]'
         )}
         showClose={false}
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogPanelHeader
-          title={step === 'select' ? 'Create Delivery Method' : 'Create Delivery Method - Ping/Post'}
+          title={
+            step === 'select'
+              ? 'Create Delivery Method'
+              : `Create Delivery Method - ${[...BASIC_METHODS, ...ADVANCED_METHODS].find((method) => method.id === selectedMethod)?.title ?? 'Delivery Method'}`
+          }
           showClose={true}
-          onClose={step === 'configure' ? handleBack : () => {}}
+          onClose={step === 'configure' ? handleBack : handleClose}
         />
         <DialogDescription className="sr-only">
           {step === 'select' ? 'Select a delivery method type to create' : 'Configure your delivery method settings'}
@@ -246,7 +251,6 @@ export function CreateDeliveryMethodModal({
                         title={method.title}
                         description={method.description}
                         selected={selectedMethod === method.id}
-                        disabled={method.id !== 'ping-post'}
                         onClick={() => {
                           setSelectedMethod(method.id)
                           if (errors.method) setErrors((prev) => ({ ...prev, method: '' }))
@@ -271,7 +275,6 @@ export function CreateDeliveryMethodModal({
                         title={method.title}
                         description={method.description}
                         selected={selectedMethod === method.id}
-                        disabled={method.id !== 'ping-post'}
                         onClick={() => {
                           setSelectedMethod(method.id)
                           if (errors.method) setErrors((prev) => ({ ...prev, method: '' }))
@@ -316,14 +319,15 @@ export function CreateDeliveryMethodModal({
         {step === 'configure' && (
           <>
             <div className="p-5 space-y-5">
-              <FieldGroup label="Description">
+              <FieldGroup label="Description (required)">
                 <DebouncedInput
+                  aria-label="Description"
                   value={description}
                   onValueCommit={(value) => {
                     setDescription(value)
                     if (errors.description) setErrors((prev) => ({ ...prev, description: '' }))
                   }}
-                  placeholder="e.g., Acme Corp Mortgage Ping/Post"
+                  placeholder="Enter a description for this delivery method"
                   autoFocus
                   className={cn(errors.description && 'border-destructive')}
                 />
@@ -332,7 +336,7 @@ export function CreateDeliveryMethodModal({
                 )}
               </FieldGroup>
 
-              <FieldGroup label="Lead Type" required>
+              <FieldGroup label="Lead Type (required)">
                 <Select
                   value={leadType}
                   onValueChange={(value) => {
@@ -340,15 +344,17 @@ export function CreateDeliveryMethodModal({
                     if (errors.leadType) setErrors((prev) => ({ ...prev, leadType: '' }))
                   }}
                 >
-                  <SelectTrigger className={cn(errors.leadType && 'border-destructive')}>
-                    <SelectValue placeholder="Select lead type" />
+                  <SelectTrigger
+                    aria-label="Lead Type"
+                    className={cn(errors.leadType && 'border-destructive')}
+                  >
+                    <SelectValue placeholder="Select a Lead Type" />
                   </SelectTrigger>
                   <SelectContent>
                     {LEAD_TYPES.map((type) => (
                       <SelectItem
                         key={type.value}
                         value={type.value}
-                        disabled={type.value !== 'mortgage'}
                       >
                         {type.label}
                       </SelectItem>

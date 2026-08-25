@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { ChevronRight, CircleCheck, CircleHelp } from 'lucide-react'
+import { CircleCheck, CircleHelp } from 'lucide-react'
 
 import {
   Button,
@@ -125,9 +125,8 @@ export function LeadSourceNextStepsDialog({
         </div>
 
         <footer className="flex shrink-0 justify-end border-t border-border px-5 py-3">
-          <Button onClick={onNext} className="min-w-[88px]">
-            Next
-            <ChevronRight className="size-4" />
+          <Button onClick={onNext} className="min-w-[170px]">
+            Configure Campaign
           </Button>
         </footer>
       </DialogContent>

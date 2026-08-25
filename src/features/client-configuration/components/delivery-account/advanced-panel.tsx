@@ -20,36 +20,36 @@ interface AdvancedPanelProps {
   onChange: (partial: Partial<AdvancedSettings>) => void
 }
 
+const parseNumber = (value: string) => Number(value.replace(/[^0-9.-]/g, '')) || 0
+
 export function AdvancedPanel({ value, onChange }: AdvancedPanelProps) {
   return (
     <div className="flex flex-col gap-4">
       <SectionHeading title="Account" size="sm" className="rounded-[4px] bg-muted px-3 py-2" />
       <SwitchField
         label="Maximum Return Percentage"
-        description="Maximum percentage of delivered leads that can be returned."
+        description="The maximum amount of leads (in percentage received) that can be returned"
         checked={value.maximumReturnPercentageEnabled}
         onCheckedChange={(maximumReturnPercentageEnabled) => onChange({ maximumReturnPercentageEnabled })}
       >
         <Input
           aria-label="Maximum Return Percentage"
-          type="number"
-          min="0"
-          max="100"
-          value={value.maximumReturnPercentage}
-          onChange={(event) => onChange({ maximumReturnPercentage: Number(event.target.value) || 0 })}
+          inputMode="decimal"
+          value={`${value.maximumReturnPercentage.toFixed(2)}%`}
+          onChange={(event) => onChange({ maximumReturnPercentage: parseNumber(event.target.value) })}
         />
       </SwitchField>
-      <Separator />
+      <Separator className="my-0" />
       <SwitchField
         label="Enforce Quantity Constraints"
-        description="Rescan for another Delivery Account when this one reaches its delivery limit."
+        description="In the event that a lead isn't delivered due to all delivery accounts being over their maximum delivery, this option will allow the system to rescan and ignore quantity limits to ensure the lead is delivered."
         checked={value.enforceQuantityConstraints}
         onCheckedChange={(enforceQuantityConstraints) => onChange({ enforceQuantityConstraints })}
       />
-      <Separator />
+      <Separator className="my-0" />
       <SwitchField
         label="Limit by Percentage of Qualified Leads"
-        description="Limit the amount of leads delivered based on the percentage that qualify."
+        description="This setting will limit the amount of leads delivered to this delivery account based on the percentage of leads that qualify."
         checked={value.limitByQualifiedLeadPercentage}
         onCheckedChange={(limitByQualifiedLeadPercentage) => onChange({ limitByQualifiedLeadPercentage })}
       >
@@ -62,20 +62,20 @@ export function AdvancedPanel({ value, onChange }: AdvancedPanelProps) {
               <SelectTrigger aria-label="Qualified Lead Limit Period"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Total">Total</SelectItem>
-                <SelectItem value="Daily">Daily</SelectItem>
-                <SelectItem value="Weekly">Weekly</SelectItem>
-                <SelectItem value="Monthly">Monthly</SelectItem>
+                <SelectItem value="Hour">Hour</SelectItem>
+                <SelectItem value="Day">Day</SelectItem>
+                <SelectItem value="Week">Week</SelectItem>
+                <SelectItem value="Month">Month</SelectItem>
+                <SelectItem value="Year">Year</SelectItem>
               </SelectContent>
             </Select>
           </FieldGroup>
           <FieldGroup label="Qualified Lead Percentage">
             <Input
               aria-label="Qualified Lead Percentage"
-              type="number"
-              min="0"
-              max="100"
-              value={value.qualifiedLeadPercentage}
-              onChange={(event) => onChange({ qualifiedLeadPercentage: Number(event.target.value) || 0 })}
+              inputMode="decimal"
+              value={`${value.qualifiedLeadPercentage}%`}
+              onChange={(event) => onChange({ qualifiedLeadPercentage: parseNumber(event.target.value) })}
             />
           </FieldGroup>
         </div>
@@ -84,48 +84,55 @@ export function AdvancedPanel({ value, onChange }: AdvancedPanelProps) {
       <SectionHeading title="Delivery" size="sm" className="rounded-[4px] bg-muted px-3 py-2" />
       <SwitchField
         label="Delivery Delay"
-        description="Hold the lead for a specified number of seconds before delivery."
+        description="Should the lead be held for a certain amount of time before it is delivered."
         checked={value.deliveryDelayEnabled}
         onCheckedChange={(deliveryDelayEnabled) => onChange({ deliveryDelayEnabled })}
       >
         <Input
           aria-label="Delivery Delay Seconds"
-          type="number"
-          min="0"
-          value={value.deliveryDelaySeconds}
-          onChange={(event) => onChange({ deliveryDelaySeconds: Number(event.target.value) || 0 })}
+          inputMode="numeric"
+          value={`${value.deliveryDelaySeconds} (seconds)`}
+          onChange={(event) => onChange({ deliveryDelaySeconds: parseNumber(event.target.value) })}
         />
       </SwitchField>
       <FieldGroup
         label="Delivery Group"
-        description="Specify which delivery group this Delivery Account is assigned to."
+        description="When using tiered delivery, this setting allows you to specify which delivery group this delivery account is assigned to"
       >
         <Select value={value.deliveryGroup} onValueChange={(deliveryGroup) => onChange({ deliveryGroup })}>
           <SelectTrigger aria-label="Delivery Group"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="No Delivery Group">No Delivery Group</SelectItem>
-            <SelectItem value="Mortgage Buyers">Mortgage Buyers</SelectItem>
-            <SelectItem value="Priority Delivery">Priority Delivery</SelectItem>
+            <SelectItem value="LEO priority group">LEO priority group</SelectItem>
+            <SelectItem value="LeadPointMax">LeadPointMax</SelectItem>
+            <SelectItem value="Priority 1">Priority 1</SelectItem>
+            <SelectItem value="CBA New High Priority">CBA New High Priority</SelectItem>
+            <SelectItem value="Weighted CA Leads">Weighted CA Leads</SelectItem>
+            <SelectItem value="Weighted 2 AZ Leads">Weighted 2 AZ Leads</SelectItem>
+            <SelectItem value="Weighted 3 LA Leads">Weighted 3 LA Leads</SelectItem>
+            <SelectItem value="Round Robin">Round Robin</SelectItem>
+            <SelectItem value="Prod test">Prod test</SelectItem>
+            <SelectItem value="Priority 8">Priority 8</SelectItem>
           </SelectContent>
         </Select>
       </FieldGroup>
       <FieldGroup
         label="Delivery Parameters"
-        description="Override or append values to the selected primary delivery method."
+        description="These settings are used to override or append values to the delivery method selected when executing the primary delivery"
       >
         <div className="overflow-hidden rounded-[4px] border border-border">
           <div className="grid grid-cols-2 border-b border-border bg-muted px-3 py-2 text-xs font-semibold">
             <span>Name</span>
             <span>Value</span>
           </div>
-          <p className="px-3 py-6 text-center text-xs text-muted-foreground">No delivery parameters</p>
+          <p className="px-3 py-6 text-center text-xs text-muted-foreground">No Parameters</p>
         </div>
       </FieldGroup>
       <p className="text-xs italic text-muted-foreground">Note: Delivery parameter changes save automatically</p>
-      <Separator />
+      <Separator className="my-0" />
       <SwitchField
         label="Confirm Delivery"
-        description="Set the delivery price to $0.00 until the delivery has been confirmed."
+        description="Set the delivery price to $0.00 until delivery has been confirmed. (API Call is Required)"
         checked={value.confirmDelivery}
         onCheckedChange={(confirmDelivery) => onChange({ confirmDelivery })}
       />

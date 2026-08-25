@@ -226,6 +226,7 @@ function dayOff(): DaySchedule {
 
 const defaultConfig: DeliveryMethodConfig = {
   general: {
+    methodType: 'ping-post',
     description: '',
     leadType: 'mortgage',
     environment: 'testing',

@@ -12,9 +12,10 @@ import { cn } from '@/lib/utils'
 
 interface ResponseSettingsProps {
   phase: 'ping' | 'post'
+  standalone?: boolean
 }
 
-export function ResponseSettings({ phase }: ResponseSettingsProps) {
+export function ResponseSettings({ phase, standalone = false }: ResponseSettingsProps) {
   const isPing = phase === 'ping'
 
   const pingResponse = useDeliveryMethodStore((s) => s.config.ping.responseSettings)
@@ -34,7 +35,7 @@ export function ResponseSettings({ phase }: ResponseSettingsProps) {
     <div className="space-y-5">
       <SectionHeading
         title="Response Format"
-        description={`Select the format returned by the ${isPing ? 'ping' : 'post'} endpoint. This determines how the response is parsed.`}
+        description={`Select the format returned by the ${standalone ? 'webhook' : isPing ? 'ping' : 'post'} endpoint. This determines how the response is parsed.`}
       />
 
       <RadioGroup

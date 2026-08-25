@@ -35,7 +35,7 @@ const PING_POST_TABS: { tab: PingPostTab; label: string }[] = [
   { tab: 'retry-settings', label: 'Retry Settings' },
 ]
 
-function getPanelTitle(panel: ActivePanel): string {
+function getPanelTitle(panel: ActivePanel, isWebhook: boolean): string {
   if (panel.section === 'general') return 'Delivery Method Detail'
   if (panel.section === 'portal-permissions') return 'Portal Permissions'
   if (panel.section === 'delivery-schedule') return 'Delivery Schedule'
@@ -51,7 +51,7 @@ function getPanelTitle(panel: ActivePanel): string {
     'retry-settings': 'Retry Settings',
   }
 
-  return `${tabLabels[panel.tab]} (${phase})`
+  return isWebhook ? tabLabels[panel.tab] : `${tabLabels[panel.tab]} (${phase})`
 }
 
 function isTabActive(
@@ -84,12 +84,13 @@ export function DeliveryMethodEditor({ onClose }: DeliveryMethodEditorProps = {}
   const togglePostExpanded = useDeliveryMethodStore((s) => s.togglePostExpanded)
   const togglePanelExpanded = useDeliveryMethodStore((s) => s.togglePanelExpanded)
   const config = useDeliveryMethodStore((s) => s.config)
+  const isWebhook = config.general.methodType === 'http-webhook'
 
   const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const { hasUnsavedChanges, markSaved } = useUnsavedChanges(config)
 
-  const title = getPanelTitle(activePanel)
+  const title = getPanelTitle(activePanel, isWebhook)
 
   const handleNavClick = useCallback(
     (panel: ActivePanel) => {
@@ -139,7 +140,7 @@ export function DeliveryMethodEditor({ onClose }: DeliveryMethodEditorProps = {}
     } finally {
       setIsSaving(false)
     }
-  }, [config, onClose])
+  }, [config, markSaved, onClose])
 
   const handleDiscard = useCallback(() => {
     // TODO: Implement discard logic
@@ -167,17 +168,17 @@ export function DeliveryMethodEditor({ onClose }: DeliveryMethodEditorProps = {}
         const tab = activePanel.tab
         switch (tab) {
           case 'url-endpoint':
-            return <UrlEndpointSettings phase={phase} />
+            return <UrlEndpointSettings phase={phase} standalone={isWebhook} />
           case 'authentication':
-            return <AuthenticationSettings phase={phase} />
+            return <AuthenticationSettings phase={phase} standalone={isWebhook} />
           case 'mappings':
-            return <MappingsSettings phase={phase} />
+            return <MappingsSettings phase={phase} standalone={isWebhook} />
           case 'request-body':
             return <RequestBodySettings phase={phase} />
           case 'response-settings':
-            return <ResponseSettings phase={phase} />
+            return <ResponseSettings phase={phase} standalone={isWebhook} />
           case 'retry-settings':
-            return <RetrySettings phase={phase} />
+            return <RetrySettings phase={phase} standalone={isWebhook} />
           default:
             return null
         }
@@ -198,43 +199,60 @@ export function DeliveryMethodEditor({ onClose }: DeliveryMethodEditorProps = {}
               onClick={() => handleNavClick({ section: 'general' })}
             />
 
-            <NavGroup
-              label="PING Configuration"
-              expanded={isPingExpanded}
-              onToggle={togglePingExpanded}
-              active={isPingGroupActive}
-            >
-              {PING_POST_TABS.map(({ tab, label }) => (
-                <NavItem
-                  key={`ping-${tab}`}
-                  label={label}
-                  active={isTabActive(activePanel, 'ping', tab)}
-                  onClick={() =>
-                    handleNavClick({ section: 'ping', tab })
-                  }
-                  indented
-                />
-              ))}
-            </NavGroup>
+            {isWebhook ? (
+              <NavGroup
+                label="Webhook Configuration"
+                expanded={isPostExpanded}
+                onToggle={togglePostExpanded}
+                active={isPostGroupActive}
+              >
+                {PING_POST_TABS.map(({ tab, label }) => (
+                  <NavItem
+                    key={`webhook-${tab}`}
+                    label={label}
+                    active={isTabActive(activePanel, 'post', tab)}
+                    onClick={() => handleNavClick({ section: 'post', tab })}
+                    indented
+                  />
+                ))}
+              </NavGroup>
+            ) : (
+              <>
+                <NavGroup
+                  label="PING Configuration"
+                  expanded={isPingExpanded}
+                  onToggle={togglePingExpanded}
+                  active={isPingGroupActive}
+                >
+                  {PING_POST_TABS.map(({ tab, label }) => (
+                    <NavItem
+                      key={`ping-${tab}`}
+                      label={label}
+                      active={isTabActive(activePanel, 'ping', tab)}
+                      onClick={() => handleNavClick({ section: 'ping', tab })}
+                      indented
+                    />
+                  ))}
+                </NavGroup>
 
-            <NavGroup
-              label="POST Configuration"
-              expanded={isPostExpanded}
-              onToggle={togglePostExpanded}
-              active={isPostGroupActive}
-            >
-              {PING_POST_TABS.map(({ tab, label }) => (
-                <NavItem
-                  key={`post-${tab}`}
-                  label={label}
-                  active={isTabActive(activePanel, 'post', tab)}
-                  onClick={() =>
-                    handleNavClick({ section: 'post', tab })
-                  }
-                  indented
-                />
-              ))}
-            </NavGroup>
+                <NavGroup
+                  label="POST Configuration"
+                  expanded={isPostExpanded}
+                  onToggle={togglePostExpanded}
+                  active={isPostGroupActive}
+                >
+                  {PING_POST_TABS.map(({ tab, label }) => (
+                    <NavItem
+                      key={`post-${tab}`}
+                      label={label}
+                      active={isTabActive(activePanel, 'post', tab)}
+                      onClick={() => handleNavClick({ section: 'post', tab })}
+                      indented
+                    />
+                  ))}
+                </NavGroup>
+              </>
+            )}
 
             <NavItem
               label="Portal Permissions"
