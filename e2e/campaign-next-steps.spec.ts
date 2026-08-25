@@ -103,10 +103,17 @@ test.describe('lead-source channel next steps', () => {
 
       const video = dialog.locator(`video[data-channel="${config.channelSlug}"]`)
       await expect(video).toBeVisible()
-      expect(await video.getAttribute('poster')).toBeNull()
-      await expect(video.locator('source')).toHaveAttribute(
+      await expect(video).toHaveAttribute(
+        'poster',
+        new RegExp(`campaign-preview-${config.channelSlug}-light\\.png\\?v=first-frame-20260825$`),
+      )
+      await expect(video.locator('source[type="video/webm"]')).toHaveAttribute(
         'src',
         new RegExp(`campaign-walkthrough-${config.channelSlug}-light\\.webm$`),
+      )
+      await expect(video.locator('source[type="video/mp4"]')).toHaveAttribute(
+        'src',
+        new RegExp(`campaign-walkthrough-${config.channelSlug}-light\\.mp4$`),
       )
       expect(await video.evaluate((element: HTMLVideoElement) => ({
         autoplay: element.autoplay,
@@ -173,10 +180,17 @@ test.describe('lead-source channel next steps', () => {
     await createLeadSourceCampaign(page, CASES[1])
 
     const video = page.getByRole('dialog').locator('video[data-channel="ping-post"]')
-    expect(await video.getAttribute('poster')).toBeNull()
-    await expect(video.locator('source')).toHaveAttribute(
+    await expect(video).toHaveAttribute(
+      'poster',
+      /campaign-preview-ping-post-dark\.png\?v=first-frame-20260825$/,
+    )
+    await expect(video.locator('source[type="video/webm"]')).toHaveAttribute(
       'src',
       /campaign-walkthrough-ping-post-dark\.webm$/,
+    )
+    await expect(video.locator('source[type="video/mp4"]')).toHaveAttribute(
+      'src',
+      /campaign-walkthrough-ping-post-dark\.mp4$/,
     )
   })
 

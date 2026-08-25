@@ -22,6 +22,7 @@ export function CampaignWalkthroughVideo({
       data-channel={channel}
       aria-label={title}
       className="aspect-video w-full bg-muted object-cover"
+      poster={`${baseUrl}assets/campaign-preview-${assetName}.png?v=first-frame-20260825`}
       autoPlay={!prefersReducedMotion}
       muted
       loop
@@ -31,6 +32,10 @@ export function CampaignWalkthroughVideo({
       <source
         src={`${baseUrl}assets/campaign-walkthrough-${assetName}.webm`}
         type="video/webm"
+      />
+      <source
+        src={`${baseUrl}assets/campaign-walkthrough-${assetName}.mp4`}
+        type="video/mp4"
       />
     </video>
   )

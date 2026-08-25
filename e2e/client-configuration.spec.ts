@@ -301,10 +301,17 @@ test.describe('client next steps and Delivery Account tabs', () => {
       const video = dialog.locator(`video[data-walkthrough="${walkthrough.id}"]`)
       await expect(video).toBeVisible()
       await expect(video).toHaveAttribute('aria-label', walkthrough.title)
-      expect(await video.getAttribute('poster')).toBeNull()
-      await expect(video.locator('source')).toHaveAttribute(
+      await expect(video).toHaveAttribute(
+        'poster',
+        new RegExp(`client-preview-${walkthrough.id}-light\\.png\\?v=first-frame-20260825$`),
+      )
+      await expect(video.locator('source[type="video/webm"]')).toHaveAttribute(
         'src',
         new RegExp(`client-walkthrough-${walkthrough.id}-light\\.webm$`),
+      )
+      await expect(video.locator('source[type="video/mp4"]')).toHaveAttribute(
+        'src',
+        new RegExp(`client-walkthrough-${walkthrough.id}-light\\.mp4$`),
       )
       expect(await video.evaluate((element: HTMLVideoElement) => ({
         autoplay: element.autoplay,
@@ -327,10 +334,17 @@ test.describe('client next steps and Delivery Account tabs', () => {
       exact: true,
     }).click()
     const video = dialog.locator('video[data-walkthrough="delivery-method"]')
-    expect(await video.getAttribute('poster')).toBeNull()
-    await expect(video.locator('source')).toHaveAttribute(
+    await expect(video).toHaveAttribute(
+      'poster',
+      /client-preview-delivery-method-dark\.png\?v=first-frame-20260825$/,
+    )
+    await expect(video.locator('source[type="video/webm"]')).toHaveAttribute(
       'src',
       /client-walkthrough-delivery-method-dark\.webm$/,
+    )
+    await expect(video.locator('source[type="video/mp4"]')).toHaveAttribute(
+      'src',
+      /client-walkthrough-delivery-method-dark\.mp4$/,
     )
   })
 

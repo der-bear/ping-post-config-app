@@ -24,6 +24,7 @@ export function ClientWalkthroughVideo({
       data-walkthrough={walkthrough}
       aria-label={title}
       className="aspect-video w-full bg-muted object-cover"
+      poster={`${baseUrl}assets/client-preview-${assetName}.png?v=first-frame-20260825`}
       autoPlay={!prefersReducedMotion}
       muted
       loop
@@ -33,6 +34,10 @@ export function ClientWalkthroughVideo({
       <source
         src={`${baseUrl}assets/client-walkthrough-${assetName}.webm`}
         type="video/webm"
+      />
+      <source
+        src={`${baseUrl}assets/client-walkthrough-${assetName}.mp4`}
+        type="video/mp4"
       />
     </video>
   )
