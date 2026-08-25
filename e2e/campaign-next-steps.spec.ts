@@ -103,10 +103,7 @@ test.describe('lead-source channel next steps', () => {
 
       const video = dialog.locator(`video[data-channel="${config.channelSlug}"]`)
       await expect(video).toBeVisible()
-      await expect(video).toHaveAttribute(
-        'poster',
-        new RegExp(`campaign-preview-${config.channelSlug}-light\\.png$`),
-      )
+      expect(await video.getAttribute('poster')).toBeNull()
       await expect(video.locator('source')).toHaveAttribute(
         'src',
         new RegExp(`campaign-walkthrough-${config.channelSlug}-light\\.webm$`),
@@ -176,17 +173,14 @@ test.describe('lead-source channel next steps', () => {
     await createLeadSourceCampaign(page, CASES[1])
 
     const video = page.getByRole('dialog').locator('video[data-channel="ping-post"]')
-    await expect(video).toHaveAttribute(
-      'poster',
-      /campaign-preview-ping-post-dark\.png$/,
-    )
+    expect(await video.getAttribute('poster')).toBeNull()
     await expect(video.locator('source')).toHaveAttribute(
       'src',
       /campaign-walkthrough-ping-post-dark\.webm$/,
     )
   })
 
-  test('shows a static poster when reduced motion is requested', async ({ page }) => {
+  test('keeps the walkthrough paused when reduced motion is requested', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await createLeadSourceCampaign(page, CASES[0])
 

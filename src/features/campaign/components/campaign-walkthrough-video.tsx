@@ -22,7 +22,6 @@ export function CampaignWalkthroughVideo({
       data-channel={channel}
       aria-label={title}
       className="aspect-video w-full bg-muted object-cover"
-      poster={`${baseUrl}assets/campaign-preview-${assetName}.png`}
       autoPlay={!prefersReducedMotion}
       muted
       loop
