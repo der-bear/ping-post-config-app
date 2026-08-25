@@ -1,5 +1,6 @@
 import { useCampaignStore } from '../store'
-import { DeliveryOptionsContent, BUYER_SUGGESTIONS, getBuyerWarning } from './delivery-options-content'
+import { DeliveryOptionsContent } from './delivery-options-content'
+import { BUYER_SUGGESTIONS, getBuyerWarning } from './delivery-options-data'
 
 export function DeliveryOptions() {
   const options = useCampaignStore((s) => s.config.deliveryOptions)

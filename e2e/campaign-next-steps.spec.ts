@@ -7,6 +7,7 @@ type NextStepsCase = {
   targetTitle: string
   nextStepHeading: string
   copy: string
+  durationRange: readonly [minimum: number, maximum: number]
 }
 
 const CASES: NextStepsCase[] = [
@@ -17,6 +18,7 @@ const CASES: NextStepsCase[] = [
     targetTitle: 'General Settings',
     nextStepHeading: 'Review General Settings',
     copy: 'Continue to the Campaign Settings screen to review your configuration and customize any additional campaign options.',
+    durationRange: [10, 11.5],
   },
   {
     option: 'Ping Post',
@@ -25,6 +27,7 @@ const CASES: NextStepsCase[] = [
     targetTitle: 'PING Options',
     nextStepHeading: 'Configure PING Options',
     copy: "Next, open the PING Options tab to configure your ping requirements. Before your campaign can accept ping requests, you'll need to define the Field Requirements for PING by selecting the lead fields that will be included in the ping request. You can also configure optional revenue, profit, and delivery requirements as needed.",
+    durationRange: [17, 19],
   },
   {
     option: 'Phone',
@@ -33,6 +36,7 @@ const CASES: NextStepsCase[] = [
     targetTitle: 'Phone Numbers',
     nextStepHeading: 'Add a Phone Number',
     copy: 'Next, open the Phone Numbers tab to add your first phone number. Select an existing IVR number or purchase a new one, then assign a call flow to complete your phone campaign configuration.',
+    durationRange: [17, 19],
   },
   {
     option: 'Chat',
@@ -41,6 +45,7 @@ const CASES: NextStepsCase[] = [
     targetTitle: 'Web Chats',
     nextStepHeading: 'Configure Web Chats',
     copy: 'Next, open the Web Chats tab to configure your chat settings. From there, you can customize your chat experience, including the welcome message, appearance, integrations, and other available options.',
+    durationRange: [28, 30],
   },
 ]
 
@@ -73,7 +78,7 @@ async function createLeadSourceCampaign(page: Page, config: NextStepsCase) {
 
 test.describe('lead-source channel next steps', () => {
   for (const config of CASES) {
-    test(`${config.option} renders its channel handoff and routes Next`, async ({ page }) => {
+    test(`${config.option} renders its channel handoff and configures the campaign`, async ({ page }) => {
       await page.setViewportSize({ width: 1012, height: 1391 })
       await createLeadSourceCampaign(page, config)
 
@@ -125,8 +130,12 @@ test.describe('lead-source channel next steps', () => {
         height: 1080,
         duration: expect.any(Number),
       })
-      expect(await video.evaluate((element: HTMLVideoElement) => element.duration)).toBeGreaterThanOrEqual(9.5)
-      expect(await video.evaluate((element: HTMLVideoElement) => element.duration)).toBeLessThanOrEqual(10.5)
+      expect(await video.evaluate((element: HTMLVideoElement) => element.duration)).toBeGreaterThanOrEqual(
+        config.durationRange[0],
+      )
+      expect(await video.evaluate((element: HTMLVideoElement) => element.duration)).toBeLessThanOrEqual(
+        config.durationRange[1],
+      )
 
       const closeButton = dialog.getByRole('button', { name: 'Close', exact: true })
       const closeBox = await closeButton.boundingBox()
@@ -154,7 +163,7 @@ test.describe('lead-source channel next steps', () => {
         { exact: true },
       )).toBeVisible()
 
-      await dialog.getByRole('button', { name: 'Next', exact: true }).click()
+      await dialog.getByRole('button', { name: 'Configure Campaign', exact: true }).click()
       await expect(page.getByText(config.subtitle, { exact: true })).toBeVisible()
       await expect(page.getByRole('heading', { name: config.targetTitle, exact: true })).toBeVisible()
     })
@@ -186,5 +195,36 @@ test.describe('lead-source channel next steps', () => {
       autoplay: element.autoplay,
       paused: element.paused,
     }))).toEqual({ autoplay: false, paused: true })
+  })
+
+  test('continues playback after a completed loop and reopening another walkthrough', async ({ page }) => {
+    await page.goto('/ping-post-config-app/campaign-configuration')
+    await page.getByRole('button', { name: /^Web next steps/ }).click()
+
+    const webVideo = page.getByRole('dialog').locator('video[data-channel="web"]')
+    await expect.poll(
+      () => webVideo.evaluate((element: HTMLVideoElement) => element.readyState),
+      { timeout: 8_000 },
+    ).toBeGreaterThanOrEqual(3)
+    const duration = await webVideo.evaluate((element: HTMLVideoElement) => element.duration)
+    await page.waitForTimeout((duration * 1000) + 1_000)
+    expect(await webVideo.evaluate((element: HTMLVideoElement) => ({
+      paused: element.paused,
+      ended: element.ended,
+      error: element.error?.code ?? null,
+    }))).toEqual({ paused: false, ended: false, error: null })
+
+    await page.getByRole('button', { name: 'Close', exact: true }).click()
+    await page.getByRole('button', { name: /^Chat next steps/ }).click()
+
+    const chatVideo = page.getByRole('dialog').locator('video[data-channel="chat"]')
+    await expect.poll(
+      () => chatVideo.evaluate((element: HTMLVideoElement) => element.currentTime),
+      { timeout: 8_000 },
+    ).toBeGreaterThan(0.5)
+    expect(await chatVideo.evaluate((element: HTMLVideoElement) => ({
+      paused: element.paused,
+      error: element.error?.code ?? null,
+    }))).toEqual({ paused: false, error: null })
   })
 })

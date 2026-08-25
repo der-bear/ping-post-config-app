@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button'
 import { SectionHeading, Separator } from '@/components/ui'
 import type { Integration } from '../types'
 
-function IntegrationIcon(_props: { item: Integration }) {
+function IntegrationIcon() {
   return (
     <div
       aria-hidden="true"
@@ -60,7 +60,7 @@ function AddedRow({
       >
         <GripVertical className="size-4" />
       </button>
-      <IntegrationIcon item={item} />
+      <IntegrationIcon />
       <div className="flex flex-1 flex-col min-w-0">
         <span className="text-sm font-semibold leading-5 truncate text-foreground">{item.name}</span>
         {item.subtitle && (
@@ -137,7 +137,7 @@ export function IntegrationsManage() {
         <div className="flex flex-col">
           {integrations.available.map((item) => (
             <div key={item.id} className="flex items-center gap-3 py-2">
-              <IntegrationIcon item={item} />
+              <IntegrationIcon />
               <div className="flex flex-1 flex-col min-w-0">
                 <span className="text-sm font-semibold leading-5 truncate text-foreground">{item.name}</span>
                 {item.subtitle && (

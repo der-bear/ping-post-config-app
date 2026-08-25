@@ -356,7 +356,8 @@ export function AddMappingPanel() {
                                 setVmErrors((prev) => {
                                   const next = { ...prev }
                                   if (next[vm.id]) {
-                                    const { source, ...rest } = next[vm.id]
+                                    const rest = { ...next[vm.id] }
+                                    delete rest.source
                                     if (Object.keys(rest).length === 0) {
                                       delete next[vm.id]
                                     } else {
@@ -386,7 +387,8 @@ export function AddMappingPanel() {
                                 setVmErrors((prev) => {
                                   const next = { ...prev }
                                   if (next[vm.id]) {
-                                    const { target, ...rest } = next[vm.id]
+                                    const rest = { ...next[vm.id] }
+                                    delete rest.target
                                     if (Object.keys(rest).length === 0) {
                                       delete next[vm.id]
                                     } else {

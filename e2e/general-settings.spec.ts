@@ -7,10 +7,10 @@ test.describe('General Settings Panel', () => {
   })
 
   test('renders all fields matching Figma design', async ({ page }) => {
-    // Description field — empty by default, shows placeholder
+    // The creation flow carries its required description into the editor.
     const descInput = page.locator('input[placeholder="Enter a description..."]')
     await expect(descInput).toBeVisible()
-    await expect(descInput).toHaveValue('')
+    await expect(descInput).toHaveValue('Automated Ping/Post Test')
 
     // Lead Type select showing "Mortgage"
     await expect(page.getByText('Lead Type')).toBeVisible()
@@ -36,8 +36,7 @@ test.describe('General Settings Panel', () => {
   })
 
   test('Lead Type select shows Mortgage and is disabled', async ({ page }) => {
-    const leadTypeSection = page.getByText('Lead Type').locator('..')
-    const trigger = leadTypeSection.locator('button[role="combobox"]')
+    const trigger = page.getByRole('combobox', { name: 'Lead Type' })
 
     // Should show Mortgage and be disabled
     await expect(trigger).toContainText('Mortgage')

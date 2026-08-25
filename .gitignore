@@ -26,3 +26,20 @@ dist-ssr
 # Test artifacts
 .playwright-mcp/
 /*.png
+/playwright-report/
+/test-results/
+/artifacts/
+/audit-*/
+/analysis/
+__pycache__/
+/design-qa-assets/client-configuration/live-audit-*/
+
+# Local walkthrough capture and render workspaces
+/output/browser-scaling-audit/
+/output/*walkthrough-captures*/
+/output/*walkthrough-renders*/
+/output/*walkthrough-audit*/
+/output/client-walkthrough-public-backup-*/
+
+# Machine-specific tool configuration
+/.claude/settings.local.json

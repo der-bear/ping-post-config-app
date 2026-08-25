@@ -17,6 +17,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
 import type { DeliveryMode, TargetMode } from '../types'
+import { BUYER_SUGGESTIONS } from './delivery-options-data'
 
 // Section wrapper: bordered card (modal/wizard) or plain stack (flyout).
 function Section({
@@ -39,29 +40,6 @@ function Section({
       {children}
     </div>
   )
-}
-
-const REAL_NAMES = [
-  'Cody Fisher', 'Bessie Cooper', 'Brooklyn Simmons', 'Devon Lane', 'Jenny Wilson',
-  'Robert Fox', 'Jane Cooper', 'Wade Warren', 'Esther Howard', 'Cameron Williamson',
-  'Leslie Alexander', 'Kristin Watson', 'Albert Flores', 'Marvin McKinney', 'Jacob Jones',
-  'Theresa Webb', 'Kathryn Murphy', 'Ralph Edwards', 'Floyd Miles', 'Eleanor Pena',
-  'Annette Black', 'Darrell Steward', 'Guy Hawkins', 'Arlene McCoy', 'Dianne Russell',
-  'Courtney Henry', 'Darlene Robertson', 'Savannah Nguyen', 'Ronald Richards', 'Jerome Bell',
-]
-export const BUYER_SUGGESTIONS = Array.from({ length: 120 }, (_, i) => {
-  const name = REAL_NAMES[i % REAL_NAMES.length]
-  const suffix = Math.floor(i / REAL_NAMES.length) + 1
-  return {
-    value: `buyer-${i + 1}`,
-    label: suffix > 1 ? `${name} ${suffix}` : name,
-  }
-})
-
-export function getBuyerWarning(id: string): string | undefined {
-  return id === 'devon-lane'
-    ? "This client doesn't have eligible client campaigns to receive leads yet."
-    : undefined
 }
 
 interface DeliveryOptionsContentProps {

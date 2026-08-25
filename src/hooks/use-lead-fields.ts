@@ -7,12 +7,8 @@ import { LEAD_FIELDS, type LeadField } from '@/data/lead-fields'
  *
  * Future: Replace with API call or JSON import
  */
-export function useLeadFields(leadType?: string) {
-  return useMemo(() => {
-    // TODO: Filter by leadType when we support multiple types
-    // TODO: Replace with API call: fetch(`/api/lead-types/${leadType}/fields`)
-    return LEAD_FIELDS
-  }, [leadType])
+export function useLeadFields() {
+  return LEAD_FIELDS
 }
 
 /**

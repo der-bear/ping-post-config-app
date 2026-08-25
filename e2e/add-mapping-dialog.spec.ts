@@ -40,11 +40,11 @@ test.describe('Add Mapping Dialog', () => {
     await openAddLeadFieldDialog(page)
 
     const dialog = page.getByRole('dialog')
-    await expect(dialog.getByText('Delivery Field Name')).toBeVisible()
-    await expect(dialog.locator('label').filter({ hasText: /^Lead Field/ })).toBeVisible()
-    await expect(dialog.getByText('Default Value (If Blank)')).toBeVisible()
+    await expect(dialog.getByText('Delivery Field Name', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('Lead Field', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('Default Value (If Blank)', { exact: true })).toBeVisible()
     await expect(dialog.getByText('Test Value', { exact: true })).toBeVisible()
-    await expect(dialog.getByText('Use also in POST')).toBeVisible()
+    await expect(dialog.getByText('Also add to POST', { exact: true })).toBeVisible()
     await expect(dialog.getByText('Value Mapping', { exact: true })).toBeVisible()
     await expect(dialog.getByText('Has Value Mappings')).toBeVisible()
   })
@@ -81,8 +81,11 @@ test.describe('Add Mapping Dialog', () => {
     await page.locator('input[placeholder="e.g. first_name"]').fill('first_name')
 
     // Select a lead field
-    const leadFieldTrigger = page.getByRole('dialog').locator('button[role="combobox"]').first()
-    await leadFieldTrigger.click()
+    const leadFieldInput = page
+      .getByRole('dialog')
+      .getByPlaceholder('Search lead fields...')
+    await leadFieldInput.click()
+    await leadFieldInput.fill('First Name')
     await page.getByRole('option', { name: 'First Name' }).click()
 
     // Save

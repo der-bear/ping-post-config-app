@@ -85,7 +85,7 @@ export function CreateOrderDialog({
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent
         showClose={false}
-        className="top-6 flex max-h-[calc(100vh-32px)] max-w-[560px] translate-y-0 flex-col gap-0 overflow-hidden p-0 shadow-panel"
+        className="flex max-h-[calc(100vh-32px)] max-w-[560px] flex-col gap-0 overflow-hidden p-0 shadow-panel"
       >
         <DialogPanelHeader title="Create Order" onClose={onClose} />
         <DialogDescription className="sr-only">

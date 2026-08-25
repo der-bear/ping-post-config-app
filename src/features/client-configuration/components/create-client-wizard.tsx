@@ -509,7 +509,6 @@ export function CreateClientWizard({ open, onClose, onCreate }: CreateClientWiza
       isSaving={isSaving}
       savingMessage="Creating client..."
       width="760px"
-      dialogClassName="top-6"
       showPreviousOnFirstStep
     />
   )

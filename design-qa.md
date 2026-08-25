@@ -211,6 +211,63 @@ Fixes applied:
 
 final result: passed
 
+## Client Configuration live-parity correction — 2026-08-25
+
+### Evidence
+
+- Source visual truth: `artifacts/client-live-parity-audit-2026-08-25/02-live-create-client.png` through `11-live-http-webhook.png`.
+- Rendered implementation: `artifacts/client-live-parity-audit-2026-08-25/12-prototype-client-wizard-fixed.jpg` through `19-prototype-next-steps-fixed.jpg`.
+- Full-view comparison evidence: `artifacts/client-live-parity-audit-2026-08-25/qa-password.jpg`, `qa-criterion.jpg`, `qa-order.jpg`, `qa-method.jpg`, and `qa-webhook.jpg`.
+- Focused comparison evidence: `artifacts/client-live-parity-audit-2026-08-25/qa-focus-password.jpg`, `qa-focus-criterion.jpg`, and `qa-focus-webhook.jpg`.
+- Source capture: 1813 × 1138 px. Implementation capture: 1921 × 1138 px. Both are 1× browser rasters.
+- Normalization: the implementation was center-cropped by 54 px on each horizontal side to 1813 × 1138, then both images were scaled to 906 × 569 before horizontal composition. Focused modal crops preserve 1× source pixels.
+- States: generated Portal password; empty Lead Field criterion; Create Order; Delivery Method chooser; clean HTTP Webhook form; Client Created next steps.
+
+### Required fidelity surfaces
+
+- Fonts and typography: the existing project font stack and type scale remain intact. Modal titles, labels, helper text, navigation, and footer actions reproduce the live hierarchy without truncation.
+- Spacing and layout rhythm: key dialogs now start 24 px from the viewport top like the live captures. Create Order keeps its footer visible, and the Delivery Account editor uses the live right-side panel structure. Minor width differences remain intentionally accepted because shared components were preserved.
+- Colors and visual tokens: all surfaces, overlays, borders, selected states, validation states, and buttons use existing application tokens. No one-off palette was added.
+- Image quality and assets: no reference imagery was replaced or approximated. The Client Created video area is intentionally an empty placeholder for later recorded media.
+- Copy and content: Portal password rules, Channel help copy, criteria menu names, HTTP required labels/placeholders, and semantic next-step actions match the verified product terminology.
+
+### Findings and comparison history
+
+#### Pass 1 — blocked
+
+- P1: New Criteria bypassed the live type menu and opened a generic prefilled rule.
+- P2: Automated Delivery and Delivery Method defaults differed from LeadExec.
+- P2: generated-password rule colors did not match the live state.
+- P2: Create Order could push its footer below the viewport.
+- P2: Criteria, Order, and Delivery Method dialogs were vertically centered while the live dialogs were top-aligned.
+- P2: HTTP Webhook labels and placeholders differed from the live copy.
+
+Fixes applied:
+
+- Added the five-option New Criteria menu and an empty Lead Field Criteria form with functional save/edit persistence.
+- Restored Lead Portal and Automated Delivery defaults and the verified generated-password state.
+- Compacted Create Order and pinned all captured creation dialogs to the 24 px top offset.
+- Enabled every Delivery Method card, kept Lead Portal selected by default, and matched HTTP Webhook required labels and placeholders.
+- Removed local-only Delivery Account header/footer copy and used the right-side panel composition.
+
+#### Pass 2 — passed
+
+- The combined and focused comparisons listed above show the post-fix state.
+- Intentional differences: fresh prototype data stays empty, including Start Date and new criterion values; shared component styling and slightly different dialog widths are retained by explicit user direction.
+- No actionable P0, P1, or P2 visual mismatch remains.
+
+### Interaction and runtime checks
+
+- Verified the four-step Client wizard, Lead Portal routing, Automated Delivery default, password generation, and linked Channel help copy.
+- Verified all seven Delivery Account tabs, the New Criteria type menu, empty-field validation, and saved `State / In / AZ` criterion.
+- Verified Create Order footer visibility and Safari-safe text-based date input controls.
+- Verified all nine Delivery Method cards are selectable, Lead Portal is the default, and HTTP Webhook validates both required fields.
+- Verified the Client Created placeholder is blank, its three option tabs switch content, and the semantic action is centered.
+- In-app browser console contained no runtime errors.
+- Production build and targeted ESLint checks passed. Playwright CLI execution remained unavailable because its separate headless browser binary is absent; no browser installation was performed, per user direction.
+
+final result: passed
+
 ## Client Configuration — 2026-08-24
 
 ### Evidence
@@ -252,5 +309,51 @@ final result: passed
 - Export, Transaction History, and Delivery Parameter CRUD are outside the recording flow and are not implemented as core actions.
 
 No actionable P0, P1, or P2 visual mismatch remains in the compared states.
+
+final result: passed
+
+## State criteria multi-select — 2026-08-25
+
+### Evidence
+
+- Source visual truth: `/var/folders/_d/3v_svzdj6_1802ts3b6n78t00000gn/T/codex-clipboard-45b658de-fd3f-478c-a415-9e17238d6a0c.png` (732 × 1127 px).
+- Browser-rendered implementation: `artifacts/state-criteria-qa-2026-08-25/implementation-state-selected.png` (1747 × 1138 px at `deviceScaleFactor: 1`).
+- Combined focused comparison: `artifacts/state-criteria-qa-2026-08-25/source-vs-implementation.png` (1464 × 1126 px). The implementation was cropped to a 732 × 1126 px dialog region without scaling and placed beside the source cropped by one bottom pixel.
+- State compared: light theme, Lead Field Criteria dialog, `State` selected, `Is Any Of` operator, Arizona chip selected, dropdown open, indeterminate Select All, and the first visible state/territory rows.
+
+### Findings and comparison history
+
+#### Pass 1 — blocked
+
+- P1: selecting `State` left Operator empty and kept Value List as a free-text input, so the captured LeadExec selection flow could not be reproduced.
+- P2: the state list, searchable input, selected-value chip, Select All control, and mixed selection state were absent.
+
+Fixes applied:
+
+- `State` now defaults Operator to `Is Any Of`.
+- Value List now reuses the shared popover, checkbox, and multi-select styling with search in the trigger, selected-value chips, Select All, indeterminate state, and a scrollable state/territory list.
+- The stored criterion remains the existing comma-separated code string, preserving grid display and reload persistence.
+
+#### Pass 2 — passed
+
+- The combined focused comparison shows matching control order, list ordering, chip treatment, checkbox states, attached dropdown, divider, scrollbar emphasis, and overlay behavior.
+- Intentional differences: the field remains named `State` by explicit user direction; the prototype retains its existing 620 px shared dialog width and 18 px shared checkbox visual instead of copying the narrower live dialog.
+- No actionable P0, P1, or P2 visual mismatch remains.
+
+### Required fidelity surfaces
+
+- Fonts and typography: existing Roboto labels, inputs, rows, and header hierarchy are retained and visually match the reference density.
+- Spacing and layout rhythm: the three form rows, attached dropdown, 36 px option rows, divider, tall scroll region, and overlay placement match the source structure; the wider shared dialog is intentional.
+- Colors and visual tokens: existing primary blue, border, background, overlay, hover, checked, and indeterminate tokens are used in light theme.
+- Image quality and asset fidelity: the state picker contains no raster imagery; checkbox indicators use the existing Lucide-backed shared primitive, with no handcrafted SVG or CSS approximation.
+- Copy and content: `State`, `Is Any Of`, `Value List`, `Select All`, state names, territories, and selected Arizona content match the approved flow, with `State` intentionally retained.
+
+### Interaction and runtime checks
+
+- Verified search filtering, two-state selection, chip removal, Select All, indeterminate state, criterion create/edit/remove, and reload persistence.
+- Four focused Playwright tests passed using the already-installed Google Chrome executable; no browser was installed.
+- Production build and targeted ESLint checks passed.
+- In-app browser visual verification was performed in the user-selected light theme at 1747 × 1138 CSS px.
+- In-app browser runtime logs contained no errors; only Vite connection/HMR messages and the React DevTools development notice were present.
 
 final result: passed

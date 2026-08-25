@@ -195,7 +195,7 @@ export function CreateDeliveryMethodModal({
     <Dialog open={open} onOpenChange={(open) => !open && (step === 'select' ? handleClose() : handleBack())}>
       <DialogContent
         className={cn(
-          'top-6 translate-y-0 p-0 gap-0 overflow-hidden shadow-panel',
+          'p-0 gap-0 overflow-hidden shadow-panel',
           step === 'select' ? 'max-w-[95vw] sm:max-w-[884px]' : 'max-w-[95vw] sm:max-w-[800px]'
         )}
         showClose={false}

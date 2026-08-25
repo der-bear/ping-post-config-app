@@ -88,7 +88,7 @@ export function CriterionDialog({
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent
         showClose={false}
-        className="top-6 max-w-[620px] translate-y-0 gap-0 overflow-hidden p-0 shadow-panel"
+        className="max-w-[620px] gap-0 overflow-hidden p-0 shadow-panel"
       >
         <DialogPanelHeader
           title={dialogTitle}

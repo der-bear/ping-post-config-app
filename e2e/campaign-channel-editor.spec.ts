@@ -132,7 +132,7 @@ test.describe('prototype campaign launcher', () => {
     }
 
     await page.getByRole('button', { name: /Phone next steps/ }).click()
-    await page.getByRole('dialog').getByRole('button', { name: 'Next', exact: true }).click()
+    await page.getByRole('dialog').getByRole('button', { name: 'Configure Campaign', exact: true }).click()
     await expect(page.getByText('Campaign - Phone', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Phone Numbers', exact: true })).toBeVisible()
   })

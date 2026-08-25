@@ -134,7 +134,7 @@ export function WizardDialog({
       <DialogContent
         showClose={false}
         className={cn(
-          'p-0 gap-0 flex flex-col max-h-[80vh] top-[10vh] translate-y-0 overflow-hidden',
+          'p-0 gap-0 flex flex-col max-h-[80vh] overflow-hidden',
           dialogClassName,
         )}
         style={{ maxWidth: width }}

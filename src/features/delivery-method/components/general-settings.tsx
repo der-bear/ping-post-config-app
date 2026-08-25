@@ -55,7 +55,7 @@ export function GeneralSettings() {
           value={general.leadType}
           disabled
         >
-          <SelectTrigger disabled>
+          <SelectTrigger aria-label="Lead Type" disabled>
             <SelectValue placeholder="Select lead type" />
           </SelectTrigger>
           <SelectContent>
@@ -75,7 +75,7 @@ export function GeneralSettings() {
             updateGeneral({ environment: value })
           }
         >
-          <SelectTrigger>
+          <SelectTrigger aria-label="Environment">
             <SelectValue placeholder="Select environment" />
           </SelectTrigger>
           <SelectContent>
@@ -99,7 +99,7 @@ export function GeneralSettings() {
             updateGeneral({ processForPhoneCalls: value })
           }
         >
-          <SelectTrigger>
+          <SelectTrigger aria-label="Process for Phone Calls">
             <SelectValue placeholder="Select option" />
           </SelectTrigger>
           <SelectContent>
@@ -119,7 +119,7 @@ export function GeneralSettings() {
             updateGeneral({ whenToProcessPhoneCalls: value })
           }
         >
-          <SelectTrigger>
+          <SelectTrigger aria-label="When to Process with Phone Calls">
             <SelectValue placeholder="Select option" />
           </SelectTrigger>
           <SelectContent>

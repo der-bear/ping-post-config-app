@@ -103,7 +103,7 @@ export function AuthenticationSettings({ phase, standalone = false }: Authentica
     <div className="space-y-5">
       <FieldGroup label="Authentication Type">
         <Select value={selectValue} onValueChange={handleAuthTypeChange}>
-          <SelectTrigger>
+          <SelectTrigger aria-label="Authentication Type">
             <SelectValue placeholder="Select authentication type" />
           </SelectTrigger>
           <SelectContent>
