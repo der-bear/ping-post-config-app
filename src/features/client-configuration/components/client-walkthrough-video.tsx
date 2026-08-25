@@ -8,6 +8,8 @@ interface ClientWalkthroughVideoProps {
   title: string
 }
 
+const posterVersion = '20260825'
+
 /** Silent, theme-aware walkthrough used by the client-creation handoff. */
 export function ClientWalkthroughVideo({
   walkthrough,
@@ -24,7 +26,7 @@ export function ClientWalkthroughVideo({
       data-walkthrough={walkthrough}
       aria-label={title}
       className="aspect-video w-full bg-muted object-cover"
-      poster={`${baseUrl}assets/client-preview-${assetName}.png`}
+      poster={`${baseUrl}assets/client-preview-${assetName}.png?v=${posterVersion}`}
       autoPlay={!prefersReducedMotion}
       muted
       loop

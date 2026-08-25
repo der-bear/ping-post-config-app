@@ -303,7 +303,7 @@ test.describe('client next steps and Delivery Account tabs', () => {
       await expect(video).toHaveAttribute('aria-label', walkthrough.title)
       await expect(video).toHaveAttribute(
         'poster',
-        new RegExp(`client-preview-${walkthrough.id}-light\\.png$`),
+        new RegExp(`client-preview-${walkthrough.id}-light\\.png\\?v=20260825$`),
       )
       await expect(video.locator('source')).toHaveAttribute(
         'src',
@@ -332,7 +332,7 @@ test.describe('client next steps and Delivery Account tabs', () => {
     const video = dialog.locator('video[data-walkthrough="delivery-method"]')
     await expect(video).toHaveAttribute(
       'poster',
-      /client-preview-delivery-method-dark\.png$/,
+      /client-preview-delivery-method-dark\.png\?v=20260825$/,
     )
     await expect(video.locator('source')).toHaveAttribute(
       'src',
