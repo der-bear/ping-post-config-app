@@ -26,7 +26,7 @@ const CASES: NextStepsCase[] = [
     subtitle: 'Campaign - PING/POST',
     targetTitle: 'PING Options',
     nextStepHeading: 'Configure PING Options',
-    copy: "Next, open the PING Options tab to configure your ping requirements. Before your campaign can accept ping requests, you'll need to define the Field Requirements for PING by selecting the lead fields that will be included in the ping request. You can also configure optional revenue, profit, and delivery requirements as needed.",
+    copy: "Next, open the PING Options tab to configure your ping requirements. Before your campaign can accept ping requests, you'll need to define the PING Field Requirements by selecting the lead fields to be included in the ping requests from your lead source. You can also configure optional revenue, profit, and delivery requirements as needed.",
     durationRange: [17, 19],
   },
   {
@@ -35,7 +35,7 @@ const CASES: NextStepsCase[] = [
     subtitle: 'Campaign - Phone',
     targetTitle: 'Phone Numbers',
     nextStepHeading: 'Add a Phone Number',
-    copy: 'Next, open the Phone Numbers tab to add your first phone number. Select an existing IVR number or purchase a new one, then assign a call flow to complete your phone campaign configuration.',
+    copy: 'Next, open the Phone Numbers tab to add a phone number for this campaign. Select an existing IVR number or purchase a new one, then assign a call flow to complete your phone campaign configuration.',
     durationRange: [17, 19],
   },
   {

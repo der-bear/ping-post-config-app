@@ -23,11 +23,11 @@ const NEXT_STEPS_BY_CHANNEL: Record<Channel, ChannelNextStep> = {
   },
   'ping-post': {
     heading: 'Configure PING Options',
-    paragraph: "Next, open the PING Options tab to configure your ping requirements. Before your campaign can accept ping requests, you'll need to define the Field Requirements for PING by selecting the lead fields that will be included in the ping request. You can also configure optional revenue, profit, and delivery requirements as needed.",
+    paragraph: "Next, open the PING Options tab to configure your ping requirements. Before your campaign can accept ping requests, you'll need to define the PING Field Requirements by selecting the lead fields to be included in the ping requests from your lead source. You can also configure optional revenue, profit, and delivery requirements as needed.",
   },
   phone: {
     heading: 'Add a Phone Number',
-    paragraph: 'Next, open the Phone Numbers tab to add your first phone number. Select an existing IVR number or purchase a new one, then assign a call flow to complete your phone campaign configuration.',
+    paragraph: 'Next, open the Phone Numbers tab to add a phone number for this campaign. Select an existing IVR number or purchase a new one, then assign a call flow to complete your phone campaign configuration.',
   },
   chat: {
     heading: 'Configure Web Chats',
